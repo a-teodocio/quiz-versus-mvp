@@ -85,8 +85,13 @@ describe('question bounds', () => {
     'a %s question: a position beyond the total is refused',
     (mode) => {
       const sample = questionSample(mode);
-      expect(decodes({ ...sample, position: 11, totalItems: 10 })).toBe(false);
-      expect(decodes({ ...sample, position: 10, totalItems: 10 })).toBe(true);
+      const progress = (position: number): unknown => ({
+        kind: 'regular',
+        position,
+        totalItems: 10,
+      });
+      expect(decodes({ ...sample, progress: progress(11) })).toBe(false);
+      expect(decodes({ ...sample, progress: progress(10) })).toBe(true);
     },
   );
 
@@ -141,8 +146,7 @@ describe('worst-case size', () => {
     const question: ServerMessage = {
       type: 'question',
       mode: 'pick',
-      position: 100,
-      totalItems: 100,
+      progress: { kind: 'regular', position: 100, totalItems: 100 },
       itemKey: 'k'.repeat(128),
       prompt: costly(MAX_PROMPT_LENGTH),
       options: repeated(costly(MAX_OPTION_LENGTH), OPTION_COUNT),

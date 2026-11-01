@@ -41,7 +41,14 @@ export const SERVER_SAMPLES: readonly ServerMessage[] = [
   },
   {
     type: 'room',
-    room: { roomId: ROOM_ID, phase: 'lobby', hostId: HOST_ID, players: PLAYERS, settings: null },
+    room: {
+      roomId: ROOM_ID,
+      phase: 'lobby',
+      hostId: HOST_ID,
+      players: PLAYERS,
+      settings: null,
+      tiebreak: null,
+    },
   },
   {
     type: 'room',
@@ -51,13 +58,24 @@ export const SERVER_SAMPLES: readonly ServerMessage[] = [
       hostId: HOST_ID,
       players: PLAYERS,
       settings: SETTINGS,
+      tiebreak: null,
+    },
+  },
+  {
+    type: 'room',
+    room: {
+      roomId: ROOM_ID,
+      phase: 'question',
+      hostId: HOST_ID,
+      players: PLAYERS,
+      settings: SETTINGS,
+      tiebreak: { round: 1, playerIds: [HOST_ID, GUEST_ID] },
     },
   },
   {
     type: 'question',
     mode: 'pick',
-    position: 1,
-    totalItems: 10,
+    progress: { kind: 'regular', position: 1, totalItems: 10 },
     itemKey: 'fake-q1',
     prompt: 'Which organelle makes most of the cell energy?',
     options: ['Nucleus', 'Mitochondrion', 'Ribosome', 'Golgi body'],
@@ -66,8 +84,7 @@ export const SERVER_SAMPLES: readonly ServerMessage[] = [
   {
     type: 'question',
     mode: 'type',
-    position: 2,
-    totalItems: 10,
+    progress: { kind: 'tiebreak', round: 1 },
     itemKey: 'fake-q2_p2',
     prompt: 'Name the structure the arrow points to.',
     imageUrl: '/images/fake-course/item-0007.png',

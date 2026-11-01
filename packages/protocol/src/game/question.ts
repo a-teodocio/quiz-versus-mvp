@@ -3,11 +3,11 @@ import {
   MAX_IMAGE_URL_LENGTH,
   MAX_OPTION_LENGTH,
   MAX_PROMPT_LENGTH,
-  MAX_QUESTIONS_PER_GAME,
   MAX_SECONDS_PER_QUESTION,
   OPTION_COUNT,
 } from '../limits.js';
 import { ItemKeySchema } from './item-key.js';
+import { ProgressSchema } from './progress.js';
 
 /** A path under /images/ with no query, fragment, whitespace or backslash. `..` is refused below. */
 const IMAGE_PATH = /^\/images\/[^\s\\?#]+$/;
@@ -25,9 +25,7 @@ const GroupPartSchema = z
  */
 const questionBase = {
   type: z.literal('question'),
-  /** Position among the scored items of this game, from 1. A group part counts on its own. */
-  position: z.int().min(1).max(MAX_QUESTIONS_PER_GAME),
-  totalItems: z.int().min(1).max(MAX_QUESTIONS_PER_GAME),
+  progress: ProgressSchema,
   itemKey: ItemKeySchema,
   prompt: z.string().min(1).max(MAX_PROMPT_LENGTH),
   /** Opaque path under /images/, so the file name cannot spell out the answer. */
@@ -45,23 +43,16 @@ const questionBase = {
     .max(MAX_SECONDS_PER_QUESTION * 1_000),
 };
 
-const positionIsInRange = (question: { position: number; totalItems: number }): boolean =>
-  question.position <= question.totalItems;
-
 /**
  * One question to answer. Multiple choice carries the shuffled options; a typed question carries
  * none, because the options would hand the player a list containing the answer.
  */
 export const QuestionMessageSchema = z.discriminatedUnion('mode', [
-  z
-    .strictObject({
-      ...questionBase,
-      mode: z.literal('pick'),
-      options: z.array(z.string().min(1).max(MAX_OPTION_LENGTH)).length(OPTION_COUNT),
-    })
-    .refine(positionIsInRange, { error: 'position is beyond the total' }),
-  z
-    .strictObject({ ...questionBase, mode: z.literal('type') })
-    .refine(positionIsInRange, { error: 'position is beyond the total' }),
+  z.strictObject({
+    ...questionBase,
+    mode: z.literal('pick'),
+    options: z.array(z.string().min(1).max(MAX_OPTION_LENGTH)).length(OPTION_COUNT),
+  }),
+  z.strictObject({ ...questionBase, mode: z.literal('type') }),
 ]);
 export type QuestionMessage = z.infer<typeof QuestionMessageSchema>;

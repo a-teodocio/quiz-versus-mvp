@@ -2,7 +2,7 @@
 
 Every message between the browser and the server, over one WebSocket per player. The schemas live in `packages/protocol` and are the source of truth; this page explains them. Message types are derived from the schemas with `z.infer`, so the code and the types cannot drift apart.
 
-Protocol version: **1** (`PROTOCOL_VERSION`).
+Protocol version: **2** (`PROTOCOL_VERSION`).
 
 ## Rules that hold for every message
 
@@ -84,9 +84,9 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `results`   | `standings`                                              | After the last reveal                                        |
 | `error`     | `code`, `message`                                        | A request was refused                                        |
 
-**`room`** carries `roomId`, `phase` (`lobby`, `question`, `reveal`, `results`), `hostId`, `players` and `settings` (null until the game starts). Each player is `{ id, name, connected, answered, score }`. `answered` says a player has answered the open question and nothing about whether they were right.
+**`room`** carries `roomId`, `phase` (`lobby`, `question`, `reveal`, `results`), `hostId`, `players`, `settings` (null until the game starts) and `tiebreak` (null unless a tie-break is under way: `{ round, playerIds }`, the players still tied for first place, who are the only ones asked). Each player is `{ id, name, connected, answered, score }`. `answered` says a player has answered the open question and nothing about whether they were right.
 
-**`question`** carries `mode` (`pick` or `type`), `position` and `totalItems`, `itemKey`, `prompt`, `durationMs`, and optionally `imageUrl` and `part` (`{ index, count }`, index from 1 and at most count, for an image-group of one or more parts). A `pick` question has `options`, exactly four, already shuffled. A `type` question has no options at all, because a list of options contains the answer.
+**`question`** carries `mode` (`pick` or `type`), `progress`, `itemKey`, `prompt`, `durationMs`, and optionally `imageUrl` and `part` (`{ index, count }`, index from 1 and at most count, for an image-group of one or more parts). `progress` is `{ kind: 'regular', position, totalItems }` (position from 1, at most the total, each image-group part counting on its own) or `{ kind: 'tiebreak', round }` for an extra question asked only of the tied players. A `pick` question has `options`, exactly four, already shuffled. A `type` question has no options at all, because a list of options contains the answer.
 
 **`reveal`** carries `reason` (`all-answered` or `timeout`) and `correct`: `{ kind: 'pick', index, text }` with the index into the shuffled options, or `{ kind: 'type', text, acceptedForms }`. Each entry of `results` is `{ playerId, outcome, near, points, score, answer }`. `outcome` is `correct`, `wrong` or `no-answer`; `near` marks a wrong typed answer within a letter or two of a right one (still wrong, as in the real app). `points` includes any speed bonus, but the message does not say how it was computed; that is core's business.
 
@@ -106,7 +106,7 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `INVALID_RESUME_TOKEN` | The token matches no seat in this room                                                   |
 | `ROOM_NOT_FOUND`       | No such room                                                                             |
 | `ROOM_FULL`            | The room has `MAX_PLAYERS_PER_ROOM` players                                              |
-| `GAME_IN_PROGRESS`     | Joining after the game started (whether to allow it is still open)                       |
+| `GAME_OVER`            | Joining after the results were shown                                                     |
 | `NOT_HOST`             | `start` or `next` from a player who is not the host                                      |
 | `WRONG_PHASE`          | The message is not allowed in the current phase                                          |
 | `INVALID_SETTINGS`     | Well-formed settings the server cannot honour (for example, too few questions available) |
@@ -118,14 +118,14 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 
 Decoding reports a failure as `{ ok: false, code, detail }`. `detail` names the field and the kind of problem and never repeats what the sender wrote, so it is safe to log.
 
-## What the protocol leaves open
+## Game rules the protocol carries
 
-The protocol allows both answers to these questions from the roadmap; core and the worker decide, and the choice is recorded where it is made.
+The rules are in [ADR 6](adr/0006-versus-game-rules.md); `core` enforces them. What the wire needs for them:
 
-- **Scoring and the speed bonus.** `points` and `score` are plain numbers.
-- **Closing early.** `reveal.reason` can be `all-answered` or `timeout`.
-- **Late joiners.** `GAME_IN_PROGRESS` exists if they are refused.
-- **Ties.** `rank` is a plain number, so the server may give equal scores the same rank or break the tie.
+- **Points.** `points` and `score` are whole numbers. A multiplier, when there is one, is applied by the server.
+- **Closing early.** `reveal.reason` is `all-answered` or `timeout`.
+- **Late joiners.** A `join` is accepted in any phase before the results. A player who joins while a question is open is sent that `question` with `durationMs` set to the time left. Joining after the results gives `GAME_OVER`.
+- **Ties.** Tie-break questions arrive as `question` messages with `progress.kind` of `tiebreak`, and `room.tiebreak` lists who is being asked. `rank` in `results` is a plain number; equal scores share one.
 
 ## Changing the protocol
 
