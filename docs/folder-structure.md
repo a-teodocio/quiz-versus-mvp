@@ -16,6 +16,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   └── images/<course>/       Generated placeholder images
 ├── docs/
 │   ├── adr/                   Architecture decision records, numbered
+│   ├── roadmap.md             Status, decisions, next steps (read first in a new session)
 │   ├── architecture.md        Packages, layers, state machine
 │   ├── engineering-practices.md
 │   ├── review-checklist.md

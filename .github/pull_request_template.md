@@ -12,4 +12,5 @@
 - [ ] `npm run check` passes locally
 - [ ] Layer rules respected (docs/architecture.md); no new cross-package imports
 - [ ] Docs updated (README, architecture, protocol, ADR) where behaviour changed
+- [ ] `docs/roadmap.md` updated (status, next steps, open questions)
 - [ ] No real course content, questions, images or notes (this repo is public)

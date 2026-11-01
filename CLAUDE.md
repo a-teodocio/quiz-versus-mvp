@@ -13,6 +13,7 @@ Mock of a local MLS quiz app, used to trial a live multiplayer (versus) mode bef
 
 ## Read first
 
+0. `docs/roadmap.md`: where the project stands, the decisions made and the next steps. Start here in a new session.
 1. `docs/engineering-practices.md`: the standards every change follows.
 2. `docs/architecture.md`: layers and the dependency rule (enforced by ESLint).
 3. `docs/adr/`: why the big decisions were made. Add an ADR for any new one.
@@ -45,4 +46,4 @@ Node is pinned in `.nvmrc`. Commit hooks run lint-staged and commitlint; never s
 
 ## Finishing a task
 
-Update the docs the change touches (README, architecture, protocol, ADR, fidelity), run `npm run check`, push the branch, and tell the user what to merge.
+Update `docs/roadmap.md` (status, next steps, open questions) and the other docs the change touches (README, architecture, protocol, ADR, fidelity), run `npm run check`, push the branch, and tell the user what to merge.

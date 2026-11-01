@@ -28,6 +28,7 @@ npm run check
 
 ## Documentation
 
+- [Roadmap and status](docs/roadmap.md): where the project stands and what comes next
 - [Engineering practices](docs/engineering-practices.md): the standards every change follows
 - [Folder structure](docs/folder-structure.md): where things live and how to add more
 - [Review checklist](docs/review-checklist.md): what every change is reviewed against
