@@ -20,10 +20,12 @@ function record(input, verdict) {
   try {
     mkdirSync(dirname(LOG_FILE), { recursive: true });
     const tool = String(input?.tool_name);
-    const detail = String(input?.tool_input?.command ?? input?.tool_input?.file_path ?? '').slice(
-      0,
-      200,
-    );
+    const request = input?.tool_input ?? {};
+    const asked =
+      request.command ??
+      request.file_path ??
+      `${request.path ?? ''} ${request.pattern ?? request.glob ?? ''}`;
+    const detail = String(asked).slice(0, 200);
     const line = `${new Date().toISOString()} ${verdict.allow ? 'ALLOW' : 'DENY'} ${tool} ${JSON.stringify(detail)} ${verdict.reason}\n`;
     appendFileSync(LOG_FILE, line);
   } catch {

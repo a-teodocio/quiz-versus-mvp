@@ -225,6 +225,10 @@ describe('what the tester may read and search', () => {
     ['Read', { file_path: '/c/Users/someone/work/quiz-versus-mvp/docs/protocol.md' }],
     ['Grep', { pattern: '..', glob: '*.ts' }],
     ['Grep', { pattern: '.git|.env', path: `${ROOT}/docs` }],
+    ['Glob', { pattern: '.github/**' }],
+    ['Glob', { pattern: '.gitignore' }],
+    ['Read', { file_path: `${ROOT}/.github/pull_request_template.md` }],
+    ['Read', { file_path: `${ROOT}/.gitignore` }],
   ])('allows %s %j', (tool, input) => {
     expect(decideRead(tool, input, CWD, ROOT).allow).toBe(true);
   });
@@ -266,6 +270,11 @@ describe('what the tester may read and search', () => {
     ['Read', { file_path: `${ROOT}/node_modules/.cache/qa-guard.log` }, 'secrets'],
     ['Grep', { pattern: 'x', path: `${ROOT}/.git` }, 'secrets'],
     ['Glob', { pattern: '*', path: `${ROOT}/node_modules/.cache` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/packages/worker/.wrangler/state/x.sqlite` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/keys/server.pem` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/keys/server.key` }, 'secrets'],
+    ['Glob', { pattern: '**/*.pem' }, 'secrets'],
+    ['Glob', { pattern: '**/.wrangler/**' }, 'secrets'],
     ['Glob', { pattern: '**/.dev.vars' }, 'secrets'],
     ['Glob', { pattern: '**/.env*' }, 'secrets'],
     ['Glob', { pattern: '{.git,docs}/*' }, 'secrets'],
@@ -293,6 +302,12 @@ describe('a whole tool call', () => {
     const bash = (command, cwd = ROOT) => ({ tool_name: 'Bash', tool_input: { command }, cwd });
     expect(decide(bash('npm run check'), ROOT).allow).toBe(true);
     expect(decide(bash('npm run check', `${ROOT}/docs`), ROOT).allow).toBe(true);
+    expect(
+      decide(bash('npm run check', 'C:\\Users\\someone\\work\\quiz-versus-mvp'), ROOT).allow,
+    ).toBe(true);
+    expect(
+      decide(bash('npm run check', 'C:\\Users\\someone\\work\\quiz-versus-mvp\\docs'), ROOT).allow,
+    ).toBe(true);
     expectRefused(decide(bash('git push'), ROOT), 'only git rev-parse');
   });
 

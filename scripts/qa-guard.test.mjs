@@ -1,9 +1,9 @@
 import { spawnSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
+import { readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import process, { execPath } from 'node:process';
-import { describe, expect, it } from 'vitest';
+import { afterAll, describe, expect, it } from 'vitest';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 const SCRIPT = join(import.meta.dirname, 'qa-guard.mjs');
@@ -24,6 +24,10 @@ function runHook(stdin) {
 
 const call = (tool_name, tool_input, cwd = REPO_ROOT) =>
   JSON.stringify({ tool_name, tool_input, cwd });
+
+afterAll(() => {
+  rmSync(LOG_FILE, { force: true });
+});
 
 describe('the qa-guard hook as a process', () => {
   it('allows a permitted command with exit 0 and an allow decision', () => {

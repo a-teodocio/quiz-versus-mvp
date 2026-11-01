@@ -20,8 +20,8 @@ const SAFE_NAME = /^[a-z0-9._-]+$/;
 /** Dot-files, `*.config.*` and set-up files configure the tools that run the tests. */
 const TOOL_CONFIG_NAME = /(^\.|\.config\.|^global-?setup|^global-?teardown)/;
 /** Places inside the repo that hold secrets or the guard's own log, which are never read. */
-const SECRET_FOLDER = /^(\.git)$/;
-const SECRET_FILE = /^(\.dev\.vars|\.env)/;
+const SECRET_FOLDER = /^(\.git|\.wrangler)$/;
+const SECRET_FILE = /^(\.dev\.vars|\.env)|\.(pem|key)$/;
 
 /** Anything outside printable ASCII (tabs, newlines, no-break spaces, control characters). */
 const NOT_PRINTABLE = /[^\x20-\x7e]/;
@@ -200,7 +200,8 @@ const reachesOutside = (pattern) =>
 
 /** A glob that names a secret place. */
 const namesSecret = (pattern) =>
-  typeof pattern === 'string' && /(^|[/\\{,])(\.git|\.dev\.vars|\.env)/i.test(pattern);
+  typeof pattern === 'string' &&
+  /(\.git|\.wrangler)(?=[/\\,}]|$)|\.dev\.vars|\.env|\.pem|\.key/i.test(pattern);
 
 /** True for a place inside the repo that holds secrets or the guard's log (names below the root). */
 const isSecretPlace = (names) =>
