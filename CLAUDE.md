@@ -19,6 +19,7 @@ Mock of a local MLS quiz app, used to trial a live multiplayer (versus) mode bef
 3. `docs/adr/`: why the big decisions were made. Add an ADR for any new one.
 4. `docs/fidelity.md`: where the mock differs from the real app.
 5. `docs/folder-structure.md`: where files go. Keep it true; `npm run check:structure` enforces the layout.
+6. `docs/qa-scenarios.md`: what the `qa-tester` plays as a player. Read it when a change makes the app runnable or changes how it behaves.
 
 ## Review before major updates
 
@@ -41,6 +42,18 @@ Any change made to fix a review's findings needs a second look by the same revie
 Pull requests auto-merge when `check` passes, so the last review must be finished before the pull request is opened as ready. If a pull request is already open and needs fixes, take it back to draft first (`gh pr ready --undo`) and mark it ready again after the second look. Name the commit the final review covered in the pull request description.
 
 Never pass the reviewer's output on unchecked. If the review finds a gap in the checklist, update `docs/review-checklist.md` in the same branch.
+
+## Test as a player before major updates
+
+From the first branch that makes the app run (`feat/worker`), also run the `qa-tester` subagent (`.claude/agents/qa-tester.md`) before opening a pull request for any change that makes the app runnable or changes how it behaves. It starts the app locally and plays the scenarios in `docs/qa-scenarios.md` as a player would. It reports what broke or confused; it never fixes.
+
+1. Finish the branch and run `npm run check`.
+2. Give the tester the branch, the commit, the scenario IDs that apply (or "all that are runnable") and an output directory for screenshots and logs outside the repo (the scratchpad).
+3. Verify each finding yourself by repeating it. A tester can be wrong or hit a flake. Fix the real ones. For any you reject, write the reason.
+4. Fixes need a second look by the same tester (same rule as the standards-reviewer: the pull request stays a draft until it reports nothing open).
+5. Put the verdict, what was fixed, what was rejected and the commit the final run covered in the pull request description, and tell the user.
+
+Update `docs/qa-scenarios.md` in the same branch when a rule or a screen changes, and when a bug turns up that no scenario would have caught. The tester starts only its own processes, stops only those, installs nothing, and works with fake content on `localhost` only.
 
 ## Commands
 

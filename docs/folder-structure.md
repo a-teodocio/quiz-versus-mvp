@@ -8,7 +8,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 
 ```
 .
-├── .claude/agents/            Subagent definitions (standards-reviewer)
+├── .claude/agents/            Subagent definitions (standards-reviewer, qa-tester)
 ├── .github/                   CI and auto-merge workflows, Dependabot config, PR template
 ├── .husky/                    Git hooks (pre-commit, commit-msg)
 ├── content/                   FAKE quiz data only (planned)
@@ -20,6 +20,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── architecture.md        Packages, layers, state machine
 │   ├── engineering-practices.md
 │   ├── review-checklist.md
+│   ├── qa-scenarios.md        What the qa-tester plays through as a player
 │   ├── dependency-vetting.md
 │   ├── fidelity.md            Where the mock differs from the real app
 │   ├── known-issues.md
