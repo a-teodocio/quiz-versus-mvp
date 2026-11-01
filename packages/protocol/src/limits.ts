@@ -25,6 +25,8 @@ export const TYPED_ANSWER_MAX_LENGTH = 200;
 
 export const MAX_QUIZZES_PER_GAME = 10;
 export const MAX_QUESTIONS_PER_GAME = 100;
+/** Extra questions asked to break a tie for first place, at most, before co-winners share rank 1. */
+export const MAX_TIEBREAK_ROUNDS = 5;
 export const MIN_SECONDS_PER_QUESTION = 5;
 export const MAX_SECONDS_PER_QUESTION = 120;
 

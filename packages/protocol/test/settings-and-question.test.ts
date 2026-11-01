@@ -5,10 +5,11 @@ import {
   MAX_QUESTIONS_PER_GAME,
   MAX_QUIZZES_PER_GAME,
   MAX_SECONDS_PER_QUESTION,
+  MAX_TIEBREAK_ROUNDS,
   MIN_SECONDS_PER_QUESTION,
   PROTOCOL_VERSION,
 } from '../src/index.js';
-import { RESUME_TOKEN, SERVER_SAMPLES, SETTINGS } from './samples.js';
+import { RESUME_TOKEN, regularProgress, SERVER_SAMPLES, SETTINGS } from './samples.js';
 
 const start = (settings: Record<string, unknown>): boolean =>
   decodeClientMessage(JSON.stringify({ type: 'start', settings: { ...SETTINGS, ...settings } })).ok;
@@ -58,7 +59,7 @@ describe('resume tokens', () => {
   });
 });
 
-describe('question position and image-group part', () => {
+describe('question progress and image-group part', () => {
   const sample = SERVER_SAMPLES.find(
     (message) => message.type === 'question' && message.mode === 'type',
   );
@@ -67,9 +68,39 @@ describe('question position and image-group part', () => {
 
   it.each<[string, Record<string, unknown>, boolean]>([
     ['the sample question', {}, true],
-    ['the last position', { position: 10 }, true],
-    ['a position beyond the total', { position: 11 }, false],
-    ['position zero', { position: 0 }, false],
+    ['the last position', { progress: regularProgress(10, 10) }, true],
+    ['a position beyond the total', { progress: regularProgress(11, 10) }, false],
+    ['position zero', { progress: regularProgress(0, 10) }, false],
+    ['a total of zero', { progress: regularProgress(1, 0) }, false],
+    [
+      'a total over the question limit',
+      { progress: regularProgress(1, MAX_QUESTIONS_PER_GAME + 1) },
+      false,
+    ],
+    [
+      'a regular question with a tie-break round',
+      { progress: { ...regularProgress(1, 10), round: 1 } },
+      false,
+    ],
+    ['the first tie-break question', { progress: { kind: 'tiebreak', round: 1 } }, true],
+    [
+      'the last tie-break question',
+      { progress: { kind: 'tiebreak', round: MAX_TIEBREAK_ROUNDS } },
+      true,
+    ],
+    [
+      'a tie-break question past the limit',
+      { progress: { kind: 'tiebreak', round: MAX_TIEBREAK_ROUNDS + 1 } },
+      false,
+    ],
+    ['a tie-break question numbered zero', { progress: { kind: 'tiebreak', round: 0 } }, false],
+    [
+      'a tie-break with a position',
+      { progress: { kind: 'tiebreak', round: 1, position: 1 } },
+      false,
+    ],
+    ['an unknown kind of progress', { progress: { kind: 'bonus', round: 1 } }, false],
+    ['no progress', { progress: undefined }, false],
     ['the last part', { part: { index: 3, count: 3 } }, true],
     ['a part beyond the part count', { part: { index: 4, count: 3 } }, false],
     ['a group of one part (the real validator only warns)', { part: { index: 1, count: 1 } }, true],

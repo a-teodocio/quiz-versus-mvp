@@ -8,7 +8,7 @@ Everything is exported from `src/index.ts`. Nothing else in the package may be i
 
 - `decodeClientMessage(text)` and `decodeServerMessage(text)`: check the size, parse the JSON, validate, and return `{ ok: true, message }` or `{ ok: false, code, detail }`. They never throw.
 - `encodeClientMessage(message)` and `encodeServerMessage(message)`: validate and return the text to send. They throw `InvalidOutgoingMessageError` when the sender built a message the protocol does not allow.
-- The types `ClientMessage`, `ServerMessage`, `GameSettings`, `RoomSnapshot`, `PlayerSummary`, `RoomPhase`, `Answer`, `QuestionMessage`, `RevealMessage`, `ResultsMessage`, `ErrorCode`, `DecodeResult`.
+- The types `ClientMessage`, `ServerMessage`, `GameSettings`, `RoomSnapshot`, `PlayerSummary`, `RoomPhase`, `Progress`, `Answer`, `QuestionMessage`, `RevealMessage`, `ResultsMessage`, `ErrorCode`, `DecodeResult`.
 - `PROTOCOL_VERSION`, `ERROR_CODES` and the named limits (`MAX_PLAYERS_PER_ROOM`, `PLAYER_NAME_MAX_LENGTH`, and so on).
 
 The schemas themselves are internal. Callers go through the decoders and encoders so every message is validated the same way.
@@ -30,5 +30,6 @@ npm test -- packages/protocol
 - `test/samples.ts`: one valid example of every message; the other tests mutate these.
 - `test/answer-secrecy.test.ts`: a question cannot carry the answer.
 - `test/client-bounds.test.ts`, `test/server-bounds.test.ts`, `test/boundaries.test.ts`, `test/settings-and-question.test.ts`: limits, edge cases and worst-case message size.
+- `test/tiebreak.test.ts`: the tie-break fields and the late-joining error codes.
 - `test/sample-coverage.test.ts`: every message type has a sample.
 - `test/codec.test.ts`: round trips, rejections and the size limit.

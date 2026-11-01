@@ -8,13 +8,15 @@ import {
   MAX_OPTION_LENGTH,
   MAX_PLAYERS_PER_ROOM,
   MAX_PROMPT_LENGTH,
+  MAX_QUESTIONS_PER_GAME,
   MAX_SERVER_MESSAGE_BYTES,
+  MAX_TIEBREAK_ROUNDS,
   OPTION_COUNT,
   TYPED_ANSWER_MAX_LENGTH,
 } from '../src/index.js';
 import type { ServerMessage } from '../src/index.js';
 import { utf8ByteLength } from '../src/codec/utf8-length.js';
-import { GUEST_ID, SERVER_SAMPLES } from './samples.js';
+import { GUEST_ID, regularProgress, SERVER_SAMPLES } from './samples.js';
 
 type Sample<T extends ServerMessage['type']> = Extract<ServerMessage, { type: T }>;
 
@@ -85,8 +87,8 @@ describe('question bounds', () => {
     'a %s question: a position beyond the total is refused',
     (mode) => {
       const sample = questionSample(mode);
-      expect(decodes({ ...sample, position: 11, totalItems: 10 })).toBe(false);
-      expect(decodes({ ...sample, position: 10, totalItems: 10 })).toBe(true);
+      expect(decodes({ ...sample, progress: regularProgress(11, 10) })).toBe(false);
+      expect(decodes({ ...sample, progress: regularProgress(10, 10) })).toBe(true);
     },
   );
 
@@ -107,6 +109,26 @@ describe('question bounds', () => {
     ],
   ])('a multiple-choice question with %s', (_label, override, expected) => {
     expect(decodes({ ...questionSample('pick'), ...override })).toBe(expected);
+  });
+});
+
+describe('results bounds', () => {
+  const results = sampleOf('results');
+  const first = results.standings[0];
+  const withCount = (correctCount: number): boolean =>
+    decodes({ ...results, standings: [{ ...first, correctCount }] });
+
+  it.each<[string, number, boolean]>([
+    ['none correct', 0, true],
+    [
+      'every regular question and every tie-break round',
+      MAX_QUESTIONS_PER_GAME + MAX_TIEBREAK_ROUNDS,
+      true,
+    ],
+    ['one more than any game can have', MAX_QUESTIONS_PER_GAME + MAX_TIEBREAK_ROUNDS + 1, false],
+    ['a negative count', -1, false],
+  ])('correct answers: %s', (_label, count, expected) => {
+    expect(withCount(count)).toBe(expected);
   });
 });
 
@@ -141,8 +163,7 @@ describe('worst-case size', () => {
     const question: ServerMessage = {
       type: 'question',
       mode: 'pick',
-      position: 100,
-      totalItems: 100,
+      progress: regularProgress(100, 100),
       itemKey: 'k'.repeat(128),
       prompt: costly(MAX_PROMPT_LENGTH),
       options: repeated(costly(MAX_OPTION_LENGTH), OPTION_COUNT),
