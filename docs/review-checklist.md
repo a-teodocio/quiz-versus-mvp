@@ -21,6 +21,7 @@ Severity: **blocker** (fix before merge), **major** (fix before merge unless the
 | A9  | One reason to change per module. No god files, god classes or catch-all `utils`/`helpers` modules.                                                                                                              | major            |
 | A10 | Exports are minimal. Anything not used outside its module is not exported.                                                                                                                                      | minor            |
 | A11 | Public types do not leak implementation details (internal state shapes, library types).                                                                                                                         | minor            |
+| A12 | Files live where `folder-structure.md` says. Code is grouped by feature, not into `utils`/`helpers`/`common` folders. A new top-level folder updates the doc and `scripts/check-structure.mjs`.                 | minor            |
 
 ## B. Protocol and boundaries
 
@@ -122,12 +123,13 @@ Severity: **blocker** (fix before merge), **major** (fix before merge unless the
 
 ## K. Git hygiene
 
-| ID  | Rule                                                                                                                    | Default severity |
-| --- | ----------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| K1  | Branch name is `feat/`, `fix/`, `chore/` or `docs/`. Commits follow Conventional Commits.                               | minor            |
-| K2  | One concern per pull request. No unrelated edits, formatting churn or drive-by refactors.                               | major            |
-| K3  | No generated or build output, local config, or large binaries committed. Lockfile changes match `package.json` changes. | major            |
-| K4  | Hooks and CI checks are not skipped, weakened or disabled to make a change pass.                                        | blocker          |
+| ID  | Rule                                                                                                                                                                                         | Default severity |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| K1  | Branch name is `feat/`, `fix/`, `chore/` or `docs/`. Commits follow Conventional Commits.                                                                                                    | minor            |
+| K2  | One concern per pull request. No unrelated edits, formatting churn or drive-by refactors.                                                                                                    | major            |
+| K3  | No generated or build output, local config, or large binaries committed. Lockfile changes match `package.json` changes.                                                                      | major            |
+| K4  | Hooks and CI checks are not skipped, weakened or disabled to make a change pass.                                                                                                             | blocker          |
+| K5  | The folder layout is clean: no stray, scratch, duplicate or empty files and folders, and each package has the standard shape (`package.json`, `tsconfig.json`, `README.md`, `src/index.ts`). | minor            |
 
 ## TD. Technical debt
 
