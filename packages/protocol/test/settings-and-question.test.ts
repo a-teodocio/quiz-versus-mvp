@@ -9,7 +9,7 @@ import {
   MIN_SECONDS_PER_QUESTION,
   PROTOCOL_VERSION,
 } from '../src/index.js';
-import { RESUME_TOKEN, regularProgress, SERVER_SAMPLES, SETTINGS } from './samples.js';
+import { questionSample, RESUME_TOKEN, regularProgress, sampleOf, SETTINGS } from './samples.js';
 
 const start = (settings: Record<string, unknown>): boolean =>
   decodeClientMessage(JSON.stringify({ type: 'start', settings: { ...SETTINGS, ...settings } })).ok;
@@ -60,9 +60,7 @@ describe('resume tokens', () => {
 });
 
 describe('question progress and image-group part', () => {
-  const sample = SERVER_SAMPLES.find(
-    (message) => message.type === 'question' && message.mode === 'type',
-  );
+  const sample = questionSample('type');
   const question = (override: Record<string, unknown>): boolean =>
     decodeServerMessage(JSON.stringify({ ...sample, ...override })).ok;
 
@@ -101,11 +99,33 @@ describe('question progress and image-group part', () => {
     ],
     ['an unknown kind of progress', { progress: { kind: 'bonus', round: 1 } }, false],
     ['no progress', { progress: undefined }, false],
+    ['an unknown mode', { mode: 'self' }, false],
+  ])('%s', (_label, override, expected) => {
+    expect(question(override)).toBe(expected);
+  });
+});
+
+describe('image-group part and timer of a question', () => {
+  const sample = questionSample('type');
+  const question = (override: Record<string, unknown>): boolean =>
+    decodeServerMessage(JSON.stringify({ ...sample, ...override })).ok;
+
+  it.each<[string, Record<string, unknown>, boolean]>([
     ['the last part', { part: { index: 3, count: 3 } }, true],
     ['a part beyond the part count', { part: { index: 4, count: 3 } }, false],
     ['a group of one part (the real validator only warns)', { part: { index: 1, count: 1 } }, true],
     ['a group of seven parts', { part: { index: 7, count: 7 } }, true],
     ['a part count of zero', { part: { index: 1, count: 0 } }, false],
+    [
+      'a part count over the question limit',
+      { part: { index: 1, count: MAX_QUESTIONS_PER_GAME + 1 } },
+      false,
+    ],
+    [
+      'the largest part count',
+      { part: { index: MAX_QUESTIONS_PER_GAME, count: MAX_QUESTIONS_PER_GAME } },
+      true,
+    ],
     ['a part counted from zero', { part: { index: 0, count: 3 } }, false],
     ['a zero duration', { durationMs: 0 }, false],
     [
@@ -113,26 +133,25 @@ describe('question progress and image-group part', () => {
       { durationMs: MAX_SECONDS_PER_QUESTION * 1_000 + 1 },
       false,
     ],
-    ['an unknown mode', { mode: 'self' }, false],
   ])('%s', (_label, override, expected) => {
     expect(question(override)).toBe(expected);
   });
 });
 
 describe('reveal and results', () => {
-  const reveal = SERVER_SAMPLES.find((message) => message.type === 'reveal');
-  const results = SERVER_SAMPLES.find((message) => message.type === 'results');
+  const reveal = sampleOf('reveal');
+  const results = sampleOf('results');
 
   it('rejects an unknown outcome', () => {
     const bad = {
       ...reveal,
-      results: [{ ...(reveal?.type === 'reveal' ? reveal.results[0] : {}), outcome: 'bonus' }],
+      results: [{ ...reveal.results[0], outcome: 'bonus' }],
     };
     expect(decodeServerMessage(JSON.stringify(bad)).ok).toBe(false);
   });
 
   it('rejects negative points', () => {
-    const first = reveal?.type === 'reveal' ? reveal.results[0] : undefined;
+    const first = reveal.results[0];
     const bad = { ...reveal, results: [{ ...first, points: -1 }] };
     expect(decodeServerMessage(JSON.stringify(bad)).ok).toBe(false);
   });
@@ -142,7 +161,7 @@ describe('reveal and results', () => {
   });
 
   it('rejects a rank below 1', () => {
-    const first = results?.type === 'results' ? results.standings[0] : undefined;
+    const first = results.standings[0];
     const bad = { ...results, standings: [{ ...first, rank: 0 }] };
     expect(decodeServerMessage(JSON.stringify(bad)).ok).toBe(false);
   });

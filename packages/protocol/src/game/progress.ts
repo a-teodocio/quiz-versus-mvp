@@ -22,4 +22,5 @@ export const ProgressSchema = z.discriminatedUnion('kind', [
     round: z.int().min(1).max(MAX_TIEBREAK_ROUNDS),
   }),
 ]);
+/** Where a question sits in the game: regular or tie-break. */
 export type Progress = z.infer<typeof ProgressSchema>;

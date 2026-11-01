@@ -1,10 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  decodeServerMessage,
-  ERROR_CODES,
-  MAX_PLAYERS_PER_ROOM,
-  MAX_TIEBREAK_ROUNDS,
-} from '../src/index.js';
+import { decodeServerMessage, MAX_PLAYERS_PER_ROOM, MAX_TIEBREAK_ROUNDS } from '../src/index.js';
 import { GUEST_ID, HOST_ID, SERVER_SAMPLES } from './samples.js';
 
 const withTiebreak = SERVER_SAMPLES.find(
@@ -51,12 +46,15 @@ describe('tie-break in the room snapshot', () => {
   });
 });
 
-describe('joining after the game has started', () => {
-  it('has an error for a game that is already over', () => {
-    expect(ERROR_CODES).toContain('GAME_OVER');
+describe('late-joining and tie-break error codes', () => {
+  const errorMessage = (code: string): boolean =>
+    decodeServerMessage(JSON.stringify({ type: 'error', code, message: 'Not allowed.' })).ok;
+
+  it.each(['GAME_OVER', 'NOT_IN_TIEBREAK'])('the server can send %s', (code) => {
+    expect(errorMessage(code)).toBe(true);
   });
 
-  it('has an error for a watcher who answers a tie-break', () => {
-    expect(ERROR_CODES).toContain('NOT_IN_TIEBREAK');
+  it('GAME_IN_PROGRESS no longer exists, because late joining is allowed', () => {
+    expect(errorMessage('GAME_IN_PROGRESS')).toBe(false);
   });
 });

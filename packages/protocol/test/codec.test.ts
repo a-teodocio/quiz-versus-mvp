@@ -10,7 +10,7 @@ import {
   PROTOCOL_VERSION,
 } from '../src/index.js';
 import type { ErrorCode } from '../src/index.js';
-import { CLIENT_SAMPLES, SERVER_SAMPLES } from './samples.js';
+import { CLIENT_SAMPLES, SERVER_SAMPLES, SETTINGS } from './samples.js';
 
 const failureOf = (result: ReturnType<typeof decodeClientMessage>): ErrorCode | 'ok' =>
   result.ok ? 'ok' : result.code;
@@ -142,5 +142,23 @@ describe('encoding refuses', () => {
   it('a server message that breaks the schema', () => {
     const bad = { type: 'answerAck', itemKey: '' } as const;
     expect(() => encodeServerMessage(bad)).toThrow(InvalidOutgoingMessageError);
+  });
+});
+
+describe('failure detail for custom rules', () => {
+  const detailOf = (raw: string): string => {
+    const result = decodeClientMessage(raw);
+    return result.ok ? '' : result.detail;
+  };
+
+  it('names the rule with its fixed message', () => {
+    const settings = { ...SETTINGS, quizIds: ['fake-quiz', 'fake-quiz'] };
+    const detail = detailOf(JSON.stringify({ type: 'start', settings }));
+    expect(detail).toContain('quiz ids must be unique');
+  });
+
+  it('does not repeat what the sender wrote, even for a custom rule', () => {
+    const settings = { ...SETTINGS, quizIds: ['leak-marker', 'leak-marker'] };
+    expect(detailOf(JSON.stringify({ type: 'start', settings }))).not.toContain('leak-marker');
   });
 });

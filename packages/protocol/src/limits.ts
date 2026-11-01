@@ -31,7 +31,7 @@ export const MIN_SECONDS_PER_QUESTION = 5;
 export const MAX_SECONDS_PER_QUESTION = 120;
 
 export const MAX_QUIZ_ID_LENGTH = 64;
-export const MAX_ITEM_KEY_LENGTH = 128;
+export const MAX_ITEM_KEY_LENGTH = 64;
 export const MAX_PROMPT_LENGTH = 2_000;
 export const MAX_OPTION_LENGTH = 500;
 export const MAX_EXPLANATION_LENGTH = 2_000;

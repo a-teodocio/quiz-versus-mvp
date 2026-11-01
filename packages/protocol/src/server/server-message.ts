@@ -43,4 +43,5 @@ export const ServerMessageSchema = z.discriminatedUnion('type', [
   ResultsMessageSchema,
   ErrorSchema,
 ]);
+/** Any message the server may send. */
 export type ServerMessage = z.infer<typeof ServerMessageSchema>;

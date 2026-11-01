@@ -17,6 +17,25 @@ export const regularProgress = (
   totalItems,
 });
 
+type Sample<T extends ServerMessage['type']> = Extract<ServerMessage, { type: T }>;
+
+/** The first sample of a server message type. */
+export function sampleOf<T extends ServerMessage['type']>(type: T): Sample<T> {
+  const found = SERVER_SAMPLES.find((message): message is Sample<T> => message.type === type);
+  if (found === undefined) throw new Error(`no sample of type ${type}`);
+  return found;
+}
+
+/** The first sample question of the given mode. */
+export function questionSample(mode: 'pick' | 'type'): Sample<'question'> {
+  const found = SERVER_SAMPLES.find(
+    (message): message is Sample<'question'> =>
+      message.type === 'question' && message.mode === mode,
+  );
+  if (found === undefined) throw new Error(`no ${mode} question sample`);
+  return found;
+}
+
 export const SETTINGS: GameSettings = {
   quizIds: ['fake-quiz-one', 'fake-quiz-two'],
   questionCount: 10,

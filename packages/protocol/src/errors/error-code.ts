@@ -23,4 +23,5 @@ export const ERROR_CODES = [
 ] as const;
 
 export const ErrorCodeSchema = z.enum(ERROR_CODES);
+/** One of `ERROR_CODES`. */
 export type ErrorCode = z.infer<typeof ErrorCodeSchema>;
