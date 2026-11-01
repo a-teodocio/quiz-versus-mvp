@@ -16,7 +16,8 @@ Every third-party package is checked before it is added and again on every CI ru
 
 - CI: `npm ci --ignore-scripts`, `npm audit --audit-level=high` (fails on high or critical), `npm audit signatures`.
 - Dependabot: weekly version updates and security updates, with a 14-day cooldown on new releases (`.github/dependabot.yml`).
-- GitHub Actions are pinned to a major version; review each upgrade.
+- GitHub Actions are pinned to a full commit SHA with the version in a trailing comment (a tag can be moved; a SHA cannot). Dependabot updates the SHA and the comment together. Review each upgrade's release notes.
+- `package-lock.json` is written by npm only and keeps npm's 2-space format (it follows the indentation of `package.json`). Never reformat it by hand or with Prettier, or Dependabot PRs rewrite the whole file.
 
 ## Current state (2026-11-01)
 
@@ -25,3 +26,12 @@ Every third-party package is checked before it is added and again on every CI ru
 - The only package with an install script is `fsevents`, an optional macOS file watcher, which does not run on Windows or Linux.
 - Direct dev dependencies were installed with a cutoff of 2026-10-17 (a 14-day cooldown).
 - Open moderate findings: see [known-issues.md](known-issues.md).
+- Actions: `actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0, both from the official `actions` organisation, released more than 14 days ago, pinned by SHA.
+
+## Log of vetted updates
+
+| Date       | Update                                                         | Result                                                                                                                                                             |
+| ---------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-11-01 | `@commitlint/cli` and `config-conventional` 21.2.3 to 21.2.4   | Accepted: 14 days old, signed, patch release                                                                                                                       |
+| 2026-11-01 | `actions/checkout` 4 to 7.0.1, `actions/setup-node` 4 to 7.1.0 | Accepted and pinned by SHA: official org, months old, release notes show security hardening and an ESM/`NODE_AUTH_TOKEN` change that does not affect this workflow |
+| 2026-11-01 | `typescript` 6.0.3 to 7.0.2                                    | Rejected: `typescript-eslint` declares support for `<6.1.0`, so `npm ci` fails. Major updates for `typescript` are ignored in Dependabot until that changes        |
