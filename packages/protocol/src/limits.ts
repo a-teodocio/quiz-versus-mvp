@@ -1,6 +1,9 @@
 /**
  * Every bound the schemas enforce, in one place (review-checklist D4 and G4). The worker and the
  * web client read these constants instead of repeating the numbers.
+ *
+ * Units: message sizes are UTF-8 bytes, the player name is counted in characters (code points, so
+ * an emoji is 1), and every other text limit is counted in UTF-16 units (an emoji is 2).
  */
 
 /** Answer options per multiple-choice question; the real app's validator requires exactly 4. */

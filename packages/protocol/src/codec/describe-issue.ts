@@ -8,5 +8,7 @@ export function describeIssue(error: z.ZodError): string {
   const [issue] = error.issues;
   if (issue === undefined) return 'invalid message';
   const where = issue.path.length > 0 ? issue.path.map(String).join('.') : 'message';
-  return `${where}: ${issue.code}`;
+  // Custom refinements carry a fixed message written in this repo, never the sender's text.
+  const reason = issue.code === 'custom' ? `custom, ${issue.message}` : issue.code;
+  return `${where}: ${reason}`;
 }

@@ -11,7 +11,7 @@ import { QuizIdSchema } from './identifiers.js';
  * How answers are given. `type` asks for typed text where the real app can check it
  * automatically and falls back to `pick` for the rest (docs/fidelity.md).
  */
-export const AnswerBySchema = z.enum(['pick', 'type']);
+const AnswerBySchema = z.enum(['pick', 'type']);
 
 /** What the host chooses when starting a game. */
 export const GameSettingsSchema = z.strictObject({
@@ -24,4 +24,5 @@ export const GameSettingsSchema = z.strictObject({
   secondsPerQuestion: z.int().min(MIN_SECONDS_PER_QUESTION).max(MAX_SECONDS_PER_QUESTION),
   answerBy: AnswerBySchema,
 });
+/** The host's choices for one game. */
 export type GameSettings = z.infer<typeof GameSettingsSchema>;

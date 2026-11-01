@@ -28,6 +28,7 @@ function parseJson(raw: string, maxBytes: number): DecodeResult<unknown> {
     return failure('MESSAGE_TOO_LARGE', `more than ${String(maxBytes)} bytes`);
   }
   try {
+    // JSON.parse is typed `any`; `unknown` forces every caller to validate before use.
     return { ok: true, message: JSON.parse(raw) as unknown };
   } catch {
     return failure('MALFORMED_MESSAGE', 'not valid JSON');
@@ -37,6 +38,7 @@ function parseJson(raw: string, maxBytes: number): DecodeResult<unknown> {
 /** True for the handshake message (`join` or `welcome`) of a different protocol version. */
 function hasOtherVersion(value: unknown, handshakeType: 'join' | 'welcome'): boolean {
   if (typeof value !== 'object' || value === null) return false;
+  // Safe: a non-null object can be read by key; the values stay `unknown` and are compared below.
   const { type, protocolVersion } = value as Record<string, unknown>;
   return (
     type === handshakeType &&

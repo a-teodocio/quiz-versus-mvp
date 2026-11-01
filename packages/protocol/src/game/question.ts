@@ -9,12 +9,14 @@ import {
 } from '../limits.js';
 import { ItemKeySchema } from './item-key.js';
 
-/** A same-origin path: one leading slash, no scheme, no host, no whitespace. */
-const IMAGE_PATH = /^\/(?!\/)[^\s\\]*$/;
+/** A path under /images/ with no query, fragment, whitespace or backslash. `..` is refused below. */
+const IMAGE_PATH = /^\/images\/[^\s\\?#]+$/;
+
+const hasParentSegment = (path: string): boolean => path.split('/').includes('..');
 
 /** Which part of an image-group is on screen. Both numbers count from 1. */
 const GroupPartSchema = z
-  .strictObject({ index: z.int().min(1), count: z.int().min(2) })
+  .strictObject({ index: z.int().min(1), count: z.int().min(1) })
   .refine((part) => part.index <= part.count, { error: 'part index is beyond the part count' });
 
 /**
@@ -28,8 +30,13 @@ const questionBase = {
   totalItems: z.int().min(1).max(MAX_QUESTIONS_PER_GAME),
   itemKey: ItemKeySchema,
   prompt: z.string().min(1).max(MAX_PROMPT_LENGTH),
-  /** Opaque same-origin path, so the file name cannot spell out the answer. */
-  imageUrl: z.string().max(MAX_IMAGE_URL_LENGTH).regex(IMAGE_PATH).optional(),
+  /** Opaque path under /images/, so the file name cannot spell out the answer. */
+  imageUrl: z
+    .string()
+    .max(MAX_IMAGE_URL_LENGTH)
+    .regex(IMAGE_PATH)
+    .refine((path) => !hasParentSegment(path), { error: 'no parent segments' })
+    .optional(),
   part: GroupPartSchema.optional(),
   /** How long the question stays open. A duration, not a deadline: client clocks drift. */
   durationMs: z

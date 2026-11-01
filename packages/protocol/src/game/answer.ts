@@ -15,4 +15,5 @@ export const AnswerSchema = z.discriminatedUnion('kind', [
   }),
   z.strictObject({ kind: z.literal('type'), text: z.string().min(1).max(TYPED_ANSWER_MAX_LENGTH) }),
 ]);
+/** A player's answer as sent on the wire. */
 export type Answer = z.infer<typeof AnswerSchema>;

@@ -32,7 +32,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Tooling: TypeScript, ESLint layer rules, Prettier, hooks, Vitest          | Done                                                           |
 | CI: lint, structure, format, typecheck, test, build, audit, signatures    | Done, `check` is a required status                             |
 | Branch protection on `main`                                               | Done: PR required, `check` required, no force push or deletion |
-| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 3 | Done                                                           |
+| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 4 | Done                                                           |
 | `standards-reviewer` subagent                                             | Done, not yet used on app code                                 |
 | Dependabot                                                                | Weekly, 14-day cooldown, TypeScript major bumps ignored        |
 | `packages/protocol`: schemas, codec, tests, `docs/protocol.md`            | Done on `feat/protocol`, awaiting review and merge             |

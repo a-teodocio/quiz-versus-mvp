@@ -3,17 +3,13 @@ import {
   decodeClientMessage,
   decodeServerMessage,
   encodeServerMessage,
-  MAX_EXPLANATION_LENGTH,
-  MAX_OPTION_LENGTH,
   MAX_PLAYERS_PER_ROOM,
-  MAX_SERVER_MESSAGE_BYTES,
   PLAYER_NAME_MAX_LENGTH,
   PROTOCOL_VERSION,
   TYPED_ANSWER_MAX_LENGTH,
 } from '../src/index.js';
 import type { ServerMessage } from '../src/index.js';
-import { utf8ByteLength } from '../src/codec/utf8-length.js';
-import { GUEST_ID, SERVER_SAMPLES } from './samples.js';
+import { SERVER_SAMPLES } from './samples.js';
 
 const join = (name: unknown): string =>
   JSON.stringify({ type: 'join', protocolVersion: PROTOCOL_VERSION, name });
@@ -102,7 +98,12 @@ describe('image paths', () => {
     decodeServerMessage(JSON.stringify({ ...question, imageUrl })).ok;
 
   it.each<[string, string, boolean]>([
-    ['a same-origin path', '/images/fake/a.png', true],
+    ['a path under /images/', '/images/fake/a.png', true],
+    ['a same-origin path outside /images/', '/api/secret', false],
+    ['the site root', '/', false],
+    ['a parent segment', '/images/../secret.png', false],
+    ['a query string', '/images/a.png?x=1', false],
+    ['a fragment', '/images/a.png#x', false],
     ['a protocol-relative URL', '//evil.example/a.png', false],
     ['an absolute URL', 'https://evil.example/a.png', false],
     ['a javascript URL', 'javascript:alert(1)', false],
@@ -110,28 +111,5 @@ describe('image paths', () => {
     ['a relative path', 'images/a.png', false],
   ])('%s', (_label, url, expected) => {
     expect(withImage(url)).toBe(expected);
-  });
-});
-
-describe('worst-case size', () => {
-  it('a reveal with every text at its maximum still fits the server limit', () => {
-    const longest = 'é'.repeat(MAX_OPTION_LENGTH);
-    const reveal: ServerMessage = {
-      type: 'reveal',
-      itemKey: 'k'.repeat(128),
-      reason: 'timeout',
-      correct: { kind: 'type', text: longest, acceptedForms: [longest, longest, longest, longest] },
-      explanation: '€'.repeat(MAX_EXPLANATION_LENGTH),
-      results: Array.from({ length: MAX_PLAYERS_PER_ROOM }, () => ({
-        playerId: GUEST_ID,
-        outcome: 'wrong' as const,
-        near: false,
-        points: 0,
-        score: 1_000_000,
-        answer: { kind: 'type' as const, text: '€'.repeat(TYPED_ANSWER_MAX_LENGTH) },
-      })),
-    };
-    const text = encodeServerMessage(reveal);
-    expect(utf8ByteLength(text)).toBeLessThan(MAX_SERVER_MESSAGE_BYTES);
   });
 });

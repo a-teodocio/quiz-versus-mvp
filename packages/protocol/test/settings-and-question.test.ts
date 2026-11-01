@@ -72,7 +72,9 @@ describe('question position and image-group part', () => {
     ['position zero', { position: 0 }, false],
     ['the last part', { part: { index: 3, count: 3 } }, true],
     ['a part beyond the part count', { part: { index: 4, count: 3 } }, false],
-    ['a group of one part', { part: { index: 1, count: 1 } }, false],
+    ['a group of one part (the real validator only warns)', { part: { index: 1, count: 1 } }, true],
+    ['a group of seven parts', { part: { index: 7, count: 7 } }, true],
+    ['a part count of zero', { part: { index: 1, count: 0 } }, false],
     ['a part counted from zero', { part: { index: 0, count: 3 } }, false],
     ['a zero duration', { durationMs: 0 }, false],
     [

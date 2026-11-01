@@ -16,7 +16,7 @@ The schemas themselves are internal. Callers go through the decoders and encoder
 ## Dependencies
 
 - May import: `zod` only.
-- Must not import: any other workspace package (`core`, `worker`, `web`), `node:*` or Cloudflare APIs. ESLint enforces this.
+- Must not import: any other workspace package (`core`, `worker`, `web`), `node:*` or Cloudflare APIs. ESLint blocks those imports. Any other npm package needs vetting and an ADR first; ESLint does not catch it.
 
 `package.json` points `exports` at `src/index.ts`. Consumers are bundled or run through TypeScript tooling (Wrangler, Vite, Vitest), so there is no build step to keep in sync.
 
@@ -29,5 +29,6 @@ npm test -- packages/protocol
 - `src/**/*.test.ts`: unit tests next to the code.
 - `test/samples.ts`: one valid example of every message; the other tests mutate these.
 - `test/answer-secrecy.test.ts`: a question cannot carry the answer.
-- `test/boundaries.test.ts`, `test/settings-and-question.test.ts`: limits and edge cases.
+- `test/client-bounds.test.ts`, `test/server-bounds.test.ts`, `test/boundaries.test.ts`, `test/settings-and-question.test.ts`: limits, edge cases and worst-case message size.
+- `test/sample-coverage.test.ts`: every message type has a sample.
 - `test/codec.test.ts`: round trips, rejections and the size limit.
