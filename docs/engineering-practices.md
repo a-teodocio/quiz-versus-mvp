@@ -57,6 +57,8 @@ Rules: a bug fix starts with a failing test. Tests do not depend on wall-clock t
 
 Major changes are reviewed against [review-checklist.md](review-checklist.md) by the `standards-reviewer` subagent before the pull request is opened. The author verifies each finding, fixes the real ones and records rejected ones with a reason. Rules a tool can enforce (complexity, size, layer imports, `TODO` comments, impure globals in `core`) are in ESLint and fail the build; the reviewer covers the judgement-based rules.
 
+**Second look after fixes (mandatory).** Fixes made in response to a review are reviewed again by the same reviewer before the pull request is merged, and again after any further fixes, until it reports nothing open. Fixes are where new rules and contradictions slip in unreviewed. Because pull requests auto-merge, the final review finishes before the pull request is marked ready; a pull request that needs fixes goes back to draft first. The pull request description names the commit the final review covered.
+
 ## Dependencies and security
 
 - Every third-party package is vetted before use and on every CI run: see [dependency-vetting.md](dependency-vetting.md) (release-age cooldown, audit, signatures, install scripts).

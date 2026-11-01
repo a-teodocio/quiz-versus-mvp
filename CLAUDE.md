@@ -29,6 +29,17 @@ Before opening a pull request for a major change (a new package, the state machi
 3. Verify each finding against the code yourself. A reviewer can be wrong. Fix the real ones. For any you reject, write the reason.
 4. Put the verified result in the PR description (verdict, fixed, rejected with reasons) and tell the user.
 
+### Second look after fixes (mandatory)
+
+Any change made to fix a review's findings needs a second look by the same reviewer before the pull request is merged. No exceptions, including for small fixes and doc-only fixes, because fixes are where new rules and new contradictions slip in unreviewed.
+
+1. Save the diff of the fix commits only (from the commit the reviewer saw to the branch head) to the scratchpad.
+2. Send it to the same reviewer agent with `SendMessage` (its agent id from the first review), so it keeps its context. Ask it to confirm each earlier finding is resolved, check the fixes for new problems, and check the docs and schemas still agree.
+3. Verify its findings as in step 3 above. If you fix anything again, repeat from step 1.
+4. Stop only when the reviewer reports nothing open (or only findings you have rejected with a reason).
+
+Pull requests auto-merge when `check` passes, so the last review must be finished before the pull request is opened as ready. If a pull request is already open and needs fixes, take it back to draft first (`gh pr ready --undo`) and mark it ready again after the second look. Name the commit the final review covered in the pull request description.
+
 Never pass the reviewer's output on unchecked. If the review finds a gap in the checklist, update `docs/review-checklist.md` in the same branch.
 
 ## Commands
