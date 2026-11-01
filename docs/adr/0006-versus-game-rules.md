@@ -27,7 +27,7 @@ The roadmap left four rules open: how points work, when a question closes, wheth
 - _What a tie-break question is._ An ordinary question or one part of an image-group, asked on its own; each part is its own round.
 - _The `tiebreak` field in the room snapshot._ It changes only at a reveal, never while a question is open, so it cannot leak who answered correctly. It is set at the reveal that announces the tie, with `round` the number of the tie-break question that comes next. While that question is open `round` is its number. At each tie-break reveal it is updated: `playerIds` narrows to the players still tied and `round` moves on. It is null again once the tie is resolved or the rounds run out, before the results.
 
-**What a player is sent when they arrive.** On a resume or a late join, in the lobby only `room`; in a question the open `question` with the time left (at least 1 ms; a question that has closed is never sent); in a reveal the last `reveal` again; after the results, `results` for a resume and `GAME_OVER` for a new join.
+**What a player is sent when they arrive.** On a resume or a late join, in the lobby only `room`; in a question the open `question` with the time left (at least 1 ms; a question that has closed is never sent); in a reveal the last `reveal` again (a player who had already answered reads that from `answered` in `room`; `answerAck` is not sent again); after the results, `results` for a resume and `GAME_OVER` for a new join.
 
 **Reconnecting.** A valid resume token restores the seat in any phase, including after the results, where the player is sent the standings again. `GAME_OVER` is only for a new join. A tied player who drops stays in `tiebreak.playerIds` and may resume; the question does not wait for them.
 

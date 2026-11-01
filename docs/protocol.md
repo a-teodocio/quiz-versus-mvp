@@ -72,7 +72,7 @@ A `join` with a different `protocolVersion` gets `error` `UNSUPPORTED_VERSION` a
 
 `answer` is `{ kind: 'pick', index }` (0 to 3, the position in the options as the player saw them) or `{ kind: 'type', text }`. The `itemKey` must match the open question, so a slow answer to an earlier question is refused with `STALE_QUESTION`. Item keys are issued by the server (for example `i12`, `i12p2` for a part) and are unique within a game; they are not quiz ids, because ids repeat across the files of a mixed game.
 
-A dropped connection is not a `leave`. The seat stays, shown as not connected, until the player resumes or the room ends. A valid `resumeToken` in `join` restores the seat in any phase, including after the results. A resumed player is sent `welcome`, then `room`, then the open `question` with the time left (if one is open), or `results` (if the game is over). In `reveal` it is sent the last `reveal` again, so it has something to show until the next question. In the lobby it is sent only `room`. The same applies to a late join. The time left on a question is rounded up to at least 1 ms, and the server never sends a question that has already closed.
+A dropped connection is not a `leave`. The seat stays, shown as not connected, until the player resumes or the room ends. A valid `resumeToken` in `join` restores the seat in any phase, including after the results. A resumed player is sent `welcome`, then `room`, then the open `question` with the time left (if one is open), or `results` (if the game is over). In `reveal` it is sent the last `reveal` again, so it has something to show until the next question. In the lobby it is sent only `room`. The same applies to a late join, except after the results, where a new join gets `GAME_OVER`. A resumed player who had already answered the open question is not sent `answerAck` again: the client reads its own `answered` flag from `room`. The time left on a question is rounded up to at least 1 ms, and the server never sends a question that has already closed.
 
 ## Server messages
 
@@ -132,9 +132,9 @@ The rules are in [ADR 6](adr/0006-versus-game-rules.md); `core` enforces them. W
 
 ## Version history
 
-- **2:** a question's `position` and `totalItems` became `progress` (`regular` or `tiebreak`); `room.tiebreak` was added; `GAME_IN_PROGRESS` became `GAME_OVER`; `NOT_IN_TIEBREAK` was added.
+- **2:** a question's `position` and `totalItems` became `progress` (`regular` or `tiebreak`); `room.tiebreak` was added; `GAME_IN_PROGRESS` became `GAME_OVER`; `NOT_IN_TIEBREAK` was added. Limits tightened later without a bump, because nothing is deployed: item keys are server-issued and at most 64 plain characters, image paths allow only plain-named segments, and image-group part numbers are at most 100.
 - **1:** first version.
 
 ## Changing the protocol
 
-Objects are strict, so adding a field is a breaking change for an older peer. Nothing has been deployed yet, so no peer runs an old version; the version still marks every shape change. Any change to a message shape bumps `PROTOCOL_VERSION`, updates this page, `test/samples.ts` and the version history above, and notes the change in the pull request. Because client and server ship together in this mock there is no compatibility window to maintain; a real deployment would need one (see the lessons).
+Objects are strict, so adding a field is a breaking change for an older peer. Nothing has been deployed yet, so no peer runs an old version; the version still marks every shape change. Any change to a message shape bumps `PROTOCOL_VERSION` (adding, removing or retyping a field; tightening or loosening a limit, or the characters a field allows, is not a shape change), updates this page, `test/samples.ts` and the version history above, and notes the change in the pull request. Because client and server ship together in this mock there is no compatibility window to maintain; a real deployment would need one (see the lessons).
