@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "dist",
+    "types": [],
+    "resolveJsonModule": true
+  },
+  "include": ["src", "test", "test/**/*.json"],
+  "references": [
+    {
+      "path": "../protocol"
+    }
+  ]
+}

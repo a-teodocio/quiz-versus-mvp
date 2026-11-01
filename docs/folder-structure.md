@@ -28,7 +28,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 ├── e2e/                       Playwright end-to-end tests (planned)
 ├── packages/
 │   ├── protocol/              Message schemas and types
-│   ├── core/                  Pure game logic (planned)
+│   ├── core/                  Pure game logic
 │   ├── worker/                Cloudflare Worker and Durable Object (planned)
 │   └── web/                   Browser app (planned)
 ├── scripts/                   Repo tooling run from npm scripts

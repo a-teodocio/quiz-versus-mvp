@@ -6,7 +6,7 @@ The quiz content is entirely fake. The code is written to production standards s
 
 ## Status
 
-Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `core`, `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
+Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built; `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
 
 ## Quickstart
 
