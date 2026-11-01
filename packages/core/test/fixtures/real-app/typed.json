@@ -1,0 +1,355 @@
+{
+  "typedCases": [
+    {
+      "correct": "Zorbulin",
+      "tooLong": false,
+      "forms": ["Zorbulin"],
+      "checks": [
+        {
+          "text": "zorbulin",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "ZORBULIN",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "Zorbulins",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "the zorbulin",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "zorbulim",
+          "ok": false,
+          "near": true
+        },
+        {
+          "text": "zorbxxxx",
+          "ok": false,
+          "near": false
+        },
+        {
+          "text": "",
+          "ok": false,
+          "near": false
+        },
+        {
+          "text": "   ",
+          "ok": false,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "Quillox (QX)",
+      "tooLong": false,
+      "forms": ["Quillox", "Quillox QX", "QX"],
+      "checks": [
+        {
+          "text": "quillox",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "qx",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "quillox qx",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "Quillox (QX)",
+          "ok": false,
+          "near": true
+        },
+        {
+          "text": "quilox",
+          "ok": false,
+          "near": true
+        },
+        {
+          "text": "quillix",
+          "ok": false,
+          "near": true
+        }
+      ]
+    },
+    {
+      "correct": "Loose (fluffy) membrane",
+      "tooLong": false,
+      "forms": ["Loose membrane", "Loose fluffy membrane"],
+      "checks": [
+        {
+          "text": "loose membrane",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "loose fluffy membrane",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "fluffy membrane",
+          "ok": false,
+          "near": false
+        },
+        {
+          "text": "loose membranes",
+          "ok": true,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "Mo'ra-vane",
+      "tooLong": false,
+      "forms": ["Mo'ra-vane"],
+      "checks": [
+        {
+          "text": "Mo'ra-vane",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "Mora vane",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "MO’RA VANE",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "mora-vane",
+          "ok": true,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "Café noir",
+      "tooLong": false,
+      "forms": ["Café noir"],
+      "checks": [
+        {
+          "text": "cafe noir",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "CAFÉ NOIR",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "caf noir",
+          "ok": false,
+          "near": true
+        }
+      ]
+    },
+    {
+      "correct": "Four word answer here",
+      "tooLong": true,
+      "forms": null,
+      "checks": [
+        {
+          "text": "four word answer here",
+          "ok": false,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "12 units",
+      "tooLong": false,
+      "forms": null,
+      "checks": [
+        {
+          "text": "12 units",
+          "ok": false,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "A, B and C",
+      "tooLong": true,
+      "forms": null,
+      "checks": [
+        {
+          "text": "a b and c",
+          "ok": false,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "Left/right",
+      "tooLong": false,
+      "forms": null,
+      "checks": [
+        {
+          "text": "left right",
+          "ok": false,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "One (two) three (four)",
+      "tooLong": false,
+      "forms": null,
+      "checks": [
+        {
+          "text": "one three",
+          "ok": false,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "(Only bracket)",
+      "tooLong": false,
+      "forms": ["Only bracket"],
+      "checks": [
+        {
+          "text": "only bracket",
+          "ok": true,
+          "near": false
+        }
+      ]
+    },
+    {
+      "correct": "Trailing name (TN)",
+      "tooLong": false,
+      "forms": ["Trailing name", "Trailing name TN", "TN"],
+      "checks": [
+        {
+          "text": "tn",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "trailing name",
+          "ok": true,
+          "near": false
+        },
+        {
+          "text": "trailing name tn",
+          "ok": true,
+          "near": false
+        }
+      ]
+    }
+  ],
+  "normCases": [
+    {
+      "text": "The Cell",
+      "normalised": "cell"
+    },
+    {
+      "text": "a  Test",
+      "normalised": "test"
+    },
+    {
+      "text": "An apple",
+      "normalised": "apple"
+    },
+    {
+      "text": "Mo’ra",
+      "normalised": "mora"
+    },
+    {
+      "text": "café",
+      "normalised": "cafe"
+    },
+    {
+      "text": "well‐known",
+      "normalised": "well known"
+    },
+    {
+      "text": "em\u2014dash",
+      "normalised": "em dash"
+    },
+    {
+      "text": "THE",
+      "normalised": "the"
+    },
+    {
+      "text": "the the cat",
+      "normalised": "the cat"
+    }
+  ],
+  "sameCases": [
+    {
+      "a": "cell",
+      "b": "cells",
+      "same": true
+    },
+    {
+      "a": "box",
+      "b": "boxes",
+      "same": true
+    },
+    {
+      "a": "red cell",
+      "b": "red cells",
+      "same": true
+    },
+    {
+      "a": "reds cell",
+      "b": "red cells",
+      "same": false
+    },
+    {
+      "a": "cell",
+      "b": "cell",
+      "same": true
+    },
+    {
+      "a": "cell",
+      "b": "sell",
+      "same": false
+    },
+    {
+      "a": "a b",
+      "b": "a",
+      "same": false
+    }
+  ],
+  "distanceCases": [
+    {
+      "a": "kitten",
+      "b": "sitting",
+      "distance": 3
+    },
+    {
+      "a": "",
+      "b": "abc",
+      "distance": 3
+    },
+    {
+      "a": "same",
+      "b": "same",
+      "distance": 0
+    },
+    {
+      "a": "ab",
+      "b": "ba",
+      "distance": 2
+    }
+  ]
+}
