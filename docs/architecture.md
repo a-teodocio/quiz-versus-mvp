@@ -1,6 +1,6 @@
 # Architecture
 
-Status: `protocol` is built; `core`, `worker` and `web` are planned. This document is the contract they are built to.
+Status: `protocol` and `core` are built; `worker` and `web` are planned. This document is the contract they are built to.
 
 ## Packages
 
@@ -45,11 +45,14 @@ One room is one Durable Object instance holding one `core` room state. The state
 
 ```
 LOBBY ──start──> QUESTION ──all answered or timeout──> REVEAL ──next──> QUESTION
+                                                          ├──tie for first──> QUESTION (tie-break, up to 5)
                                                           └──last──> RESULTS
 ```
 
+The wire phases stay these four; the tie-break is a question phase for the tied players only ([ADR 6](adr/0006-versus-game-rules.md)). The shape of the state machine, who prepares the game and how time and effects work are in [ADR 7](adr/0007-core-state-machine.md).
+
 - The server holds the correct answers. Clients receive them only in `REVEAL`.
-- All inputs (join, leave, answer, start, disconnect, timer fired) are events applied to the state machine, which returns the new state and the messages to send. This makes every behaviour testable without a network.
+- All inputs (join, leave, answer, start, next, disconnect, timer fired) are events applied to the pure `step` function, which returns the new state and effects (messages to send, a timer to set or clear). This makes every behaviour testable without a network. `RoomSession` adds the clock and logging around it.
 
 ## Data
 

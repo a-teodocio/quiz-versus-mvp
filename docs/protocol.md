@@ -86,7 +86,7 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `results`   | `standings`                                              | After the last reveal                                        |
 | `error`     | `code`, `message`                                        | A request was refused                                        |
 
-**`room`** carries `roomId`, `phase` (`lobby`, `question`, `reveal`, `results`), `hostId`, `players`, `settings` (null until the game starts) and `tiebreak` (null unless a tie-break is under way: `{ round, playerIds }`, the players still tied for first place, who are the only ones asked). Each player is `{ id, name, connected, answered, score }`. `answered` says a player has answered the open question and nothing about whether they were right.
+**`room`** carries `roomId`, `phase` (`lobby`, `question`, `reveal`, `results`), `hostId`, `players`, `settings` (null until the game starts) and `tiebreak` (null unless a tie-break is under way: `{ round, playerIds }`, the players still tied for first place, who are the only ones asked). `hostId` can change during a game: when the host disconnects or leaves, the earliest-joined connected player becomes host, and a returning host does not take the role back ([ADR 7](adr/0007-core-state-machine.md)). Each player is `{ id, name, connected, answered, score }`. `answered` says a player has answered the open question and nothing about whether they were right.
 
 **`question`** carries `mode` (`pick` or `type`), `progress`, `itemKey`, `prompt`, `durationMs`, and optionally `imageUrl` and `part` (`{ index, count }`, index from 1 and at most count, both at most 100, for an image-group of one or more parts). `progress` is `{ kind: 'regular', position, totalItems }` (position from 1, at most the total, each image-group part counting on its own) or `{ kind: 'tiebreak', round }` for an extra question asked only of the tied players. A `pick` question has `options`, exactly four, already shuffled. A `type` question has no options at all, because a list of options contains the answer.
 
@@ -113,7 +113,7 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `NOT_HOST`             | `start` or `next` from a player who is not the host                                      |
 | `WRONG_PHASE`          | The message is not allowed in the current phase                                          |
 | `INVALID_SETTINGS`     | Well-formed settings the server cannot honour (for example, too few questions available) |
-| `STALE_QUESTION`       | `answer` for a question that is not the open one                                         |
+| `STALE_QUESTION`       | `answer` for a question that is not the open one, including one that has just closed     |
 | `ALREADY_ANSWERED`     | A second answer to the same question                                                     |
 | `INVALID_ANSWER`       | `answer` of the wrong kind for the question's mode                                       |
 | `RATE_LIMITED`         | Too many messages too fast                                                               |
