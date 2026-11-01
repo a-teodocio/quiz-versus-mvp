@@ -52,6 +52,10 @@ Rules: a bug fix starts with a failing test. Tests do not depend on wall-clock t
 - `LESSONS.md` (at the end): what worked, what to change, port checklist.
 - Public functions and exported types carry short doc comments. Docs change in the same PR as the behaviour.
 
+## Review
+
+Major changes are reviewed against [review-checklist.md](review-checklist.md) by the `standards-reviewer` subagent before the pull request is opened. The author verifies each finding, fixes the real ones and records rejected ones with a reason. Rules a tool can enforce (complexity, size, layer imports, `TODO` comments, impure globals in `core`) are in ESLint and fail the build; the reviewer covers the judgement-based rules.
+
 ## Dependencies and security
 
 - Every third-party package is vetted before use and on every CI run: see [dependency-vetting.md](dependency-vetting.md) (release-age cooldown, audit, signatures, install scripts).

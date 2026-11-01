@@ -9,7 +9,10 @@ import prettier from 'eslint-config-prettier';
  * `core` is pure logic: no I/O, no platform APIs, no other workspace package except `protocol`.
  */
 const forbid = (patterns, message) => ({
-  'no-restricted-imports': ['error', { patterns: patterns.map((group) => ({ group, message })) }],
+  'no-restricted-imports': [
+    'error',
+    { patterns: patterns.map((pattern) => ({ group: [pattern], message })) },
+  ],
 });
 
 export default tseslint.config(
@@ -29,14 +32,38 @@ export default tseslint.config(
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
       eqeqeq: ['error', 'always'],
       'no-console': 'error',
+      // Size and complexity limits (review-checklist D1, TD1, TD3).
+      complexity: ['error', 10],
+      'max-depth': ['error', 3],
+      'max-params': ['error', 4],
+      'max-lines-per-function': ['error', { max: 60, skipBlankLines: true, skipComments: true }],
+      'max-lines': ['error', { max: 400, skipBlankLines: true, skipComments: true }],
+      'no-warning-comments': ['error', { terms: ['todo', 'fixme', 'hack'], location: 'anywhere' }],
     },
   },
   {
     files: ['packages/core/**/*.ts'],
-    rules: forbid(
-      ['@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*', '@cloudflare/*'],
-      'core must stay pure: it may import only from @quiz-versus/protocol (types).',
-    ),
+    rules: {
+      ...forbid(
+        ['@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*', '@cloudflare/*'],
+        'core must stay pure: it may import only from @quiz-versus/protocol (types).',
+      ),
+      // Time and randomness come in through the Clock and Random ports (review-checklist A4).
+      'no-restricted-globals': [
+        'error',
+        ...['Date', 'setTimeout', 'setInterval', 'fetch', 'process', 'localStorage'].map(
+          (name) => ({
+            name,
+            message: `core is pure: do not use ${name}; inject it through a port.`,
+          }),
+        ),
+      ],
+      'no-restricted-properties': [
+        'error',
+        { object: 'Math', property: 'random', message: 'Use the injected Random port.' },
+        { object: 'Date', property: 'now', message: 'Use the injected Clock port.' },
+      ],
+    },
   },
   {
     files: ['packages/protocol/**/*.ts'],
