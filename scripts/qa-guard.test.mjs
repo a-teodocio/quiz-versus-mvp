@@ -1,17 +1,24 @@
 import { spawnSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { execPath } from 'node:process';
+import process, { execPath } from 'node:process';
 import { describe, expect, it } from 'vitest';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 const SCRIPT = join(import.meta.dirname, 'qa-guard.mjs');
-const LOG_FILE = join(REPO_ROOT, 'node_modules', '.cache', 'qa-guard.log');
+/** The tests write their decisions here, not to the log that the canary check reads. */
+const LOG_FILE = join(tmpdir(), `qa-guard-test-${String(process.pid)}.log`);
 const AGENT_FILE = join(REPO_ROOT, '.claude', 'agents', 'qa-tester.md');
 
 /** Runs the real hook script as the harness would: JSON on stdin, exit code and output back. */
 function runHook(stdin) {
-  const result = spawnSync(execPath, [SCRIPT], { input: stdin, encoding: 'utf8', timeout: 10_000 });
+  const result = spawnSync(execPath, [SCRIPT], {
+    input: stdin,
+    encoding: 'utf8',
+    timeout: 10_000,
+    env: { ...process.env, QA_GUARD_LOG: LOG_FILE },
+  });
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
@@ -37,6 +44,12 @@ describe('the qa-guard hook as a process', () => {
   it('allows reading a file in the repo by its real absolute path', () => {
     const file = join(REPO_ROOT, 'docs', 'protocol.md');
     expect(runHook(call('Read', { file_path: file })).code).toBe(0);
+  });
+
+  it('blocks a permitted command when the session was started outside the repo', () => {
+    const result = runHook(call('Bash', { command: 'npm run check' }, join(REPO_ROOT, '..')));
+    expect(result.code).toBe(2);
+    expect(result.stderr).toContain('inside the repository');
   });
 
   it('blocks a forbidden command with exit 2 and the reason on stderr', () => {
@@ -94,6 +107,12 @@ describe('the hook wiring in the agent definition', () => {
     const command = /command:\s*'([^']+)'/.exec(frontmatter)?.[1] ?? '';
     expect(command).toContain('scripts/qa-guard.mjs');
     expect(command).toMatch(/\|\| exit 2$/);
+  });
+
+  it('never lists a tool as both kept and removed', () => {
+    const tools = (/^tools:\s*(.+)$/m.exec(frontmatter)?.[1] ?? '').split(/,\s*/);
+    const removed = (/^disallowedTools:\s*(.+)$/m.exec(frontmatter)?.[1] ?? '').split(/,\s*/);
+    expect(tools.filter((tool) => removed.includes(tool))).toEqual([]);
   });
 
   it('removes the tools that could get round the guard', () => {

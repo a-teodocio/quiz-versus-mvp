@@ -5,18 +5,20 @@
 // command in the agent file (`... || exit 2`). The one thing that proves the wiring works is the
 // canary check in docs/qa-scenarios.md, which reads the log this script writes.
 import { appendFileSync, mkdirSync, readFileSync } from 'node:fs';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import process, { stderr, stdout } from 'node:process';
 import { decide } from './qa-guard-policy.mjs';
 
 const REPO_ROOT = join(import.meta.dirname, '..');
 /** One line per decision, kept out of the repo's tracked files. The canary check reads it. */
-const LOG_FILE = join(REPO_ROOT, 'node_modules', '.cache', 'qa-guard.log');
+const DEFAULT_LOG_DIR = join(REPO_ROOT, 'node_modules', '.cache');
+/** Tests point this at a temporary file so they do not fill the log that the canary check reads. */
+const LOG_FILE = process.env.QA_GUARD_LOG ?? join(DEFAULT_LOG_DIR, 'qa-guard.log');
 
 /** Records a decision. A failure to log never changes the decision. */
 function record(input, verdict) {
   try {
-    mkdirSync(join(REPO_ROOT, 'node_modules', '.cache'), { recursive: true });
+    mkdirSync(dirname(LOG_FILE), { recursive: true });
     const tool = String(input?.tool_name);
     const detail = String(input?.tool_input?.command ?? input?.tool_input?.file_path ?? '').slice(
       0,

@@ -71,6 +71,7 @@ Check these against the real app before declaring a step done. Anything not repr
 ## Open questions
 
 - Cloudflare free-tier limits must be re-checked before relying on them.
+- Core product questions waiting for the owner (the 1 to 4 keys against WCAG 2.1.4, a warning near the end of a question), and the parked questions ranked P1 to P3, are in [parked-product-questions.md](parked-product-questions.md).
 - The coverage floor on `core` (checklist E8) is not enforced yet (see `known-issues.md`).
 
 ## What only the user can do

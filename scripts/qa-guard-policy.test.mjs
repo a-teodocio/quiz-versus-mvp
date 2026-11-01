@@ -187,6 +187,13 @@ describe('files the tester may write', () => {
     ['tsconfig inside qa', `${ROOT}/e2e/qa/tsconfig.json`, 'configures tools'],
     ['a tsconfig variant inside qa', `${ROOT}/e2e/qa/tsconfig.base.json`, 'configures tools'],
     ['node_modules inside qa', `${ROOT}/e2e/qa/node_modules/x/index.ts`, 'cannot be written'],
+    ['a superscript device name', `${ROOT}/e2e/qa/com\u00b9.ts`, 'hide where'],
+    ['a full-width name', `${ROOT}/e2e/qa/\uff58.ts`, 'hide where'],
+    ['a name with a space', `${ROOT}/e2e/qa/two words.ts`, 'hide where'],
+    ['a tool configuration file', `${ROOT}/e2e/qa/playwright.config.ts`, 'configures tools'],
+    ['a vitest configuration file', `${ROOT}/e2e/qa/vitest.config.json`, 'configures tools'],
+    ['a set-up file', `${ROOT}/e2e/qa/global-setup.ts`, 'configures tools'],
+    ['a dot-file', `${ROOT}/e2e/qa/.prettierrc.json`, 'configures tools'],
     ['a markdown file', `${ROOT}/e2e/qa/notes.md`, 'only .ts and .json'],
     ['a nested CLAUDE.md', `${ROOT}/e2e/qa/CLAUDE.md`, 'configures tools'],
     ['a module script', `${ROOT}/e2e/qa/run.mjs`, 'only .ts and .json'],
@@ -215,6 +222,9 @@ describe('what the tester may read and search', () => {
     ['Grep', { pattern: 'x', glob: '*.ts' }],
     ['Glob', { pattern: '**/*.ts' }],
     ['Glob', { pattern: '*.md', path: `${ROOT}/docs` }],
+    ['Read', { file_path: '/c/Users/someone/work/quiz-versus-mvp/docs/protocol.md' }],
+    ['Grep', { pattern: '..', glob: '*.ts' }],
+    ['Grep', { pattern: '.git|.env', path: `${ROOT}/docs` }],
   ])('allows %s %j', (tool, input) => {
     expect(decideRead(tool, input, CWD, ROOT).allow).toBe(true);
   });
@@ -235,6 +245,31 @@ describe('what the tester may read and search', () => {
     ['Glob', { pattern: '../**/*.md' }, 'stay inside'],
     ['Glob', { pattern: 'docs/../../x/*.md' }, 'stay inside'],
     ['Grep', { pattern: 'x', glob: '../**' }, 'stay inside'],
+    ['Glob', { pattern: '{..,x}/*.md' }, 'stay inside'],
+    ['Glob', { pattern: '~/x/*.md' }, 'stay inside'],
+    ['Grep', { pattern: 'x', glob: '~/**' }, 'stay inside'],
+    [
+      'Grep',
+      { pattern: 'x', path: 'D:/Users/someone/work/quiz-versus-mvp' },
+      'inside the repository',
+    ],
+    [
+      'Glob',
+      { pattern: '*', path: 'D:/Users/someone/work/quiz-versus-mvp' },
+      'inside the repository',
+    ],
+    ['Read', { file_path: `${ROOT}/.dev.vars` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/packages/worker/.dev.vars.local` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/.env` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/.env.production` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/.git/config` }, 'secrets'],
+    ['Read', { file_path: `${ROOT}/node_modules/.cache/qa-guard.log` }, 'secrets'],
+    ['Grep', { pattern: 'x', path: `${ROOT}/.git` }, 'secrets'],
+    ['Glob', { pattern: '*', path: `${ROOT}/node_modules/.cache` }, 'secrets'],
+    ['Glob', { pattern: '**/.dev.vars' }, 'secrets'],
+    ['Glob', { pattern: '**/.env*' }, 'secrets'],
+    ['Glob', { pattern: '{.git,docs}/*' }, 'secrets'],
+    ['Grep', { pattern: 'x', glob: '.git/**' }, 'secrets'],
   ])('refuses %s %j', (tool, input, reason) => {
     expectRefused(decideRead(tool, input, CWD, ROOT), reason);
   });
@@ -255,13 +290,21 @@ describe('what the tester may read and search', () => {
 
 describe('a whole tool call', () => {
   it('routes Bash to the command rules', () => {
-    expect(
-      decide({ tool_name: 'Bash', tool_input: { command: 'npm run check' } }, ROOT).allow,
-    ).toBe(true);
-    expectRefused(
-      decide({ tool_name: 'Bash', tool_input: { command: 'git push' } }, ROOT),
-      'only git rev-parse',
-    );
+    const bash = (command, cwd = ROOT) => ({ tool_name: 'Bash', tool_input: { command }, cwd });
+    expect(decide(bash('npm run check'), ROOT).allow).toBe(true);
+    expect(decide(bash('npm run check', `${ROOT}/docs`), ROOT).allow).toBe(true);
+    expectRefused(decide(bash('git push'), ROOT), 'only git rev-parse');
+  });
+
+  it.each([
+    ['another project', 'C:/Users/someone/obsidian/vault'],
+    ['a look-alike folder', 'C:/Users/someone/work/quiz-versus-mvp-other'],
+    ['another drive', 'D:/Users/someone/work/quiz-versus-mvp'],
+    ['a relative folder', 'docs'],
+    ['no folder', undefined],
+  ])('refuses a Bash command run from %s, even a permitted one', (_name, cwd) => {
+    const input = { tool_name: 'Bash', tool_input: { command: 'npm run check' }, cwd };
+    expectRefused(decide(input, ROOT), 'inside the repository');
   });
 
   it.each(['Write', 'Edit', 'MultiEdit'])('routes %s to the path rules', (tool) => {

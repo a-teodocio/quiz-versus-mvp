@@ -15,6 +15,13 @@ const FORBIDDEN_BASENAMES = /^(package(-lock)?\.json|tsconfig[^/]*\.json|claude\
 const FORBIDDEN_SEGMENTS = /^(node_modules|\.git|\.claude)$/;
 /** Windows device names, which are special wherever they appear in a path. */
 const DEVICE_NAMES = /^(con|prn|aux|nul|com[1-9]|lpt[1-9])(\..*)?$/;
+/** Every name the tester writes uses only these characters, which rules out whole classes of path tricks. */
+const SAFE_NAME = /^[a-z0-9._-]+$/;
+/** Dot-files, `*.config.*` and set-up files configure the tools that run the tests. */
+const TOOL_CONFIG_NAME = /(^\.|\.config\.|^global-?setup|^global-?teardown)/;
+/** Places inside the repo that hold secrets or the guard's own log, which are never read. */
+const SECRET_FOLDER = /^(\.git)$/;
+const SECRET_FILE = /^(\.dev\.vars|\.env)/;
 
 /** Anything outside printable ASCII (tabs, newlines, no-break spaces, control characters). */
 const NOT_PRINTABLE = /[^\x20-\x7e]/;
@@ -140,26 +147,29 @@ function splitPath(path) {
   return { drive, names: names.map((name) => name.toLowerCase()) };
 }
 
-/** Where a path lies under the repo: the names below the root, or a refusal. */
-function belowRoot(path, repoRoot) {
+/**
+ * Where a path lies under the repo: the names below the root, or a refusal. With `allowRoot`, the
+ * repo root itself counts as inside (a folder to work or search in); without it, only things below.
+ */
+function belowRoot(path, repoRoot, allowRoot = false) {
   const root = splitPath(repoRoot);
   const target = splitPath(path);
   if (root === null) return { refusal: deny('the repository location is unusable') };
   if (target === null) return { refusal: deny('use an absolute path on a drive') };
+  const deepEnough = allowRoot
+    ? target.names.length >= root.names.length
+    : target.names.length > root.names.length;
   const inside =
     target.drive === root.drive &&
-    target.names.length > root.names.length &&
+    deepEnough &&
     root.names.every((name, at) => name === target.names[at]);
   if (!inside) return { refusal: deny('only files inside the repository can be used') };
   return { names: target.names.slice(root.names.length) };
 }
 
-/** Names that Windows or the shell treat specially, which could hide where a file really goes. */
+/** Names that Windows or the shell treat specially, or that fall outside the plain character set. */
 const hasOddName = (names) =>
-  names.some(
-    (name) =>
-      /[:~]/.test(name) || name.endsWith('.') || name.endsWith(' ') || DEVICE_NAMES.test(name),
-  );
+  names.some((name) => !SAFE_NAME.test(name) || name.endsWith('.') || DEVICE_NAMES.test(name));
 
 /** Decides a file write or edit: only test files, only under the tester's folders. */
 export function decideWrite(filePath, repoRoot) {
@@ -175,44 +185,57 @@ export function decideWrite(filePath, repoRoot) {
     return deny('that folder cannot be written');
   }
   const file = names.at(-1) ?? '';
-  if (FORBIDDEN_BASENAMES.test(file))
+  if (FORBIDDEN_BASENAMES.test(file) || TOOL_CONFIG_NAME.test(file)) {
     return deny('that file configures tools and cannot be written');
+  }
   if (!WRITABLE_EXTENSIONS.some((extension) => file.endsWith(extension))) {
     return deny(`only ${WRITABLE_EXTENSIONS.join(' and ')} files can be written`);
   }
   return allow(`write inside ${names.slice(0, 2).join('/')}/`);
 }
 
-/** A glob that could reach outside the repo: absolute, drive-relative or climbing. */
+/** A glob that could reach outside the repo: absolute, drive-relative, or with `..` or `~` anywhere. */
 const reachesOutside = (pattern) =>
-  typeof pattern === 'string' &&
-  (/^([a-zA-Z]:|[/\\])/.test(pattern) || /(^|[/\\])\.\.([/\\]|$)/.test(pattern));
+  typeof pattern === 'string' && (/^([a-zA-Z]:|[/\\])/.test(pattern) || /\.\.|~/.test(pattern));
 
-/** Decides a read or search: only inside the repo, so real files elsewhere cannot be pulled in. */
+/** A glob that names a secret place. */
+const namesSecret = (pattern) =>
+  typeof pattern === 'string' && /(^|[/\\{,])(\.git|\.dev\.vars|\.env)/i.test(pattern);
+
+/** True for a place inside the repo that holds secrets or the guard's log (names below the root). */
+const isSecretPlace = (names) =>
+  names.some((name) => SECRET_FOLDER.test(name) || SECRET_FILE.test(name)) ||
+  names.join('/').startsWith('node_modules/.cache');
+
+/** Decides a read or search: inside the repo only, and never secrets or the guard's own log. */
 export function decideRead(toolName, toolInput, cwd, repoRoot) {
-  if (toolName === 'Read') {
-    const found = belowRoot(toolInput?.file_path, repoRoot);
-    return found.refusal ?? allow('read inside the repository');
-  }
+  const isRead = toolName === 'Read';
   // Grep and Glob search from `path`, or from the working directory when none is given.
-  const searchFrom = toolInput?.path ?? cwd;
-  const found = belowRoot(searchFrom, repoRoot);
-  const root = splitPath(repoRoot);
-  const atRoot = root !== null && splitPath(searchFrom)?.names.join('/') === root.names.join('/');
-  if (found.refusal && !atRoot) return found.refusal;
-  if (reachesOutside(toolInput?.pattern) && toolName === 'Glob') {
-    return deny('a glob pattern must stay inside the search folder');
-  }
-  if (reachesOutside(toolInput?.glob))
-    return deny('a glob filter must stay inside the search folder');
+  const place = isRead ? toolInput?.file_path : (toolInput?.path ?? cwd);
+  const found = belowRoot(place, repoRoot, !isRead);
+  if (found.refusal) return found.refusal;
+  if (isSecretPlace(found.names)) return deny('that place holds secrets or the guard log');
+  if (isRead) return allow('read inside the repository');
+  // Glob's `pattern` and Grep's `glob` are file globs; Grep's `pattern` is a regex and is not checked.
+  const glob = toolName === 'Glob' ? toolInput?.pattern : toolInput?.glob;
+  if (reachesOutside(glob)) return deny('a glob must stay inside the search folder');
+  if (namesSecret(glob)) return deny('a glob must not name secrets or the guard log');
   return allow('search inside the repository');
+}
+
+/** Commands run where the session was started, so that must be the repo, not another project. */
+function decideWorkingFolder(cwd, repoRoot) {
+  const found = belowRoot(cwd, repoRoot, true);
+  return found.refusal ? deny('commands may only run from inside the repository') : null;
 }
 
 /** Applies the policy to one hook call (the JSON the harness sends on stdin). */
 export function decide(input, repoRoot) {
   const toolName = input?.tool_name;
   const toolInput = input?.tool_input;
-  if (toolName === 'Bash') return decideCommand(toolInput?.command);
+  if (toolName === 'Bash') {
+    return decideWorkingFolder(input?.cwd, repoRoot) ?? decideCommand(toolInput?.command);
+  }
   if (toolName === 'Write' || toolName === 'Edit' || toolName === 'MultiEdit') {
     return decideWrite(toolInput?.file_path, repoRoot);
   }
