@@ -18,6 +18,17 @@ Mock of a local MLS quiz app, used to trial a live multiplayer (versus) mode bef
 3. `docs/adr/`: why the big decisions were made. Add an ADR for any new one.
 4. `docs/fidelity.md`: where the mock differs from the real app.
 
+## Review before major updates
+
+Before opening a pull request for a major change (a new package, the state machine, the Durable Object, the web client, any protocol change), run the `standards-reviewer` subagent (`.claude/agents/standards-reviewer.md`). Its rules are in `docs/review-checklist.md`.
+
+1. Finish the branch and run `npm run check`.
+2. Save the branch diff to the scratchpad. Give the reviewer the branch name, the changed files and the diff path.
+3. Verify each finding against the code yourself. A reviewer can be wrong. Fix the real ones. For any you reject, write the reason.
+4. Put the verified result in the PR description (verdict, fixed, rejected with reasons) and tell the user.
+
+Never pass the reviewer's output on unchecked. If the review finds a gap in the checklist, update `docs/review-checklist.md` in the same branch.
+
 ## Commands
 
 ```

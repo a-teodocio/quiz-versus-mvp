@@ -29,6 +29,7 @@ npm run check
 ## Documentation
 
 - [Engineering practices](docs/engineering-practices.md): the standards every change follows
+- [Review checklist](docs/review-checklist.md): what every change is reviewed against
 - [Dependency vetting](docs/dependency-vetting.md): how third-party packages are checked
 - [Architecture](docs/architecture.md): packages, layers, game-room state machine
 - [Architecture decisions](docs/adr/): why things are the way they are
