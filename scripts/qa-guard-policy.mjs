@@ -132,15 +132,17 @@ export function decideCommand(command) {
 const hasControlCharacter = (text) => [...text].some((char) => char.charCodeAt(0) < 32);
 
 /**
- * Splits an absolute path into a lower-case drive and folder names, or returns null for anything
- * else: relative paths, UNC and device paths (`//...`), drive-relative paths, control characters.
- * Two forms are understood: a Windows drive path (`C:\x`, or the Git Bash form `/c/x`, drive `c:`)
- * and a POSIX path (`/home/x`, drive empty), so the guard and its tests run on both. A path with
- * a drive never lies inside one without it.
+ * Splits an absolute path into a lower-case drive and folder names (`names` as written, `folded`
+ * in lower case), or returns null for anything else: relative paths, UNC and device paths
+ * (`//...`), drive-relative paths, control characters. Two forms are understood: a Windows drive
+ * path (`C:\x`) and a POSIX path (`/home/x`, drive empty), so the guard and its tests run on both.
+ * With `gitBash`, the Git Bash spelling of a drive path (`/c/x`) is read as drive `c:`; that is
+ * only done when the repo itself is on a drive, so a POSIX folder `/c/x` is never mistaken for one.
  */
-function splitPath(path) {
+function splitPath(path, gitBash = false) {
   if (typeof path !== 'string' || path === '' || hasControlCharacter(path)) return null;
-  const text = path.replace(/\\/g, '/').replace(/^\/([a-zA-Z])\//, '$1:/');
+  const slashed = path.replace(/\\/g, '/');
+  const text = gitBash ? slashed.replace(/^\/([a-zA-Z])\//, '$1:/') : slashed;
   const windows = /^[a-zA-Z]:\//.test(text);
   if (!windows && (!text.startsWith('/') || text.startsWith('//'))) return null;
   const drive = windows ? text.slice(0, 2).toLowerCase() : '';
@@ -149,27 +151,32 @@ function splitPath(path) {
     .split('/')
     .filter((name) => name !== '' && name !== '.');
   if (names[0] === '..') return null;
-  return { drive, names: names.map((name) => name.toLowerCase()) };
+  return { drive, names, folded: names.map((name) => name.toLowerCase()) };
 }
 
 /**
- * Where a path lies under the repo: the names below the root, or a refusal. With `allowRoot`, the
- * repo root itself counts as inside (a folder to work or search in); without it, only things below.
+ * Where a path lies under the repo: the names below the root (lower case), or a refusal. With
+ * `allowRoot`, the repo root itself counts as inside (a folder to work or search in); without it,
+ * only things below. On a drive path names compare without regard to case; under a POSIX root,
+ * where the file system is case-sensitive, the part that names the repo is compared exactly.
  */
 function belowRoot(path, repoRoot, allowRoot = false) {
   const root = splitPath(repoRoot);
-  const target = splitPath(path);
   if (root === null) return { refusal: deny('the repository location is unusable') };
-  if (target === null) return { refusal: deny('use an absolute path on a drive') };
+  const target = splitPath(path, root.drive !== '');
+  if (target === null) return { refusal: deny('use an absolute path') };
+  const exact = root.drive === '';
   const deepEnough = allowRoot
     ? target.names.length >= root.names.length
     : target.names.length > root.names.length;
   const inside =
     target.drive === root.drive &&
     deepEnough &&
-    root.names.every((name, at) => name === target.names[at]);
+    (exact ? root.names : root.folded).every(
+      (name, at) => name === (exact ? target.names : target.folded)[at],
+    );
   if (!inside) return { refusal: deny('only files inside the repository can be used') };
-  return { names: target.names.slice(root.names.length) };
+  return { names: target.folded.slice(root.names.length) };
 }
 
 /** Names that Windows or the shell treat specially, or that fall outside the plain character set. */

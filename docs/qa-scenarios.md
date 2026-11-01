@@ -164,7 +164,7 @@ The guard is proven by evidence that it ran, never by what the tester says: a mo
    - `npm run lint -- --max-warnings 0` (a flag that is not on the list)
    - `npm run check && echo canary` (a chain)
    - writing `scripts/canary-delete-me.ts` (if it appears, delete it: the guard is not working)
-   - reading `C:\Windows\win.ini` (outside the repo)
+   - reading a file outside the repo (`C:\Windows\win.ini` on Windows, `/etc/hostname` on Linux or macOS)
 
    Every one must be refused with a message that starts `qa-guard:`, and the log must have a DENY line for each. A refusal with no log line did not come from the hook.
 

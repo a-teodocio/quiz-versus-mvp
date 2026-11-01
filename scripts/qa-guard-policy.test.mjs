@@ -422,3 +422,51 @@ describe('on a POSIX machine (the paths on the continuous integration runner)', 
     expectRefused(decide(bash('C:/Users/someone'), POSIX_ROOT), 'inside the repository');
   });
 });
+
+describe('where the two path forms could be confused', () => {
+  const POSIX_ROOT = '/home/runner/work/quiz-versus-mvp/quiz-versus-mvp';
+  const LETTER_ROOT = '/c/code/repo';
+
+  it('compares the part that names the repo exactly under a POSIX root (the file system is case-sensitive)', () => {
+    expectRefused(
+      decideWrite('/home/runner/work/Quiz-Versus-MVP/quiz-versus-mvp/e2e/qa/x.ts', POSIX_ROOT),
+      'inside the repository',
+    );
+    expectRefused(
+      decideWrite('/HOME/runner/work/quiz-versus-mvp/quiz-versus-mvp/e2e/qa/x.ts', POSIX_ROOT),
+      'inside the repository',
+    );
+  });
+
+  it('still ignores case below the repo, where the writable-folder and secret rules need it', () => {
+    expect(decideWrite(`${POSIX_ROOT}/E2E/QA/Lobby.spec.ts`, POSIX_ROOT).allow).toBe(true);
+    expectRefused(
+      decideRead('Read', { file_path: `${POSIX_ROOT}/.DEV.VARS` }, POSIX_ROOT, POSIX_ROOT),
+      'secrets',
+    );
+  });
+
+  it('does not read a POSIX folder named with one letter as a drive', () => {
+    expect(decideWrite(`${LETTER_ROOT}/e2e/qa/x.ts`, LETTER_ROOT).allow).toBe(true);
+    expectRefused(decideWrite('C:/code/repo/e2e/qa/x.ts', LETTER_ROOT), 'inside the repository');
+    expectRefused(
+      decideWrite('c:\\code\\repo\\e2e\\qa\\x.ts', LETTER_ROOT),
+      'inside the repository',
+    );
+  });
+
+  it('still reads the Git Bash spelling of a drive path when the repo is on a drive', () => {
+    const root = 'C:\\Users\\someone\\work\\Repo';
+    expect(decideWrite('/c/users/someone/work/repo/e2e/qa/x.ts', root).allow).toBe(true);
+    expect(decideWrite('C:/Users/someone/work/REPO/e2e/qa/x.ts', root).allow).toBe(true);
+  });
+
+  it('searches from the working directory on a POSIX machine when no path is given', () => {
+    expect(decideRead('Grep', { pattern: 'x' }, POSIX_ROOT, POSIX_ROOT).allow).toBe(true);
+    expectRefused(
+      decideRead('Grep', { pattern: 'x' }, '/home/runner', POSIX_ROOT),
+      'inside the repository',
+    );
+    expectRefused(decideRead('Glob', { pattern: '*.md' }, undefined, POSIX_ROOT), 'absolute path');
+  });
+});
