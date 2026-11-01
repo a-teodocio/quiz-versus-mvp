@@ -24,6 +24,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Wire protocol v1: strict JSON messages, `question` never carries the answer                         | `protocol.md`                                      |
 | Players per room: 8 for now (provisional, one constant: `MAX_PLAYERS_PER_ROOM`)                     | `protocol.md`, `packages/protocol/src/limits.ts`   |
 | Versus asks for typed text only where the real app can auto-check it; the rest stay multiple choice | `fidelity.md`                                      |
+| The owner's PRs merge themselves once `check` passes; a draft is held back                          | `adr/0005-auto-merge-owner-pull-requests.md`       |
 
 ## Status
 
@@ -32,7 +33,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Tooling: TypeScript, ESLint layer rules, Prettier, hooks, Vitest          | Done                                                           |
 | CI: lint, structure, format, typecheck, test, build, audit, signatures    | Done, `check` is a required status                             |
 | Branch protection on `main`                                               | Done: PR required, `check` required, no force push or deletion |
-| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 4 | Done                                                           |
+| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 5 | Done                                                           |
 | `standards-reviewer` subagent                                             | Done, not yet used on app code                                 |
 | Dependabot                                                                | Weekly, 14-day cooldown, TypeScript major bumps ignored        |
 | `packages/protocol`: schemas, codec, tests, `docs/protocol.md`            | Done on `feat/protocol`, awaiting review and merge             |
@@ -71,7 +72,7 @@ Check these against the real app before declaring a step done. Anything not repr
 
 ## What only the user can do
 
-- Open and merge pull requests (the `gh` CLI is not installed; installing it is optional: `winget install --id GitHub.cli`, then `gh auth login`).
+- Turn on "Allow auto-merge" in the repository settings (needed once for the auto-merge workflow). Merge Dependabot pull requests by hand.
 - Create the Cloudflare account and run login and deploy.
 - Change repository settings (branch rules, Actions).
 

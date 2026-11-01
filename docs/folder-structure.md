@@ -9,7 +9,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 ```
 .
 ├── .claude/agents/            Subagent definitions (standards-reviewer)
-├── .github/                   CI workflow, Dependabot config, PR template
+├── .github/                   CI and auto-merge workflows, Dependabot config, PR template
 ├── .husky/                    Git hooks (pre-commit, commit-msg)
 ├── content/                   FAKE quiz data only (planned)
 │   ├── quizzes/<course>/      Quiz JSON in the real app's schema

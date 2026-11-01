@@ -28,7 +28,7 @@ The dependency rule is enforced by ESLint (`eslint.config.js`), not just describ
 - Branches: `feat/<topic>`, `fix/<topic>`, `chore/<topic>`, `docs/<topic>`. Short-lived; delete after merge.
 - Conventional Commits (`feat(core): add scoring`), enforced by commitlint in a `commit-msg` hook. Pre-commit runs lint-staged. Never skip hooks.
 - One concern per pull request, kept small. The PR template lists what to confirm.
-- Merge by pull request only, after CI is green. CI runs lint, format check, typecheck, tests and build on every PR.
+- Merge by pull request only, after CI is green. The owner's pull requests auto-merge once `check` passes ([ADR 5](adr/0005-auto-merge-owner-pull-requests.md)); a draft is held back. CI runs lint, format check, typecheck, tests and build on every PR.
 - `main` should be protected (PR required, `check` status required, applies to admins too). Approvals required: 0, because there is one maintainer.
 
 ## Testing
