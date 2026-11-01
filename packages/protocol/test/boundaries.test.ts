@@ -9,7 +9,7 @@ import {
   TYPED_ANSWER_MAX_LENGTH,
 } from '../src/index.js';
 import type { ServerMessage } from '../src/index.js';
-import { SERVER_SAMPLES } from './samples.js';
+import { questionSample, sampleOf } from './samples.js';
 
 const join = (name: unknown): string =>
   JSON.stringify({ type: 'join', protocolVersion: PROTOCOL_VERSION, name });
@@ -63,10 +63,9 @@ describe('typed answers', () => {
 });
 
 describe('room limits', () => {
-  const room = SERVER_SAMPLES.find((message) => message.type === 'room');
+  const room = sampleOf('room');
 
   it('accepts a full room and rejects one more player', () => {
-    if (room?.type !== 'room') throw new Error('missing room sample');
     const player = (n: number): (typeof room.room.players)[number] => ({
       id: `player_${String(n).padStart(2, '0')}_AAAAAAAAAAAAAAA`,
       name: `P${String(n)}`,
@@ -83,7 +82,6 @@ describe('room limits', () => {
   });
 
   it('rejects a room with no players', () => {
-    if (room?.type !== 'room') throw new Error('missing room sample');
     expect(
       decodeServerMessage(JSON.stringify({ ...room, room: { ...room.room, players: [] } })).ok,
     ).toBe(false);
@@ -91,9 +89,7 @@ describe('room limits', () => {
 });
 
 describe('image paths', () => {
-  const question = SERVER_SAMPLES.find(
-    (message) => message.type === 'question' && message.mode === 'type',
-  );
+  const question = questionSample('type');
   const withImage = (imageUrl: string): boolean =>
     decodeServerMessage(JSON.stringify({ ...question, imageUrl })).ok;
 
@@ -102,6 +98,10 @@ describe('image paths', () => {
     ['a same-origin path outside /images/', '/api/secret', false],
     ['the site root', '/', false],
     ['a parent segment', '/images/../secret.png', false],
+    ['a percent-encoded parent segment', '/images/%2e%2e/secret.png', false],
+    ['a half-encoded parent segment', '/images/.%2E/secret.png', false],
+    ['a percent-encoded slash', '/images/a%2Fb.png', false],
+    ['a dot inside a file name', '/images/fake/item.0007.v2.png', true],
     ['a query string', '/images/a.png?x=1', false],
     ['a fragment', '/images/a.png#x', false],
     ['a protocol-relative URL', '//evil.example/a.png', false],

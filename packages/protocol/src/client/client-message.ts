@@ -39,4 +39,5 @@ export const ClientMessageSchema = z.discriminatedUnion('type', [
   NextSchema,
   LeaveSchema,
 ]);
+/** Any message a client may send. */
 export type ClientMessage = z.infer<typeof ClientMessageSchema>;

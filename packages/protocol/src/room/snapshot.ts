@@ -5,6 +5,7 @@ import { GameSettingsSchema } from './settings.js';
 
 /** The four states of a game room (docs/architecture.md). */
 export const RoomPhaseSchema = z.enum(['lobby', 'question', 'reveal', 'results']);
+/** The phase a room is in. */
 export type RoomPhase = z.infer<typeof RoomPhaseSchema>;
 
 /** One player as everyone in the room sees them. */
@@ -23,7 +24,7 @@ export type PlayerSummary = z.infer<typeof PlayerSummarySchema>;
  * other players watch.
  */
 const TiebreakSchema = z.strictObject({
-  /** The tie-break question being played or just played, from 1. */
+  /** The number of the tie-break question that is open, or that comes next; from 1. */
   round: z.int().min(1).max(MAX_TIEBREAK_ROUNDS),
   /** The players still tied for first place, who are the only ones asked. */
   playerIds: z
@@ -44,4 +45,5 @@ export const RoomSnapshotSchema = z.strictObject({
   /** Null unless a tie-break is under way. */
   tiebreak: TiebreakSchema.nullable(),
 });
+/** The room as everyone in it sees it. */
 export type RoomSnapshot = z.infer<typeof RoomSnapshotSchema>;

@@ -5,6 +5,8 @@ import {
   MAX_ACCEPTED_FORMS,
   MAX_ERROR_MESSAGE_LENGTH,
   MAX_EXPLANATION_LENGTH,
+  MAX_IMAGE_URL_LENGTH,
+  MAX_ITEM_KEY_LENGTH,
   MAX_OPTION_LENGTH,
   MAX_PLAYERS_PER_ROOM,
   MAX_PROMPT_LENGTH,
@@ -16,24 +18,7 @@ import {
 } from '../src/index.js';
 import type { ServerMessage } from '../src/index.js';
 import { utf8ByteLength } from '../src/codec/utf8-length.js';
-import { GUEST_ID, regularProgress, SERVER_SAMPLES } from './samples.js';
-
-type Sample<T extends ServerMessage['type']> = Extract<ServerMessage, { type: T }>;
-
-function sampleOf<T extends ServerMessage['type']>(type: T): Sample<T> {
-  const found = SERVER_SAMPLES.find((message): message is Sample<T> => message.type === type);
-  if (found === undefined) throw new Error(`no sample of type ${type}`);
-  return found;
-}
-
-function questionSample(mode: 'pick' | 'type'): Sample<'question'> {
-  const found = SERVER_SAMPLES.find(
-    (message): message is Sample<'question'> =>
-      message.type === 'question' && message.mode === mode,
-  );
-  if (found === undefined) throw new Error(`no ${mode} question sample`);
-  return found;
-}
+import { GUEST_ID, questionSample, regularProgress, sampleOf } from './samples.js';
 
 const decodes = (value: unknown): boolean => decodeServerMessage(JSON.stringify(value)).ok;
 const repeated = (text: string, times: number): string[] =>
@@ -159,12 +144,14 @@ describe('worst-case size', () => {
     expect(utf8ByteLength(encodeServerMessage(reveal))).toBeLessThan(MAX_SERVER_MESSAGE_BYTES);
   });
 
-  it('a question with every text at its maximum still fits the server limit', () => {
+  it('a question with every field at its maximum, image and group part included, fits the server limit', () => {
     const question: ServerMessage = {
       type: 'question',
       mode: 'pick',
       progress: regularProgress(100, 100),
-      itemKey: 'k'.repeat(128),
+      itemKey: costly(MAX_ITEM_KEY_LENGTH),
+      imageUrl: `/images/${'a'.repeat(MAX_IMAGE_URL_LENGTH - '/images/'.length)}`,
+      part: { index: 100, count: 100 },
       prompt: costly(MAX_PROMPT_LENGTH),
       options: repeated(costly(MAX_OPTION_LENGTH), OPTION_COUNT),
       durationMs: 120_000,

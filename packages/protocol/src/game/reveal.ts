@@ -52,4 +52,5 @@ export const RevealMessageSchema = z.strictObject({
   explanation: z.string().min(1).max(MAX_EXPLANATION_LENGTH),
   results: z.array(PlayerResultSchema).min(1).max(MAX_PLAYERS_PER_ROOM),
 });
+/** The answer and results, sent when a question closes. */
 export type RevealMessage = z.infer<typeof RevealMessageSchema>;

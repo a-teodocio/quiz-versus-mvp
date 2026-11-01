@@ -20,4 +20,5 @@ export const ResultsMessageSchema = z.strictObject({
   type: z.literal('results'),
   standings: z.array(StandingSchema).min(1).max(MAX_PLAYERS_PER_ROOM),
 });
+/** The final table. */
 export type ResultsMessage = z.infer<typeof ResultsMessageSchema>;

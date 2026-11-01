@@ -12,7 +12,7 @@ Protocol version: **2** (`PROTOCOL_VERSION`).
 - **The server decides who a player is.** A client never sends its own player id or score. It sends a name, and a resume token if it is coming back.
 - **The answer stays on the server until the question closes.** `question` has no `correct`, `explanation` or accepted forms. Only `reveal` carries them (review-checklist B3, tested in `test/answer-secrecy.test.ts`). The schema cannot see values, so one rule is for the worker: `score`, `answered` and `connected` in `room` must not reveal correctness, which means scores change only at `reveal`. The same holds for `room.tiebreak`: it changes only at a reveal (see [ADR 6](adr/0006-versus-game-rules.md)). The worker's secrecy test must check both.
 - **Durations, not deadlines.** `durationMs` counts from the moment the client receives the question, because client clocks drift.
-- **Image URLs are opaque paths under `/images/`**, with no query, fragment or `..`. The server should hand out names that do not spell out the answer.
+- **Image URLs are opaque paths under `/images/`**, made only of letters, digits and `. _ ~ - /` (so no query, fragment, `%` or `..`). The server should hand out names that do not spell out the answer.
 
 ## Limits
 
@@ -59,19 +59,19 @@ A `join` with a different `protocolVersion` gets `error` `UNSUPPORTED_VERSION` a
 
 ## Client messages
 
-| `type`   | Fields                                    | Who, when                 | Effect                                                    |
-| -------- | ----------------------------------------- | ------------------------- | --------------------------------------------------------- |
-| `join`   | `protocolVersion`, `name`, `resumeToken?` | Anyone, first message     | Takes a seat, or takes a dropped seat back with the token |
-| `start`  | `settings`                                | Host, in `lobby`          | Starts the game                                           |
-| `answer` | `itemKey`, `answer`                       | Any player, in `question` | Records the answer once                                   |
-| `next`   | none                                      | Host, in `reveal`         | Opens the next question, or ends with `results`           |
-| `leave`  | none                                      | Any player                | Gives up the seat for good                                |
+| `type`   | Fields                                    | Who, when                                                         | Effect                                                    |
+| -------- | ----------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------- |
+| `join`   | `protocolVersion`, `name`, `resumeToken?` | Anyone, first message                                             | Takes a seat, or takes a dropped seat back with the token |
+| `start`  | `settings`                                | Host, in `lobby`                                                  | Starts the game                                           |
+| `answer` | `itemKey`, `answer`                       | Any player, in `question` (in a tie-break, only the tied players) | Records the answer once                                   |
+| `next`   | none                                      | Host, in `reveal`                                                 | Opens the next question, or ends with `results`           |
+| `leave`  | none                                      | Any player                                                        | Gives up the seat for good                                |
 
 `settings` is `{ quizIds, questionCount, secondsPerQuestion, answerBy }`. `answerBy: 'type'` asks for typed text where the answer can be checked automatically and falls back to multiple choice for the rest (see [fidelity.md](fidelity.md)).
 
 `answer` is `{ kind: 'pick', index }` (0 to 3, the position in the options as the player saw them) or `{ kind: 'type', text }`. The `itemKey` must match the open question, so a slow answer to an earlier question is refused with `STALE_QUESTION`.
 
-A dropped connection is not a `leave`. The seat stays, shown as not connected, until the player resumes or the room decides otherwise (core).
+A dropped connection is not a `leave`. The seat stays, shown as not connected, until the player resumes or the room ends. A valid `resumeToken` in `join` restores the seat in any phase, including after the results. A resumed player is sent `welcome`, then `room`, then the open `question` with the time left (if one is open), or `results` (if the game is over).
 
 ## Server messages
 
@@ -89,7 +89,7 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 
 **`question`** carries `mode` (`pick` or `type`), `progress`, `itemKey`, `prompt`, `durationMs`, and optionally `imageUrl` and `part` (`{ index, count }`, index from 1 and at most count, for an image-group of one or more parts). `progress` is `{ kind: 'regular', position, totalItems }` (position from 1, at most the total, each image-group part counting on its own) or `{ kind: 'tiebreak', round }` for an extra question asked only of the tied players. A `pick` question has `options`, exactly four, already shuffled. A `type` question has no options at all, because a list of options contains the answer.
 
-**`reveal`** carries `reason` (`all-answered` or `timeout`) and `correct`: `{ kind: 'pick', index, text }` with the index into the shuffled options, or `{ kind: 'type', text, acceptedForms }`. Each entry of `results` is `{ playerId, outcome, near, points, score, answer }`. `outcome` is `correct`, `wrong` or `no-answer`; `near` marks a wrong typed answer within a letter or two of a right one (still wrong, as in the real app). `points` includes any multiplier, but the message does not say how it was computed; that is core's business.
+**`reveal`** carries `reason` (`all-answered` or `timeout`) and `correct`: `{ kind: 'pick', index, text }` with the index into the shuffled options, or `{ kind: 'type', text, acceptedForms }`. In a tie-break, `results` lists only the tied players, so a watcher never appears as `no-answer`. Each entry of `results` is `{ playerId, outcome, near, points, score, answer }`. `outcome` is `correct`, `wrong` or `no-answer`; `near` marks a wrong typed answer within a letter or two of a right one (still wrong, as in the real app). `points` includes any multiplier, but the message does not say how it was computed; that is core's business.
 
 **`results`** carries `standings`, best first, each `{ playerId, name, rank, score, correctCount }`. Equal scores share a rank ([ADR 6](adr/0006-versus-game-rules.md)); a tie for first place is played off first.
 
@@ -136,4 +136,4 @@ The rules are in [ADR 6](adr/0006-versus-game-rules.md); `core` enforces them. W
 
 ## Changing the protocol
 
-Objects are strict, so adding a field is a breaking change for an older peer. Any change to a message shape bumps `PROTOCOL_VERSION`, updates this page and `test/samples.ts`, and notes the change in the pull request. Because client and server ship together in this mock there is no compatibility window to maintain; a real deployment would need one (see the lessons).
+Objects are strict, so adding a field is a breaking change for an older peer. Nothing has been deployed yet, so no peer runs an old version; the version still marks every shape change. Any change to a message shape bumps `PROTOCOL_VERSION`, updates this page, `test/samples.ts` and the version history above, and notes the change in the pull request. Because client and server ship together in this mock there is no compatibility window to maintain; a real deployment would need one (see the lessons).
