@@ -42,7 +42,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 
 ## Next steps, in order
 
-Each step is its own `feat/` branch, merged by pull request. Run `npm run check` and the standards-reviewer before opening the PR for steps 1, 2, 4 and 5.
+Each step is its own `feat/` branch, merged by pull request. Run `npm run check` and the standards-reviewer before opening the PR for steps 1, 2, 4 and 5. From step 4 (`feat/worker`) the `qa-tester` also plays the scenarios in [qa-scenarios.md](qa-scenarios.md) that the step makes runnable (see `CLAUDE.md`).
 
 1. ~~**`feat/protocol`**~~: done. zod schemas, error codes, protocol version, decoders and encoders, `docs/protocol.md`, ADR 4. ~~**`feat/protocol-game-rules`**~~: done. Protocol v2 for the game rules in ADR 6 (tie-break, late joining).
 2. **`feat/core`**: `packages/core`. Ports `Clock`, `Random`, `QuizRepository`, `Logger`. Room state machine (LOBBY, QUESTION, REVEAL, RESULTS, with a tie-break inside it) as a pure function of state and event, returning new state and effects, implementing the rules in ADR 6. Scoring through a `ScoringRule` (1 point times a multiplier that is 1 for now). `QuizRepository` can supply spare questions for tie-breaks. Seeded shuffle that maps `correct` exactly as the real app does. Unit tests, plus parity fixtures copied from the real app into `packages/core/test/fixtures/real-app/` with a `SOURCE.md` recording the source commit.

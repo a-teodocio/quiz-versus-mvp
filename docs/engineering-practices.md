@@ -59,6 +59,8 @@ Major changes are reviewed against [review-checklist.md](review-checklist.md) by
 
 **Second look after fixes (mandatory).** Fixes made in response to a review are reviewed again by the same reviewer before the pull request is merged, and again after any further fixes, until it reports nothing open. Fixes are where new rules and contradictions slip in unreviewed. Because pull requests auto-merge, the final review finishes before the pull request is marked ready; a pull request that needs fixes goes back to draft first. The pull request description names the commit the final review covered.
 
+**Test as a player.** For changes that make the app run or change how it behaves (from `feat/worker`), the `qa-tester` subagent runs the app locally and plays the scenarios in [qa-scenarios.md](qa-scenarios.md): several players, dropped connections, refreshes, ties, bad input, keyboard and phone-sized use. It judges what a player sees and is told, which the code review cannot. The same rules apply as for the reviewer: the author verifies each finding, fixes the real ones, records rejected ones with a reason, and the same tester looks again at the fixes before the pull request is marked ready. The tester is read-only, local, installs nothing and uses fake content.
+
 ## Dependencies and security
 
 - Every third-party package is vetted before use and on every CI run: see [dependency-vetting.md](dependency-vetting.md) (release-age cooldown, audit, signatures, install scripts).
