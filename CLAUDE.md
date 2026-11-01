@@ -45,15 +45,15 @@ Never pass the reviewer's output on unchecked. If the review finds a gap in the 
 
 ## Test as a player before major updates
 
-From the first branch that makes the app run (`feat/worker`), also run the `qa-tester` subagent (`.claude/agents/qa-tester.md`) before opening a pull request for any change that makes the app runnable or changes how it behaves. It starts the app locally and plays the scenarios in `docs/qa-scenarios.md` as a player would. It reports what broke or confused; it never fixes.
+From the first branch that makes the app run (`feat/worker`), also run the `qa-tester` subagent (`.claude/agents/qa-tester.md`) before opening a pull request for any change that makes the app runnable or changes how it behaves. Its goal is an excellent experience: the app does what is required, it is easy and clear to use (usability heuristics), and everyone can use it (WCAG 2.2 AA). It writes end-user tests for the test frameworks to run, from the scenarios in `docs/qa-scenarios.md`, and plays the app itself as a set of personas. It reports what broke, confused or excluded someone, with the requirement, principle or WCAG criterion each finding rests on; it never fixes the app.
 
 1. Finish the branch and run `npm run check`.
-2. Give the tester the branch, the commit, the scenario IDs that apply (or "all that are runnable") and an output directory for screenshots and logs outside the repo (the scratchpad).
+2. Give the tester the branch, the commit and the scenario IDs that apply (or "all that are runnable"). It leaves the tests it wrote in the working tree (under `e2e/` and `packages/worker/test/qa/` only); read them as code, remove the exploratory `*.explore.spec.ts` files, and commit the rest.
 3. Verify each finding yourself by repeating it. A tester can be wrong or hit a flake. Fix the real ones. For any you reject, write the reason.
 4. Fixes need a second look by the same tester (same rule as the standards-reviewer: the pull request stays a draft until it reports nothing open).
 5. Put the verdict, what was fixed, what was rejected and the commit the final run covered in the pull request description, and tell the user.
 
-Update `docs/qa-scenarios.md` in the same branch when a rule or a screen changes, and when a bug turns up that no scenario would have caught. The tester starts only its own processes, stops only those, installs nothing, and works with fake content on `localhost` only.
+Update `docs/qa-scenarios.md` in the same branch when a rule or a screen changes, and when a bug turns up that no scenario would have caught. The tester is held to its limits by a hook (`scripts/qa-guard.mjs`, tested in `scripts/`): a few exact commands, writes only under the two test folders, nothing else. The hook runs only after the project folder is trusted, so start the session in this folder and accept the trust prompt. Before relying on it in a new setup, run the canary checks in `docs/qa-scenarios.md`. The tester installs nothing and works with fake content on `localhost` only.
 
 ## Commands
 

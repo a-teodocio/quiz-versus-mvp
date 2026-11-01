@@ -26,13 +26,13 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── known-issues.md
 │   ├── folder-structure.md    This file
 │   └── protocol.md            Every client/server message
-├── e2e/                       Playwright end-to-end tests (planned)
+├── e2e/                       Playwright end-to-end tests, written by the qa-tester from docs/qa-scenarios.md (planned)
 ├── packages/
 │   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic
 │   ├── worker/                Cloudflare Worker and Durable Object (planned)
 │   └── web/                   Browser app (planned)
-├── scripts/                   Repo tooling run from npm scripts
+├── scripts/                   Repo tooling run from npm scripts, and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md
