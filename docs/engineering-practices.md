@@ -45,6 +45,7 @@ Rules: a bug fix starts with a failing test. Tests do not depend on wall-clock t
 ## Documentation
 
 - `README.md`: what it is, quickstart, commands.
+- `docs/roadmap.md`: status, decisions and next steps; updated at the end of every branch so any session can resume.
 - `docs/architecture.md`: layers, diagram, dependency rule.
 - `docs/protocol.md`: every message, its fields and when it is sent.
 - `docs/adr/`: one short Architecture Decision Record per significant decision (context, decision, consequences). Never edit an accepted ADR; supersede it.
