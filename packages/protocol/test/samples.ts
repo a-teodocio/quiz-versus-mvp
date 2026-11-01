@@ -168,4 +168,9 @@ export const SERVER_SAMPLES: readonly ServerMessage[] = [
     ],
   },
   { type: 'error', code: 'NOT_HOST', message: 'Only the host can start the game.' },
+  {
+    type: 'error',
+    code: 'NOT_ENOUGH_PLAYERS',
+    message: 'A versus game needs at least two players.',
+  },
 ];

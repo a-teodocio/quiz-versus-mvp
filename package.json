@@ -15,6 +15,7 @@
     "prepare": "husky",
     "lint": "eslint .",
     "check:structure": "node scripts/check-structure.mjs",
+    "fixtures:core": "node scripts/make-core-fixtures.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc -b",

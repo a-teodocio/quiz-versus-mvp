@@ -2,7 +2,7 @@
 
 Every message between the browser and the server, over one WebSocket per player. The schemas live in `packages/protocol` and are the source of truth; this page explains them. Message types are derived from the schemas with `z.infer`, so the code and the types cannot drift apart.
 
-Protocol version: **2** (`PROTOCOL_VERSION`).
+Protocol version: **3** (`PROTOCOL_VERSION`).
 
 ## Rules that hold for every message
 
@@ -23,6 +23,7 @@ All in `src/limits.ts`; nothing else repeats the numbers.
 | Client message size              | 2 KiB                               | UTF-8 bytes, checked before parsing                                                                                 |
 | Server message size              | 64 KiB                              | A reveal with every text at its maximum fits (tested)                                                               |
 | Players per room                 | 8                                   | Provisional, see the roadmap                                                                                        |
+| Players to start                 | 2 connected                         | A versus game needs at least two; solo play is the real app's own mode                                              |
 | Player name                      | 1 to 24 characters                  | Trimmed; no control, format or unassigned characters                                                                |
 | Typed answer                     | 1 to 200 characters                 | Sent as typed; the checker normalises it                                                                            |
 | Parts in an image-group          | 1 to 100                            | Same constant as questions per game, as each part is one                                                            |
@@ -63,7 +64,7 @@ A `join` with a different `protocolVersion` gets `error` `UNSUPPORTED_VERSION` a
 | `type`   | Fields                                    | Who, when                                                         | Effect                                                    |
 | -------- | ----------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------------------- |
 | `join`   | `protocolVersion`, `name`, `resumeToken?` | Anyone, first message                                             | Takes a seat, or takes a dropped seat back with the token |
-| `start`  | `settings`                                | Host, in `lobby`                                                  | Starts the game                                           |
+| `start`  | `settings`                                | Host, in `lobby`, with 2 or more players connected                | Starts the game                                           |
 | `answer` | `itemKey`, `answer`                       | Any player, in `question` (in a tie-break, only the tied players) | Records the answer once                                   |
 | `next`   | none                                      | Host, in `reveal`                                                 | Opens the next question, or ends with `results`           |
 | `leave`  | none                                      | Any player                                                        | Gives up the seat for good                                |
@@ -83,14 +84,16 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `question`  | see below                                                | A question opens                                             |
 | `answerAck` | `itemKey`                                                | A player's answer was accepted; to that player only          |
 | `reveal`    | `itemKey`, `reason`, `correct`, `explanation`, `results` | A question closes                                            |
-| `results`   | `standings`                                              | After the last reveal                                        |
+| `results`   | `standings`                                              | After the last reveal, or at once if a tie-break collapses   |
 | `error`     | `code`, `message`                                        | A request was refused                                        |
 
-**`room`** carries `roomId`, `phase` (`lobby`, `question`, `reveal`, `results`), `hostId`, `players`, `settings` (null until the game starts) and `tiebreak` (null unless a tie-break is under way: `{ round, playerIds }`, the players still tied for first place, who are the only ones asked). Each player is `{ id, name, connected, answered, score }`. `answered` says a player has answered the open question and nothing about whether they were right.
+**`room`** carries `roomId`, `phase` (`lobby`, `question`, `reveal`, `results`), `hostId`, `players`, `settings` (null until the game starts) and `tiebreak` (null unless a tie-break is under way: `{ round, playerIds }`, the players still tied for first place, who are the only ones asked). `hostId` can change during a game: when the host disconnects or leaves, the earliest-joined connected player becomes host, and a returning host does not take the role back ([ADR 7](adr/0007-core-state-machine.md)). Each player is `{ id, name, connected, answered, score }`. `answered` says a player has answered the open question and nothing about whether they were right.
 
 **`question`** carries `mode` (`pick` or `type`), `progress`, `itemKey`, `prompt`, `durationMs`, and optionally `imageUrl` and `part` (`{ index, count }`, index from 1 and at most count, both at most 100, for an image-group of one or more parts). `progress` is `{ kind: 'regular', position, totalItems }` (position from 1, at most the total, each image-group part counting on its own) or `{ kind: 'tiebreak', round }` for an extra question asked only of the tied players. A `pick` question has `options`, exactly four, already shuffled. A `type` question has no options at all, because a list of options contains the answer.
 
 **`reveal`** carries `reason` (`all-answered` or `timeout`) and `correct`: `{ kind: 'pick', index, text }` with the index into the shuffled options, or `{ kind: 'type', text, acceptedForms }`. In a tie-break, `results` lists only the tied players, so a watcher never appears as `no-answer`. Each entry of `results` is `{ playerId, outcome, near, points, score, answer }`. `outcome` is `correct`, `wrong` or `no-answer`; `near` marks a wrong typed answer within a letter or two of a right one (still wrong, as in the real app). `points` includes any multiplier, but the message does not say how it was computed; that is core's business.
+
+**Wire details that follow from the rules.** `results` can follow an open question with no `reveal` for it: when a player leaves for good and a tie-break is left with fewer than two players, the game ends at once. A `reveal` lists only players who are still in the room, so a player who left during the question is absent. `ROOM_FULL` counts dropped seats, because they can be resumed. A late `answer` (at or after the deadline) closes the question as a timeout: the sender gets `error` `STALE_QUESTION`, then everyone gets the `reveal` and `room`. `NOT_HOST` is checked before `WRONG_PHASE`, and `WRONG_PHASE` before `NOT_ENOUGH_PLAYERS`.
 
 **`results`** carries `standings`, best first, each `{ playerId, name, rank, score, correctCount }`. Equal scores share a rank ([ADR 6](adr/0006-versus-game-rules.md)); a tie for first place is played off first.
 
@@ -111,9 +114,10 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `GAME_OVER`            | A new join after the results were shown (a resume token still restores its seat)         |
 | `NOT_IN_TIEBREAK`      | `answer` from a player who is watching a tie-break                                       |
 | `NOT_HOST`             | `start` or `next` from a player who is not the host                                      |
+| `NOT_ENOUGH_PLAYERS`   | `start` while fewer than `MIN_PLAYERS_TO_START` (2) players are connected                |
 | `WRONG_PHASE`          | The message is not allowed in the current phase                                          |
 | `INVALID_SETTINGS`     | Well-formed settings the server cannot honour (for example, too few questions available) |
-| `STALE_QUESTION`       | `answer` for a question that is not the open one                                         |
+| `STALE_QUESTION`       | `answer` for a question that is not the open one, including one that has just closed     |
 | `ALREADY_ANSWERED`     | A second answer to the same question                                                     |
 | `INVALID_ANSWER`       | `answer` of the wrong kind for the question's mode                                       |
 | `RATE_LIMITED`         | Too many messages too fast                                                               |
@@ -133,6 +137,7 @@ The rules are in [ADR 6](adr/0006-versus-game-rules.md); `core` enforces them. W
 ## Version history
 
 - **2:** a question's `position` and `totalItems` became `progress` (`regular` or `tiebreak`); `room.tiebreak` was added; `GAME_IN_PROGRESS` became `GAME_OVER`; `NOT_IN_TIEBREAK` was added. Limits tightened later without a bump, because nothing is deployed: item keys are server-issued and at most 64 plain characters, image paths allow only plain-named segments, and image-group part numbers are at most 100.
+- **3:** `NOT_ENOUGH_PLAYERS` was added: a versus game needs two connected players to start (solo play is the real app's own mode).
 - **1:** first version.
 
 ## Changing the protocol

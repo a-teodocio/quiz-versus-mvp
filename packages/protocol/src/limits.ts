@@ -20,6 +20,9 @@ export const MAX_SERVER_MESSAGE_BYTES = 65_536;
  */
 export const MAX_PLAYERS_PER_ROOM = 8;
 
+/** Connected players needed to start a versus game. Solo play is the real app's own mode. */
+export const MIN_PLAYERS_TO_START = 2;
+
 export const PLAYER_NAME_MAX_LENGTH = 24;
 export const TYPED_ANSWER_MAX_LENGTH = 200;
 

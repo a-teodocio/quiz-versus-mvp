@@ -1,0 +1,50 @@
+[
+  {
+    "name": "four distinct options",
+    "options": ["Kelvar", "Dromm", "Ozzle", "Pinth"],
+    "correct": 2,
+    "randoms": [0.1, 0.9, 0.5],
+    "expectedOptions": ["Pinth", "Dromm", "Ozzle", "Kelvar"],
+    "expectedCorrect": 2
+  },
+  {
+    "name": "correct stays in place",
+    "options": ["Alpha", "Beta", "Gamma", "Delta"],
+    "correct": 0,
+    "randoms": [0.99, 0.99, 0.99],
+    "expectedOptions": ["Alpha", "Beta", "Gamma", "Delta"],
+    "expectedCorrect": 0
+  },
+  {
+    "name": "correct option moves to the end",
+    "options": ["Alpha", "Beta", "Gamma", "Delta"],
+    "correct": 0,
+    "randoms": [0, 0, 0],
+    "expectedOptions": ["Beta", "Gamma", "Delta", "Alpha"],
+    "expectedCorrect": 3
+  },
+  {
+    "name": "duplicate option text: first match wins",
+    "options": ["Same", "Other", "Same", "Third"],
+    "correct": 2,
+    "randoms": [0.3, 0.6, 0.2],
+    "expectedOptions": ["Same", "Same", "Third", "Other"],
+    "expectedCorrect": 0
+  },
+  {
+    "name": "two options",
+    "options": ["Yes thing", "No thing"],
+    "correct": 1,
+    "randoms": [0.4],
+    "expectedOptions": ["No thing", "Yes thing"],
+    "expectedCorrect": 0
+  },
+  {
+    "name": "correct index points at no option",
+    "options": ["Alpha", "Beta", "Gamma", "Delta"],
+    "correct": 7,
+    "randoms": [0.2, 0.7, 0.4],
+    "expectedOptions": ["Beta", "Delta", "Gamma", "Alpha"],
+    "expectedCorrect": -1
+  }
+]
