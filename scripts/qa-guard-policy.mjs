@@ -132,17 +132,22 @@ export function decideCommand(command) {
 const hasControlCharacter = (text) => [...text].some((char) => char.charCodeAt(0) < 32);
 
 /**
- * Splits a Windows-style absolute path into a lower-case drive and folder names, or returns null
- * for anything else: relative paths, UNC and device paths, drive-relative paths, paths that climb
- * above the drive, control characters.
+ * Splits an absolute path into a lower-case drive and folder names, or returns null for anything
+ * else: relative paths, UNC and device paths (`//...`), drive-relative paths, control characters.
+ * Two forms are understood: a Windows drive path (`C:\x`, or the Git Bash form `/c/x`, drive `c:`)
+ * and a POSIX path (`/home/x`, drive empty), so the guard and its tests run on both. A path with
+ * a drive never lies inside one without it.
  */
 function splitPath(path) {
   if (typeof path !== 'string' || path === '' || hasControlCharacter(path)) return null;
-  let text = path.replace(/\\/g, '/').replace(/^\/([a-zA-Z])\//, '$1:/');
-  if (!/^[a-zA-Z]:\//.test(text)) return null;
-  const drive = text.slice(0, 2).toLowerCase();
-  text = posix.normalize(text.slice(3));
-  const names = text.split('/').filter((name) => name !== '' && name !== '.');
+  const text = path.replace(/\\/g, '/').replace(/^\/([a-zA-Z])\//, '$1:/');
+  const windows = /^[a-zA-Z]:\//.test(text);
+  if (!windows && (!text.startsWith('/') || text.startsWith('//'))) return null;
+  const drive = windows ? text.slice(0, 2).toLowerCase() : '';
+  const names = posix
+    .normalize(windows ? text.slice(3) : text.slice(1))
+    .split('/')
+    .filter((name) => name !== '' && name !== '.');
   if (names[0] === '..') return null;
   return { drive, names: names.map((name) => name.toLowerCase()) };
 }

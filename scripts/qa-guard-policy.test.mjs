@@ -174,7 +174,11 @@ describe('files the tester may write', () => {
       'absolute path',
     ],
     ['a drive-relative path', 'C:e2e/qa/x.ts', 'absolute path'],
-    ['a WSL path', '/mnt/c/Users/someone/work/quiz-versus-mvp/e2e/qa/x.ts', 'absolute path'],
+    [
+      'a WSL path',
+      '/mnt/c/Users/someone/work/quiz-versus-mvp/e2e/qa/x.ts',
+      'inside the repository',
+    ],
     ['an alternate data stream', `${ROOT}/e2e/qa/x.md:evil.ts`, 'hide where'],
     ['a stream on an allowed type', `${ROOT}/e2e/qa/x.ts::$DATA`, 'hide where'],
     ['a device name', `${ROOT}/e2e/qa/con.ts`, 'hide where'],
@@ -372,5 +376,49 @@ describe('a whole tool call', () => {
     expect(decide(null, ROOT).allow).toBe(false);
     expect(decide({ tool_name: 'Bash' }, ROOT).allow).toBe(false);
     expect(decide({ tool_name: 'Write', tool_input: {} }, ROOT).allow).toBe(false);
+  });
+});
+
+describe('on a POSIX machine (the paths on the continuous integration runner)', () => {
+  const POSIX_ROOT = '/home/runner/work/quiz-versus-mvp/quiz-versus-mvp';
+
+  it.each([
+    `${POSIX_ROOT}/e2e/qa/lobby.spec.ts`,
+    `${POSIX_ROOT}/packages/worker/test/qa/ties.test.ts`,
+  ])('allows writing %s', (path) => {
+    expect(decideWrite(path, POSIX_ROOT).allow).toBe(true);
+  });
+
+  it.each([
+    ['source code', `${POSIX_ROOT}/packages/core/src/x.ts`, 'only e2e/qa/'],
+    ['a file outside the repo', '/etc/passwd', 'inside the repository'],
+    [
+      'a sibling folder',
+      '/home/runner/work/quiz-versus-mvp/other/e2e/qa/x.ts',
+      'inside the repository',
+    ],
+    ['a look-alike repo folder', `${POSIX_ROOT}-other/e2e/qa/x.ts`, 'inside the repository'],
+    ['a path that climbs out', `${POSIX_ROOT}/e2e/qa/../../../x.ts`, 'inside the repository'],
+    [
+      'a Windows path',
+      'C:/Users/someone/work/quiz-versus-mvp/e2e/qa/x.ts',
+      'inside the repository',
+    ],
+    ['a UNC path', '//server/share/e2e/qa/x.ts', 'absolute path'],
+    ['a relative path', 'e2e/qa/x.ts', 'absolute path'],
+  ])('refuses writing %s', (_name, path, reason) => {
+    expectRefused(decideWrite(path, POSIX_ROOT), reason);
+  });
+
+  it('keeps reads, searches and commands inside the repo', () => {
+    const read = (file) => decideRead('Read', { file_path: file }, POSIX_ROOT, POSIX_ROOT);
+    expect(read(`${POSIX_ROOT}/docs/protocol.md`).allow).toBe(true);
+    expectRefused(read('/home/runner/.ssh/id_rsa'), 'inside the repository');
+    expectRefused(read(`${POSIX_ROOT}/.dev.vars`), 'secrets');
+    const bash = (cwd) => ({ tool_name: 'Bash', tool_input: { command: 'npm run check' }, cwd });
+    expect(decide(bash(POSIX_ROOT), POSIX_ROOT).allow).toBe(true);
+    expect(decide(bash(`${POSIX_ROOT}/docs`), POSIX_ROOT).allow).toBe(true);
+    expectRefused(decide(bash('/home/runner'), POSIX_ROOT), 'inside the repository');
+    expectRefused(decide(bash('C:/Users/someone'), POSIX_ROOT), 'inside the repository');
   });
 });
