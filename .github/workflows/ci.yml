@@ -28,6 +28,7 @@ jobs:
       - name: Verify registry signatures
         run: npm audit signatures
       - run: npm run lint
+      - run: npm run check:structure
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm run test

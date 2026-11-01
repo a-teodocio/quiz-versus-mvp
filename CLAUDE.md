@@ -17,6 +17,7 @@ Mock of a local MLS quiz app, used to trial a live multiplayer (versus) mode bef
 2. `docs/architecture.md`: layers and the dependency rule (enforced by ESLint).
 3. `docs/adr/`: why the big decisions were made. Add an ADR for any new one.
 4. `docs/fidelity.md`: where the mock differs from the real app.
+5. `docs/folder-structure.md`: where files go. Keep it true; `npm run check:structure` enforces the layout.
 
 ## Review before major updates
 
