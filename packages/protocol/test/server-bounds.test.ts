@@ -124,7 +124,7 @@ describe('worst-case size', () => {
   it('a reveal with every text at its maximum still fits the server limit', () => {
     const reveal: ServerMessage = {
       type: 'reveal',
-      itemKey: 'k'.repeat(128),
+      itemKey: 'k'.repeat(MAX_ITEM_KEY_LENGTH),
       reason: 'timeout',
       correct: {
         kind: 'type',
@@ -149,7 +149,7 @@ describe('worst-case size', () => {
       type: 'question',
       mode: 'pick',
       progress: regularProgress(100, 100),
-      itemKey: costly(MAX_ITEM_KEY_LENGTH),
+      itemKey: 'k'.repeat(MAX_ITEM_KEY_LENGTH),
       imageUrl: `/images/${'a'.repeat(MAX_IMAGE_URL_LENGTH - '/images/'.length)}`,
       part: { index: 100, count: 100 },
       prompt: costly(MAX_PROMPT_LENGTH),

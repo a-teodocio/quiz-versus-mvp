@@ -17,6 +17,7 @@ export const PlayerSummarySchema = z.strictObject({
   answered: z.boolean(),
   score: z.int().min(0),
 });
+/** One player as everyone in the room sees them. */
 export type PlayerSummary = z.infer<typeof PlayerSummarySchema>;
 
 /**

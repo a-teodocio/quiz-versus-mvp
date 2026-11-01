@@ -28,6 +28,11 @@ describe('item keys in an answer', () => {
     ['empty', '', false],
     ['a number', 7, false],
     ['null', null, false],
+    ['a space', 'i 1', false],
+    ['a slash', 'quiz/q1', false],
+    ['a control character', 'i\u00011', false],
+    ['a server-issued part key', 'i12p2', true],
+    ['underscores and hyphens', 'i_12-p2', true],
   ])('%s', (_label, key, expected) => {
     expect(answerWithKey(key)).toBe(expected);
   });
@@ -78,7 +83,7 @@ describe('worst-case client message size', () => {
   it('an answer with the longest key and the longest typed text fits the client limit', () => {
     const answer = {
       type: 'answer' as const,
-      itemKey: costly(MAX_ITEM_KEY_LENGTH),
+      itemKey: 'k'.repeat(MAX_ITEM_KEY_LENGTH),
       answer: { kind: 'type' as const, text: costly(TYPED_ANSWER_MAX_LENGTH) },
     };
     expect(utf8ByteLength(encodeClientMessage(answer))).toBeLessThanOrEqual(

@@ -2,7 +2,7 @@
 
 The continuity file. A new session reads this after `CLAUDE.md` to learn where the project is and what comes next. It is updated at the end of every branch (see "How to keep this current").
 
-Last updated: 2026-11-01 (after `feat/protocol-game-rules`)
+Last updated: 2026-11-01 (after `fix/protocol-v2-review-followups`)
 
 ## Goal
 
@@ -34,7 +34,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Tooling: TypeScript, ESLint layer rules, Prettier, hooks, Vitest          | Done                                                           |
 | CI: lint, structure, format, typecheck, test, build, audit, signatures    | Done, `check` is a required status                             |
 | Branch protection on `main`                                               | Done: PR required, `check` required, no force push or deletion |
-| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 5 | Done                                                           |
+| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 6 | Done                                                           |
 | `standards-reviewer` subagent                                             | Done, not yet used on app code                                 |
 | Dependabot                                                                | Weekly, 14-day cooldown, TypeScript major bumps ignored        |
 | `packages/protocol`: schemas, codec, tests, `docs/protocol.md`            | Done and merged (protocol version 2)                           |
@@ -47,7 +47,7 @@ Each step is its own `feat/` branch, merged by pull request. Run `npm run check`
 1. ~~**`feat/protocol`**~~: done. zod schemas, error codes, protocol version, decoders and encoders, `docs/protocol.md`, ADR 4. ~~**`feat/protocol-game-rules`**~~: done. Protocol v2 for the game rules in ADR 6 (tie-break, late joining).
 2. **`feat/core`**: `packages/core`. Ports `Clock`, `Random`, `QuizRepository`, `Logger`. Room state machine (LOBBY, QUESTION, REVEAL, RESULTS, with a tie-break inside it) as a pure function of state and event, returning new state and effects, implementing the rules in ADR 6. Scoring through a `ScoringRule` (1 point times a multiplier that is 1 for now). `QuizRepository` can supply spare questions for tie-breaks. Seeded shuffle that maps `correct` exactly as the real app does. Unit tests, plus parity fixtures copied from the real app into `packages/core/test/fixtures/real-app/` with a `SOURCE.md` recording the source commit.
 3. **`feat/content`**: `content/quizzes/<course>/` and `content/images/<course>/` with fake notes in the real schema: text, image, image-group with parts, typed answers, awkward whitespace, options that shuffle to the same position. A TypeScript port of the real validator's rules checks them.
-4. **`feat/worker`**: `packages/worker`. Worker and Durable Object, WebSocket adapter (text frames only), quiz loading, alarms as the `Clock`, enforce the protocol limits (message size and name length are already in the decoders; players per room and message rate are not), origin check, unguessable room IDs, opaque image URLs that do not spell out the answer, answers withheld until REVEAL, and `room` snapshots carrying no correctness signal (scores and `tiebreak` change only at a reveal), with a test. Item keys are unique per quiz file only, so make them unique across a game (prefix the quiz id) before using them to detect stale answers. Integration tests with simulated WebSocket clients: join, start, answer, timeout, reconnect, player leaves, host leaves.
+4. **`feat/worker`**: `packages/worker`. Worker and Durable Object, WebSocket adapter (text frames only), quiz loading, alarms as the `Clock`, enforce the protocol limits (message size and name length are already in the decoders; players per room and message rate are not), origin check, unguessable room IDs, opaque image URLs that do not spell out the answer, answers withheld until REVEAL, and `room` snapshots carrying no correctness signal (scores and `tiebreak` change only at a reveal), with a test. Issue short opaque item keys (`i12`, `i12p2`) and keep a map to the quiz entry or part ids, because content ids repeat across the files of a mixed game; send the last `reveal` again to a player who resumes or joins during a reveal. Integration tests with simulated WebSocket clients: join, start, answer, timeout, reconnect, player leaves, host leaves.
 5. **`feat/web-fork`, then `feat/web-versus`**: `packages/web`. First fork the real `index.html` verbatim and pin its behaviour with Playwright tests, then split it into modules. Then add the lobby and versus UI. Keep game rules out of view code. Escape all player-supplied text.
 6. **`feat/e2e`**: `e2e/`. Three browsers play a full game against the local stack.
 7. **Deploy**: Cloudflare Pages and Worker. The user creates the account and runs login and deploy; Claude supplies the exact commands.
