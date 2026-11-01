@@ -12,6 +12,10 @@ Every finding cites one of these, so the author can see why it matters.
 - **Usability:** Nielsen's ten usability heuristics (visibility of system status, match with the real world, user control and freedom, consistency and standards, error prevention, recognition rather than recall, flexibility and efficiency, minimalist design, helping users recover from errors, help), plus the multiplayer principles in the agent definition (waiting states, fairness, social presence, tone).
 - **Accessibility:** WCAG 2.2 level AA. Automated checks (axe) find only part of the problems, so the rest is walked through by hand.
 
+**Inherited problems.** The web client starts as a verbatim copy of the real quiz app's page. If that page fails a check, the tester still reports it, tagged **inherited**, so the author can decide whether to fix it in the mock or note it for the port. It is not a regression of the branch.
+
+**Suggestions are not findings.** Ideas such as asking before a player leaves mid-game go under "Suggestions" in the report: no requirement or principle is broken by their absence.
+
 ## Personas
 
 The tester walks the whole journey (join, play, lose and regain connection, finish) as each of these, not just single screens.
@@ -38,23 +42,23 @@ A scenario that cannot run yet is reported as "could not run", not as failed.
 
 ## How a run goes
 
-1. Start the app as the README says, on a free local port. Use the fake quizzes in `content/`.
-2. Play the scenarios that apply to the branch, in order.
-3. Report in the format of the agent definition (findings with their basis, personas, what works well, product questions, and what needs a human check). The author verifies each finding against the app and the code, fixes the real ones, and the same tester looks again at the fixes (as for the standards-reviewer).
+1. The tester starts the app with `npm run qa:start` and stops it with `npm run qa:stop`. It uses the fake quizzes in `content/`.
+2. The tester writes tests for the scenarios that apply to the branch (in `e2e/qa/` and `packages/worker/test/qa/`, the two folders it owns), has the frameworks run them, and walks the personas with short exploratory tests. It leaves its files in the working tree.
+3. Report in the format of the agent definition (findings with their basis, personas, what works well, product questions, and what needs a human check). The author reads the tester's tests as code, runs `npm run format` and `npm run check` on them (the tester cannot), verifies each finding against the app and the code, fixes the real ones, and the same tester looks again at the fixes (as for the standards-reviewer).
 4. The pull request description gives the verdict and the commit the final run covered.
 
 The exact commands to start the app, and a seed that makes a game repeatable, are added by the branch that makes them real (`feat/worker`, `feat/web-versus`). Until then this page says what to check, not how to start it.
 
 ## Lobby and joining
 
-| ID  | Scenario                                                                                           | Expected, as the player sees it                                                                                                        | Level |
-| --- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| J1  | The host creates a room and shares the link; a friend opens it                                     | Both see each other in the lobby with their names, and who the host is. The link works for a third player too                          | W, B  |
-| J2  | Names: empty, 24 and 25 characters, an emoji, a control character, text with `<b>` or a script tag | Bad names are refused with a clear message. A good name shows exactly as typed. Markup is shown as text, never run                     | W, B  |
-| J3  | The room has 8 players and a ninth tries to join                                                   | The ninth is told the room is full. The others notice nothing                                                                          | W, B  |
-| J4  | A link to a room that does not exist, or one that has been closed                                  | A clear "room not found" message, not a blank page or a spinner that never ends                                                        | W, B  |
-| J5  | The host starts with one player in the room                                                        | Start is refused with a message that says two players are needed. Nothing changes for anyone. A guest who is not the host cannot start | W, B  |
-| J6  | The host starts with two players, then with one of the two dropped                                 | Two connected: the game starts. One connected: refused as in J5                                                                        | W, B  |
+| ID  | Scenario                                                                                           | Expected, as the player sees it                                                                                                                                                                                                            | Level |
+| --- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----- |
+| J1  | The host creates a room and shares the link; a friend opens it                                     | Both see each other in the lobby with their names, and who the host is. The link works for a third player too                                                                                                                              | W, B  |
+| J2  | Names: empty, 24 and 25 characters, an emoji, a control character, text with `<b>` or a script tag | Bad names are refused with a clear message. A good name shows exactly as typed. Markup is shown as text, never run                                                                                                                         | W, B  |
+| J3  | The room has 8 players and a ninth tries to join                                                   | The ninth is told the room is full. The others notice nothing                                                                                                                                                                              | W, B  |
+| J4  | A link to a room that does not exist, or one that has been closed                                  | A clear "room not found" message, not a blank page or a spinner that never ends                                                                                                                                                            | W, B  |
+| J5  | The host looks at Start with one player in the room, and with two of whom one has dropped          | Start shows a visible reason (a second player is needed) and does not start the game. The reason can be read without a mouse and is announced. A guest has no Start control. If a start is sent anyway, the refusal is shown as a sentence | W, B  |
+| J6  | The host starts with two players, then with one of the two dropped                                 | Two connected: the game starts. One connected: refused as in J5                                                                                                                                                                            | W, B  |
 
 ## Playing a game
 
@@ -106,21 +110,22 @@ The exact commands to start the app, and a seed that makes a game repeatable, ar
 
 Each of these has an automated half (a test the framework runs on every screen state: lobby, question by picking, question by typing, reveal, results, room not found, room full, reconnecting; in light and dark themes; at phone and desktop sizes) and a manual half (walked through with a persona).
 
-| ID  | Scenario                                                | Expected, as the player experiences it                                                                                                                                                        | Level |
-| --- | ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
-| A1  | A whole game with the keyboard only                     | Every control is reachable and usable, there is no trap, the order is logical, the focus is always visible and never hidden by other content, and focus moves to the new question or reveal   | B     |
-| A2  | Phone-sized window (375 px), 320 px and 400% zoom       | Nothing is cut off or overlaps, there is no sideways scrolling, targets are at least 24 px (aim 44), text is readable, and zooming is not disabled                                            | B     |
-| A3  | Contrast in light, dark and forced-colors modes         | Text has 4.5 to 1 contrast, interface parts and states 3 to 1, and the correct, wrong, selected and answered states stay visible in every mode                                                | B     |
-| A4  | Colour is not the only signal                           | Correct, wrong, answered, connected and dropped each show as text or an icon as well as colour                                                                                                | B     |
-| A5  | The accessibility tree of each screen                   | Roles, names, states and reading order are right: the question is a heading, options are labelled, the clock is labelled, there are landmarks and one main heading                            | B     |
-| A6  | Announcements to assistive technology                   | Answer received, time up, new question, the reveal, a player joining or leaving, and connection lost and back are announced politely. The countdown is not announced every second             | B     |
-| A7  | The question timer                                      | The limit is visible, there is a warning near the end, and the clock stays correct when the tab is hidden. Whether players who need more time are catered for is raised as a product question | B     |
-| A8  | Motion and flashing                                     | Non-essential animation stops under reduced motion. Nothing flashes more than three times a second                                                                                            | B     |
-| A9  | The name field and every error                          | The field has a label and states its limit. Errors are shown in text, tied to the field, and say how to fix them. Nothing changes context unexpectedly on focus or input                      | B     |
-| A10 | Page structure                                          | The page title changes with the state, the language is set, there is one main heading, and focus is managed when the screen changes                                                           | B     |
-| A11 | Text resized to 200% and wider text spacing             | Nothing is clipped or lost                                                                                                                                                                    | B     |
-| A12 | Pictures                                                | Every picture has a text alternative that does not give the answer away. Where the picture is the question, what to do is raised as a product question                                        | B     |
-| A13 | An automated scan of every screen state, theme and size | No WCAG 2.2 A or AA violation is reported                                                                                                                                                     | B     |
+| ID  | Scenario                                                | Expected, as the player experiences it                                                                                                                                                                                                                                                                                     | Level |
+| --- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----- |
+| A1  | A whole game with the keyboard only                     | Every control is reachable and usable, there is no trap, the order is logical, the focus is always visible and never hidden by other content, and focus moves to the new question or reveal                                                                                                                                | B     |
+| A2  | Phone-sized window (375 px), 320 px and 400% zoom       | Nothing is cut off or overlaps, there is no sideways scrolling, targets are at least 24 px (aim 44), text is readable, and zooming is not disabled                                                                                                                                                                         | B     |
+| A3  | Contrast in light, dark and forced-colors modes         | Text has 4.5 to 1 contrast and interface parts and states 3 to 1 (disabled controls are exempt) in light and dark. In forced colors every state stays distinguishable by more than colour (borders, icons, text), which is judged, not measured                                                                            | B     |
+| A4  | Colour is not the only signal                           | Correct, wrong, answered, connected and dropped each show as text or an icon as well as colour                                                                                                                                                                                                                             | B     |
+| A5  | The accessibility tree of each screen                   | Roles, names, states and reading order are right: each screen has one main heading and the question is a heading below it, options are labelled, the clock is labelled, there are landmarks                                                                                                                                | B     |
+| A6  | Announcements to assistive technology                   | Answer received, time up, new question, the reveal, a player joining or leaving, and connection lost and back are announced politely. The countdown is not announced every second                                                                                                                                          | B     |
+| A7  | The question timer                                      | The limit is visible and the clock stays correct when the tab is hidden. A warning near the end, and more time for players who need it, are product questions: no requirement states either                                                                                                                                | B     |
+| A8  | Motion and flashing                                     | Non-essential animation stops under reduced motion (best practice, so a failure is minor). Flashing is judged from the animations' definitions; if it cannot be told, it is a human check                                                                                                                                  | B     |
+| A9  | The name field and every error                          | The field has a label and states its limit. Errors are shown in text, tied to the field, and say how to fix them. Nothing changes context unexpectedly on focus or input                                                                                                                                                   | B     |
+| A10 | Page structure                                          | The page title changes with the state, the language is set, there is one main heading, and focus is managed when the screen changes                                                                                                                                                                                        | B     |
+| A11 | Text resized to 200% and wider text spacing             | Nothing is clipped or lost                                                                                                                                                                                                                                                                                                 | B     |
+| A12 | Pictures                                                | Every picture has a text alternative that does not give the answer away. Where the picture is the question, what to do is raised as a product question                                                                                                                                                                     | B     |
+| A13 | An automated scan of every screen state, theme and size | axe with the tags wcag2a, wcag2aa, wcag21a, wcag21aa and wcag22aa reports no violation. Its "incomplete" results are listed as unverified, not counted as passes                                                                                                                                                           | B     |
+| A14 | Single-key shortcuts, labels and pointer use            | The keys 1 to 4 can be turned off, remapped, or work only while their control has focus: the real app has them always on, so this is a product question. Visible labels are part of accessible names. An answer is not committed on pointer down. Both orientations work. Content shown on hover or focus can be dismissed | B     |
 
 ## Usability (heuristics and multiplayer)
 
@@ -131,7 +136,7 @@ Each of these has an automated half (a test the framework runs on every screen s
 | U3  | Feedback timing                               | A tap or key press shows a response within about 0.1 s. A longer wait shows that something is happening                                                                                      | B     |
 | U4  | Waiting states                                | After answering, the player sees what they are waiting for and roughly how many are left. In the lobby and at a reveal, guests see that the host decides, and the host sees what to press    | B     |
 | U5  | Every refusal and error                       | Room full, not found, two players needed, time up, game over, connection lost: each says what happened and what to do next, in plain words, near the cause. No codes, no blame               | B     |
-| U6  | Error prevention                              | Start is disabled or explained until two players are connected. A double tap or double Enter does not double submit. A watcher has no answer controls. Leaving mid-game asks first           | B     |
+| U6  | Error prevention                              | Start explains itself until two players are connected, as in J5. A double tap or double Enter does not double submit. A watcher has no answer controls                                       | B     |
 | U7  | Control and freedom                           | A player can leave. A refresh or the back button does not lose their seat. The results screen has a way forward                                                                              | B     |
 | U8  | Consistency                                   | The same words, controls and colours mean the same thing on every screen. Enter, Space and the keys 1 to 4 work as in the real quiz app. Terms (room, game, host) never change               | B     |
 | U9  | Minimalism                                    | One clear main action per screen. During a question the question and the clock dominate, with nothing competing                                                                              | B     |
@@ -143,18 +148,24 @@ Each of these has an automated half (a test the framework runs on every screen s
 
 ## Checking the guard
 
-The tester is held to its limits by a hook, and a hook that is not running fails silently. Check it whenever the setup changes (a new machine, a new Claude Code version, a changed agent file), and the first time in a new session:
+The guard is proven by evidence that it ran, never by what the tester says: a model can refuse on its own and imitate a hook message. Every decision the hook makes is appended to `node_modules/.cache/qa-guard.log` (one line each: time, ALLOW or DENY, the tool, what was asked, the rule). Check whenever the setup changes (a new machine, a new Claude Code version, a changed agent file), and the first time in a new session.
 
-1. Start Claude Code in this folder and accept the trust prompt. Start it with `claude --debug` once and look for a line saying a hook was skipped: that means the folder is not trusted and nothing is enforced.
-2. Ask the tester to try each of these and report what it was told. Every one must be refused with a message that starts with `qa-guard:`.
-   - `git push`, and `git commit -m x`
-   - `npm install left-pad`, and `npx playwright test`
-   - `node -e 1`
+1. Start Claude Code in this folder and accept the trust prompt. Start it once with `claude --debug` and look for a message that a hook was skipped: that means the folder is not trusted and nothing is enforced.
+2. Try the script on its own, with no agent: `echo '{"tool_name":"Bash","tool_input":{"command":"git push"}}' | node scripts/qa-guard.mjs; echo $?` must print a line starting `qa-guard:` and then `2`. (`npm run test` covers this and many more cases.)
+3. Try the wiring, with harmless calls only (each one does no damage if the guard turns out not to be running). Ask the tester to attempt every one of these and to quote the exact reply:
+   - `git push --dry-run` and `git commit --dry-run`
+   - `npm install --dry-run left-pad`
    - `curl https://example.com`
-   - `npm run check && git push` (chaining)
-   - writing a file to `packages/core/src/x.ts`, to `scripts/x.mjs` and outside the repository
-3. Ask it to run `npm run check` and to write a file under `e2e/`. Both must work, so you know the guard allows what it should and is not simply blocking everything.
-4. If every call is refused, including the allowed ones, the hook script could not start (for example, the project directory variable was not set). Fix the command in the agent file before use: a hook that cannot run blocks everything rather than nothing.
+   - `node -e 1`
+   - `npm run lint -- --max-warnings 0` (a flag that is not on the list)
+   - `npm run check && echo canary` (a chain)
+   - writing `scripts/canary-delete-me.ts` (if it appears, delete it: the guard is not working)
+   - reading `C:\Windows\win.ini` (outside the repo)
+
+   Every one must be refused with a message that starts `qa-guard:`, and the log must have a DENY line for each. A refusal with no log line did not come from the hook.
+
+4. Ask it to run `npm run lint` and to write `e2e/qa/canary.spec.ts` (delete the file afterwards). Both must work, and the log must show ALLOW lines, so you know the guard allows what it should and is not simply blocking everything.
+5. If the log has no lines at all, the hook did not run: do not use the tester. If every call is refused, including the allowed ones, the script could not start (for example, the project directory variable was not set); the `|| exit 2` in the hook command makes that block everything rather than nothing. Fix the command in the agent file first.
 
 ## Adding scenarios
 

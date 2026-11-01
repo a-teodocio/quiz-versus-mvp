@@ -1,9 +1,13 @@
 import { spawnSync } from 'node:child_process';
+import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { execPath } from 'node:process';
 import { describe, expect, it } from 'vitest';
 
+const REPO_ROOT = join(import.meta.dirname, '..');
 const SCRIPT = join(import.meta.dirname, 'qa-guard.mjs');
+const LOG_FILE = join(REPO_ROOT, 'node_modules', '.cache', 'qa-guard.log');
+const AGENT_FILE = join(REPO_ROOT, '.claude', 'agents', 'qa-tester.md');
 
 /** Runs the real hook script as the harness would: JSON on stdin, exit code and output back. */
 function runHook(stdin) {
@@ -11,7 +15,8 @@ function runHook(stdin) {
   return { code: result.status, stdout: result.stdout, stderr: result.stderr };
 }
 
-const call = (tool_name, tool_input) => JSON.stringify({ tool_name, tool_input });
+const call = (tool_name, tool_input, cwd = REPO_ROOT) =>
+  JSON.stringify({ tool_name, tool_input, cwd });
 
 describe('the qa-guard hook as a process', () => {
   it('allows a permitted command with exit 0 and an allow decision', () => {
@@ -24,9 +29,14 @@ describe('the qa-guard hook as a process', () => {
     });
   });
 
-  it('allows a write inside the test folder, using the repo root it lives in', () => {
-    const result = runHook(call('Write', { file_path: 'e2e/lobby.spec.ts' }));
-    expect(result.code).toBe(0);
+  it('allows a write inside the tester folder, given as the real absolute path (backslashes on Windows)', () => {
+    const file = join(REPO_ROOT, 'e2e', 'qa', 'lobby.spec.ts');
+    expect(runHook(call('Write', { file_path: file })).code).toBe(0);
+  });
+
+  it('allows reading a file in the repo by its real absolute path', () => {
+    const file = join(REPO_ROOT, 'docs', 'protocol.md');
+    expect(runHook(call('Read', { file_path: file })).code).toBe(0);
   });
 
   it('blocks a forbidden command with exit 2 and the reason on stderr', () => {
@@ -36,9 +46,13 @@ describe('the qa-guard hook as a process', () => {
     expect(result.stdout).toBe('');
   });
 
-  it('blocks a write outside the test folders', () => {
-    const result = runHook(call('Edit', { file_path: 'packages/core/src/index.ts' }));
-    expect(result.code).toBe(2);
+  it('blocks a write outside the tester folder, a relative path, and a read outside the repo', () => {
+    const source = join(REPO_ROOT, 'packages', 'core', 'src', 'index.ts');
+    expect(runHook(call('Edit', { file_path: source })).code).toBe(2);
+    expect(runHook(call('Write', { file_path: 'e2e/qa/x.spec.ts' })).code).toBe(2);
+    expect(runHook(call('Read', { file_path: join(REPO_ROOT, '..', 'elsewhere.md') })).code).toBe(
+      2,
+    );
   });
 
   it.each([
@@ -51,5 +65,41 @@ describe('the qa-guard hook as a process', () => {
     const result = runHook(stdin);
     expect(result.code).toBe(2);
     expect(result.stderr).toContain('qa-guard:');
+  });
+
+  it('writes a log line for every decision, so a canary check can prove the hook ran', () => {
+    const marker = `npm run check -- --marker-${String(Date.now())}`;
+    runHook(call('Bash', { command: marker }));
+    const log = readFileSync(LOG_FILE, 'utf8').split('\n');
+    const line = log.find((entry) => entry.includes(marker));
+    expect(line).toMatch(/ DENY Bash /);
+    runHook(call('Bash', { command: 'npm run lint' }));
+    expect(readFileSync(LOG_FILE, 'utf8')).toMatch(/ ALLOW Bash "npm run lint"/);
+  });
+});
+
+describe('the hook wiring in the agent definition', () => {
+  const text = readFileSync(AGENT_FILE, 'utf8');
+  const frontmatter = text.split('---')[1] ?? '';
+
+  it('runs the guard on every tool it must control, and only those are given to the agent', () => {
+    const matcher = /matcher:\s*'([^']+)'/.exec(frontmatter)?.[1] ?? '';
+    const guarded = matcher.split('|').sort();
+    expect(guarded).toEqual(['Bash', 'Edit', 'Glob', 'Grep', 'MultiEdit', 'Read', 'Write']);
+    const tools = (/^tools:\s*(.+)$/m.exec(frontmatter)?.[1] ?? '').split(/,\s*/);
+    for (const tool of tools) expect(guarded).toContain(tool);
+  });
+
+  it('turns any failure to start the guard into a block, whichever shell runs the command', () => {
+    const command = /command:\s*'([^']+)'/.exec(frontmatter)?.[1] ?? '';
+    expect(command).toContain('scripts/qa-guard.mjs');
+    expect(command).toMatch(/\|\| exit 2$/);
+  });
+
+  it('removes the tools that could get round the guard', () => {
+    const removed = (/^disallowedTools:\s*(.+)$/m.exec(frontmatter)?.[1] ?? '').split(/,\s*/);
+    for (const tool of ['PowerShell', 'WebFetch', 'WebSearch', 'Agent', 'Skill', 'NotebookEdit']) {
+      expect(removed).toContain(tool);
+    }
   });
 });

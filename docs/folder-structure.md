@@ -26,7 +26,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── known-issues.md
 │   ├── folder-structure.md    This file
 │   └── protocol.md            Every client/server message
-├── e2e/                       Playwright end-to-end tests, written by the qa-tester from docs/qa-scenarios.md (planned)
+├── e2e/                       Playwright end-to-end tests (planned). e2e/qa/ is written by the qa-tester from docs/qa-scenarios.md; the helpers and configuration around it are the author's
 ├── packages/
 │   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic

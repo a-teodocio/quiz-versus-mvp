@@ -2,7 +2,7 @@
 
 The continuity file. A new session reads this after `CLAUDE.md` to learn where the project is and what comes next. It is updated at the end of every branch (see "How to keep this current").
 
-Last updated: 2026-11-01 (after `feat/core`)
+Last updated: 2026-11-01 (after `feat/core`, with the qa-tester guard in review)
 
 ## Goal
 
@@ -23,6 +23,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | zod validates every message at the boundary, inside `packages/protocol` only                                                                                                                                               | `adr/0004-zod-for-boundary-validation.md`          |
 | Wire protocol (version 3): strict JSON messages, `question` never carries the answer                                                                                                                                       | `protocol.md`                                      |
 | Versus needs 2 connected players to start (protocol 3, `NOT_ENOUGH_PLAYERS`); solo play is the real app's own mode                                                                                                         | `adr/0007-core-state-machine.md`, `protocol.md`    |
+| The qa-tester writes end-user tests and judges functionality, usability and accessibility (WCAG 2.2 AA); a hook holds it to an allowlist                                                                                   | `adr/0008-qa-tester-sandbox.md`, `qa-scenarios.md` |
 | Core state machine: pure `step(state, event)`, game prepared before `start`, time as data, answers held until the reveal, item keys and image aliases issued by core, host hand-over rules                                 | `adr/0007-core-state-machine.md`                   |
 | Versus game rules: 1 point per correct answer (times a multiplier that is 1 for now), close when all connected players have answered, late joining allowed, tie-break questions for first place, equal scores share a rank | `adr/0006-versus-game-rules.md`                    |
 | Players per room: 8 for now (provisional, one constant: `MAX_PLAYERS_PER_ROOM`)                                                                                                                                            | `protocol.md`, `packages/protocol/src/limits.ts`   |
@@ -52,7 +53,7 @@ Each step is its own `feat/` branch, merged by pull request. Run `npm run check`
 3. **`feat/content`**: `content/quizzes/<course>/` and `content/images/<course>/` with fake notes in the real schema: text, image, image-group with parts, typed answers, awkward whitespace, options that shuffle to the same position. A TypeScript port of the real validator's rules checks them.
 4. **`feat/worker`**: `packages/worker`. Worker and Durable Object, WebSocket adapter (text frames only), quiz loading, alarms as the `Clock`, enforce the protocol limits (message size and name length are already in the decoders; players per room and message rate are not), origin check, unguessable room IDs, opaque image URLs that do not spell out the answer, answers withheld until REVEAL, and `room` snapshots carrying no correctness signal (scores and `tiebreak` change only at a reveal), with a test. Core already issues the item keys and image aliases and re-sends the last `reveal` (ADR 7); the worker serves `/images/<alias>` from `GamePlan.images`, calls `prepareGame`, supplies secure ids, tokens and `Random`, ignores a `disconnect` from a replaced connection, and owns the idle-room time limit. Integration tests with simulated WebSocket clients: join, start, answer, timeout, reconnect, player leaves, host leaves.
 5. **`feat/web-fork`, then `feat/web-versus`**: `packages/web`. First fork the real `index.html` verbatim and pin its behaviour with Playwright tests, then split it into modules. Then add the lobby and versus UI. Keep game rules out of view code. Escape all player-supplied text.
-6. **`feat/e2e`**: `e2e/`. Three browsers play a full game against the local stack.
+6. **`feat/e2e`**: `e2e/`. Three browsers play a full game against the local stack. The author owns the helpers and the Playwright configuration; the qa-tester owns `e2e/qa/` (see ADR 8). Add `e2e/` to ESLint and typecheck, and vet Playwright and axe.
 7. **Deploy**: Cloudflare Pages and Worker. The user creates the account and runs login and deploy; Claude supplies the exact commands.
 8. **`docs/lessons`**: write `LESSONS.md` (what worked, what to change, a port checklist for the real app). Update `docs/fidelity.md` throughout, not just here.
 
