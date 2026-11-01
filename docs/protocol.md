@@ -10,7 +10,7 @@ Protocol version: **2** (`PROTOCOL_VERSION`).
 - **Validated at the boundary.** Whatever receives a frame calls `decodeClientMessage` (server) or `decodeServerMessage` (client). Both return a result, never throw, and check the size before parsing. Whatever sends calls `encodeClientMessage` or `encodeServerMessage`, which validate too and throw `InvalidOutgoingMessageError` on a sender bug.
 - **Strict objects.** An unknown field is an error, not ignored. That is what stops a client from sending `isHost: true` or a server from attaching `correct` to a question.
 - **The server decides who a player is.** A client never sends its own player id or score. It sends a name, and a resume token if it is coming back.
-- **The answer stays on the server until the question closes.** `question` has no `correct`, `explanation` or accepted forms. Only `reveal` carries them (review-checklist B3, tested in `test/answer-secrecy.test.ts`). The schema cannot see values, so one rule is for the worker: `score`, `answered` and `connected` in `room` must not reveal correctness, which means scores change only at `reveal`. The worker's secrecy test must check this.
+- **The answer stays on the server until the question closes.** `question` has no `correct`, `explanation` or accepted forms. Only `reveal` carries them (review-checklist B3, tested in `test/answer-secrecy.test.ts`). The schema cannot see values, so one rule is for the worker: `score`, `answered` and `connected` in `room` must not reveal correctness, which means scores change only at `reveal`. The same holds for `room.tiebreak`: it changes only at a reveal (see [ADR 6](adr/0006-versus-game-rules.md)). The worker's secrecy test must check both.
 - **Durations, not deadlines.** `durationMs` counts from the moment the client receives the question, because client clocks drift.
 - **Image URLs are opaque paths under `/images/`**, with no query, fragment or `..`. The server should hand out names that do not spell out the answer.
 
@@ -27,6 +27,7 @@ All in `src/limits.ts`; nothing else repeats the numbers.
 | Typed answer                     | 1 to 200 characters          | Sent as typed; the checker normalises it                                                                            |
 | Questions per game               | 1 to 100                     | Scored items; each part of an image-group counts on its own                                                         |
 | Quizzes per game                 | 1 to 10                      | Distinct, ids like `fake-quiz-one`                                                                                  |
+| Tie-break questions              | up to 5                      | Extra questions for a tie for first place                                                                           |
 | Seconds per question             | 5 to 120                     |                                                                                                                     |
 | Options per question             | 4                            | As the real app's validator requires                                                                                |
 | Room id, player id, resume token | 16 to 64 URL-safe characters | The server generates them from a cryptographic source: at least 16 random bytes, written as 22 base64url characters |
@@ -88,9 +89,9 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 
 **`question`** carries `mode` (`pick` or `type`), `progress`, `itemKey`, `prompt`, `durationMs`, and optionally `imageUrl` and `part` (`{ index, count }`, index from 1 and at most count, for an image-group of one or more parts). `progress` is `{ kind: 'regular', position, totalItems }` (position from 1, at most the total, each image-group part counting on its own) or `{ kind: 'tiebreak', round }` for an extra question asked only of the tied players. A `pick` question has `options`, exactly four, already shuffled. A `type` question has no options at all, because a list of options contains the answer.
 
-**`reveal`** carries `reason` (`all-answered` or `timeout`) and `correct`: `{ kind: 'pick', index, text }` with the index into the shuffled options, or `{ kind: 'type', text, acceptedForms }`. Each entry of `results` is `{ playerId, outcome, near, points, score, answer }`. `outcome` is `correct`, `wrong` or `no-answer`; `near` marks a wrong typed answer within a letter or two of a right one (still wrong, as in the real app). `points` includes any speed bonus, but the message does not say how it was computed; that is core's business.
+**`reveal`** carries `reason` (`all-answered` or `timeout`) and `correct`: `{ kind: 'pick', index, text }` with the index into the shuffled options, or `{ kind: 'type', text, acceptedForms }`. Each entry of `results` is `{ playerId, outcome, near, points, score, answer }`. `outcome` is `correct`, `wrong` or `no-answer`; `near` marks a wrong typed answer within a letter or two of a right one (still wrong, as in the real app). `points` includes any multiplier, but the message does not say how it was computed; that is core's business.
 
-**`results`** carries `standings`, best first, each `{ playerId, name, rank, score, correctCount }`. The server decides whether equal scores share a rank; the schema allows both.
+**`results`** carries `standings`, best first, each `{ playerId, name, rank, score, correctCount }`. Equal scores share a rank ([ADR 6](adr/0006-versus-game-rules.md)); a tie for first place is played off first.
 
 ## Errors
 
@@ -106,7 +107,8 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `INVALID_RESUME_TOKEN` | The token matches no seat in this room                                                   |
 | `ROOM_NOT_FOUND`       | No such room                                                                             |
 | `ROOM_FULL`            | The room has `MAX_PLAYERS_PER_ROOM` players                                              |
-| `GAME_OVER`            | Joining after the results were shown                                                     |
+| `GAME_OVER`            | A new join after the results were shown (a resume token still restores its seat)         |
+| `NOT_IN_TIEBREAK`      | `answer` from a player who is watching a tie-break                                       |
 | `NOT_HOST`             | `start` or `next` from a player who is not the host                                      |
 | `WRONG_PHASE`          | The message is not allowed in the current phase                                          |
 | `INVALID_SETTINGS`     | Well-formed settings the server cannot honour (for example, too few questions available) |
@@ -124,8 +126,13 @@ The rules are in [ADR 6](adr/0006-versus-game-rules.md); `core` enforces them. W
 
 - **Points.** `points` and `score` are whole numbers. A multiplier, when there is one, is applied by the server.
 - **Closing early.** `reveal.reason` is `all-answered` or `timeout`.
-- **Late joiners.** A `join` is accepted in any phase before the results. A player who joins while a question is open is sent that `question` with `durationMs` set to the time left. Joining after the results gives `GAME_OVER`.
-- **Ties.** Tie-break questions arrive as `question` messages with `progress.kind` of `tiebreak`, and `room.tiebreak` lists who is being asked. `rank` in `results` is a plain number; equal scores share one.
+- **Late joiners.** A `join` is accepted in any phase before the results. A player who joins while a question is open is sent that `question` with `durationMs` set to the time left. In a tie-break they only watch. A new join after the results gives `GAME_OVER`; a valid `resumeToken` restores the seat in any phase.
+- **Ties.** Tie-break questions arrive as `question` messages with `progress.kind` of `tiebreak`, and `room.tiebreak` lists who is being asked. Everyone receives the question; a watcher who answers gets `NOT_IN_TIEBREAK`. Tie-break points count in `score` and `correctCount`. `rank` in `results` is a plain number; equal scores share one.
+
+## Version history
+
+- **2:** a question's `position` and `totalItems` became `progress` (`regular` or `tiebreak`); `room.tiebreak` was added; `GAME_IN_PROGRESS` became `GAME_OVER`; `NOT_IN_TIEBREAK` was added.
+- **1:** first version.
 
 ## Changing the protocol
 

@@ -21,10 +21,16 @@ The roadmap left four rules open: how points work, when a question closes, wheth
 - It ends when one player leads, or after `MAX_TIEBREAK_ROUNDS` (5), or when the quiz has no spare question left. In the last two cases the players still tied are co-winners and share rank 1.
 - _Interpretation:_ the tie-break is for first place only. A tie further down is not played off; equal scores share a rank (two players on 7 points are both 3rd, and the next player is 5th).
 - A late joiner is never in a tie-break.
+- _Watchers._ Everyone not in the tie-break still receives each tie-break `question`, so they can watch, and the `reveal`. An `answer` from a watcher is refused with `NOT_IN_TIEBREAK`. A tie-break question closes when every connected tied player has answered, or on timeout. A player who joins during a tie-break question gets the question to watch, with the time left, and does not count toward "everyone has answered".
+- _Totals._ Tie-break points and correct answers count toward the final `score` and `correctCount`.
+- _What a tie-break question is._ An ordinary question or one part of an image-group, asked on its own; each part is its own round.
+- _The `tiebreak` field in the room snapshot._ It changes only at a reveal, never while a question is open, so it cannot leak who answered correctly. It is set at the reveal that announces the tie, with `round` the number of the tie-break question that comes next. While that question is open `round` is its number. At each tie-break reveal it is updated: `playerIds` narrows to the players still tied and `round` moves on. It is null again once the tie is resolved or the rounds run out, before the results.
+
+**Reconnecting.** A valid resume token restores the seat in any phase, including after the results, where the player is sent the standings again. `GAME_OVER` is only for a new join. A tied player who drops stays in `tiebreak.playerIds` and may resume; the question does not wait for them.
 
 ## Consequences
 
-- The protocol changes: a question carries `progress` (`regular` or `tiebreak`) in place of `position` and `totalItems`, the room snapshot has `tiebreak`, and `GAME_IN_PROGRESS` becomes `GAME_OVER`. The version goes from 1 to 2.
+- The protocol changes: a question carries `progress` (`regular` or `tiebreak`) in place of `position` and `totalItems`, the room snapshot has `tiebreak`, `GAME_IN_PROGRESS` becomes `GAME_OVER`, and `NOT_IN_TIEBREAK` is new. The version goes from 1 to 2.
 - `QuizRepository` must be able to give spare questions beyond the chosen count, and say when there are none.
 - `core` needs a tie-break phase inside its state machine; the wire phases stay `lobby`, `question`, `reveal` and `results`.
 - A scoring multiplier is a small, local change later; a different tie rule is a larger one.

@@ -9,7 +9,7 @@ import {
   MIN_SECONDS_PER_QUESTION,
   PROTOCOL_VERSION,
 } from '../src/index.js';
-import { RESUME_TOKEN, SERVER_SAMPLES, SETTINGS } from './samples.js';
+import { RESUME_TOKEN, regularProgress, SERVER_SAMPLES, SETTINGS } from './samples.js';
 
 const start = (settings: Record<string, unknown>): boolean =>
   decodeClientMessage(JSON.stringify({ type: 'start', settings: { ...SETTINGS, ...settings } })).ok;
@@ -59,12 +59,6 @@ describe('resume tokens', () => {
   });
 });
 
-const regular = (position: number, totalItems: number): Record<string, unknown> => ({
-  kind: 'regular',
-  position,
-  totalItems,
-});
-
 describe('question progress and image-group part', () => {
   const sample = SERVER_SAMPLES.find(
     (message) => message.type === 'question' && message.mode === 'type',
@@ -74,9 +68,20 @@ describe('question progress and image-group part', () => {
 
   it.each<[string, Record<string, unknown>, boolean]>([
     ['the sample question', {}, true],
-    ['the last position', { progress: regular(10, 10) }, true],
-    ['a position beyond the total', { progress: regular(11, 10) }, false],
-    ['position zero', { progress: regular(0, 10) }, false],
+    ['the last position', { progress: regularProgress(10, 10) }, true],
+    ['a position beyond the total', { progress: regularProgress(11, 10) }, false],
+    ['position zero', { progress: regularProgress(0, 10) }, false],
+    ['a total of zero', { progress: regularProgress(1, 0) }, false],
+    [
+      'a total over the question limit',
+      { progress: regularProgress(1, MAX_QUESTIONS_PER_GAME + 1) },
+      false,
+    ],
+    [
+      'a regular question with a tie-break round',
+      { progress: { ...regularProgress(1, 10), round: 1 } },
+      false,
+    ],
     ['the first tie-break question', { progress: { kind: 'tiebreak', round: 1 } }, true],
     [
       'the last tie-break question',

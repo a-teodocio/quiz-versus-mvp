@@ -7,6 +7,16 @@ export const HOST_ID = 'player_host_AAAAAAAAAAAAA';
 export const GUEST_ID = 'player_guest_AAAAAAAAAAAA';
 export const RESUME_TOKEN = 'token_AAAAAAAAAAAAAAAAAAAAAA';
 
+/** Progress of a regular question, for tests that vary the position. */
+export const regularProgress = (
+  position: number,
+  totalItems: number,
+): { kind: 'regular'; position: number; totalItems: number } => ({
+  kind: 'regular',
+  position,
+  totalItems,
+});
+
 export const SETTINGS: GameSettings = {
   quizIds: ['fake-quiz-one', 'fake-quiz-two'],
   questionCount: 10,

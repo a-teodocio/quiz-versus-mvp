@@ -11,6 +11,7 @@ export const ERROR_CODES = [
   'ROOM_NOT_FOUND',
   'ROOM_FULL',
   'GAME_OVER',
+  'NOT_IN_TIEBREAK',
   'NOT_HOST',
   'WRONG_PHASE',
   'INVALID_SETTINGS',

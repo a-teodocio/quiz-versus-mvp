@@ -35,7 +35,7 @@ const PlayerResultSchema = z.strictObject({
   outcome: z.enum(['correct', 'wrong', 'no-answer']),
   /** A wrong typed answer within a letter or two of a right one. Still wrong. */
   near: z.boolean(),
-  /** Points earned on this question, including any speed bonus. */
+  /** Points earned on this question, including any multiplier. */
   points: z.int().min(0),
   /** Running total after this question. */
   score: z.int().min(0),

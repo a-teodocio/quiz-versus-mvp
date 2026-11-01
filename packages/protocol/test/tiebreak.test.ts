@@ -39,6 +39,7 @@ describe('tie-break in the room snapshot', () => {
       { round: 1, playerIds: idList(MAX_PLAYERS_PER_ROOM + 1) },
       false,
     ],
+    ['the same player twice', { round: 1, playerIds: [HOST_ID, HOST_ID] }, false],
     ['a tied player id that is not an id', { round: 1, playerIds: [HOST_ID, 'x'] }, false],
     ['an extra field', { round: 1, playerIds: [HOST_ID, GUEST_ID], winner: HOST_ID }, false],
   ])('%s', (_label, tiebreak, expected) => {
@@ -51,11 +52,11 @@ describe('tie-break in the room snapshot', () => {
 });
 
 describe('joining after the game has started', () => {
-  it('has no "game in progress" error, because late joining is allowed', () => {
-    expect(ERROR_CODES).not.toContain('GAME_IN_PROGRESS');
-  });
-
   it('has an error for a game that is already over', () => {
     expect(ERROR_CODES).toContain('GAME_OVER');
+  });
+
+  it('has an error for a watcher who answers a tie-break', () => {
+    expect(ERROR_CODES).toContain('NOT_IN_TIEBREAK');
   });
 });

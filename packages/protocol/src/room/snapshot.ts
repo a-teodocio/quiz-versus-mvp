@@ -26,7 +26,11 @@ const TiebreakSchema = z.strictObject({
   /** The tie-break question being played or just played, from 1. */
   round: z.int().min(1).max(MAX_TIEBREAK_ROUNDS),
   /** The players still tied for first place, who are the only ones asked. */
-  playerIds: z.array(PlayerIdSchema).min(2).max(MAX_PLAYERS_PER_ROOM),
+  playerIds: z
+    .array(PlayerIdSchema)
+    .min(2)
+    .max(MAX_PLAYERS_PER_ROOM)
+    .refine((ids) => new Set(ids).size === ids.length, { error: 'player ids must be unique' }),
 });
 
 /** Who is in the room and what state it is in. Sent again after every change. */
