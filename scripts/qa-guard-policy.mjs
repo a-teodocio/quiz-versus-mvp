@@ -201,7 +201,9 @@ const reachesOutside = (pattern) =>
 /** A glob that names a secret place. */
 const namesSecret = (pattern) =>
   typeof pattern === 'string' &&
-  /(\.git|\.wrangler)(?=[/\\,}]|$)|\.dev\.vars|\.env|\.pem|\.key/i.test(pattern);
+  /(^|[/\\{,*?[])(\.git|\.wrangler)(?=[/\\,}*?[\]]|$)|(^|[/\\{,*?[])\.(env|dev\.vars)(?=[./\\,}*?[\]]|$)|\.(pem|key)(?=[,}]|$)/i.test(
+    pattern,
+  );
 
 /** True for a place inside the repo that holds secrets or the guard's log (names below the root). */
 const isSecretPlace = (names) =>
