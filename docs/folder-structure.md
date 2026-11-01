@@ -24,10 +24,10 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── fidelity.md            Where the mock differs from the real app
 │   ├── known-issues.md
 │   ├── folder-structure.md    This file
-│   └── protocol.md            Every client/server message (planned)
+│   └── protocol.md            Every client/server message
 ├── e2e/                       Playwright end-to-end tests (planned)
 ├── packages/
-│   ├── protocol/              Message schemas and types (planned)
+│   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic (planned)
 │   ├── worker/                Cloudflare Worker and Durable Object (planned)
 │   └── web/                   Browser app (planned)
