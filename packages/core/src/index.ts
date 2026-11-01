@@ -22,7 +22,7 @@ export { checkTyped } from './typed/check-typed.js';
 export type { TypedCheck } from './typed/check-typed.js';
 export { editDistance, normaliseTyped, sameTyped } from './typed/normalise.js';
 
-export { BASE_POINTS, pointsFor, standardScoring } from './scoring/scoring-rule.js';
+export { pointsFor, standardScoring } from './scoring/scoring-rule.js';
 export type { ScoringContext, ScoringRule } from './scoring/scoring-rule.js';
 export { rankPlayers } from './scoring/ranking.js';
 
@@ -47,7 +47,6 @@ export type { Effect, Recipient } from './room/effects.js';
 export type { Transition } from './room/transition.js';
 export { defaultRules } from './room/rules.js';
 export type { Rules } from './room/rules.js';
-export { snapshotOf } from './room/messages.js';
 export { step } from './room/reducer.js';
 export { RoomSession } from './room/session.js';
 export type { RoomInput, RoomSessionDeps } from './room/session.js';

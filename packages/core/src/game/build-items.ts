@@ -3,6 +3,7 @@ import type { QuizEntry, QuizQuestionFields } from '../quiz/model.js';
 import type { Random } from '../ports/random.js';
 import { shuffleOptions } from '../shuffle/shuffle.js';
 import { answerForms } from '../typed/answer-forms.js';
+import { assertAskable } from './validate-question.js';
 
 /** Options that fix what an item looks like, shared by every item of one game. */
 export interface ItemStyle {
@@ -20,6 +21,7 @@ interface ItemSource {
 /** Shuffles one question and decides whether it is asked by picking or by typing. */
 function buildItem(source: ItemSource, style: ItemStyle): Item {
   const { fields } = source;
+  assertAskable(fields);
   const { options, correctIndex } = shuffleOptions(fields.options, fields.correct, style.random);
   const correctText = options[correctIndex] ?? '';
   const forms = style.answerBy === 'type' ? answerForms(correctText) : null;

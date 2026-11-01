@@ -40,6 +40,9 @@ function seatFor(room: RoomState, event: JoinEvent): Seat | Transition {
     );
   }
   if (room.phase === 'results') return reject(room, 'GAME_OVER', 'This game has finished.');
+  if (room.seats.some((seat) => seat.id === event.identity.playerId)) {
+    return reject(room, 'INTERNAL_ERROR', 'That player id is already in use.');
+  }
   if (room.seats.length >= MAX_PLAYERS_PER_ROOM) {
     return reject(room, 'ROOM_FULL', 'This room is full.');
   }

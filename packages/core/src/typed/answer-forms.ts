@@ -5,7 +5,7 @@
  */
 
 /** Letters, spaces, hyphens and apostrophes (straight or curly) only. */
-const TYPED_CHARS = /^[\p{L}' ’-]+$/u;
+const TYPED_CHARS = /^[\p{L}' \u2019-]+$/u;
 const TYPED_MAX_WORDS = 3;
 const SINGLE_BRACKET = /^(.*?)\s*\(([^()]*)\)\s*(.*)$/;
 

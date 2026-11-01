@@ -39,8 +39,4 @@ describe('shuffleOptions', () => {
       expect(shuffled.options[shuffled.correctIndex]).toBe('three');
     }
   });
-
-  it('reports -1 when `correct` points at no option, as the real app would give undefined text', () => {
-    expect(shuffleOptions(['a', 'b'], 5, fixedRandom([0.5])).correctIndex).toBe(-1);
-  });
 });

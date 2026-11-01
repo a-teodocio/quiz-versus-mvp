@@ -1,6 +1,14 @@
 import { describe, expect, it } from 'vitest';
 import { snapshotOf } from '../src/room/messages.js';
-import { RoomDriver, messages, pickItem, planOf, typedItem } from './support/room-driver.js';
+import {
+  RoomDriver,
+  messages,
+  pickItem,
+  planOf,
+  playerIdOf,
+  tokenOf,
+  typedItem,
+} from './support/room-driver.js';
 
 function twoPlayerGame(): { room: RoomDriver; ids: [string, string] } {
   const room = new RoomDriver();
@@ -59,5 +67,41 @@ describe('nothing about correctness leaves the room while a question is open', (
     const item = { ...pickItem('i1'), imageAlias: 'k3f9a0z1q8w2e7r4' };
     const [question] = messages(room.start(host, planOf([item])), 'everyone');
     expect(question).toMatchObject({ imageUrl: '/images/k3f9a0z1q8w2e7r4' });
+  });
+});
+
+describe('other paths that must not leak', () => {
+  it('keeps the tie-break unchanged while a tie-break question is open', () => {
+    const room = new RoomDriver();
+    const ids = room.joinMany(2) as [string, string];
+    room.start(ids[0], planOf([pickItem('i1')], [pickItem('s1'), pickItem('s2')]));
+    ids.forEach((id) => room.right(id));
+    room.next(ids[0]);
+    const before = snapshotOf(room.state).tiebreak;
+    room.right(ids[0]);
+    expect(snapshotOf(room.state).tiebreak).toEqual(before);
+  });
+
+  it('sends a late joiner a question with no answer, explanation or accepted forms', () => {
+    const room = new RoomDriver();
+    const [host] = room.joinMany(2) as [string, string];
+    room.start(host, planOf([typedItem('i1')]));
+    const effects = room.send({
+      type: 'join',
+      name: 'Late',
+      identity: { playerId: playerIdOf(3), resumeToken: tokenOf(3) },
+      resumeToken: undefined,
+    });
+    const text = JSON.stringify(messages(effects, 'caller'));
+    expect(text).not.toContain('Zorbulin');
+    expect(text).not.toContain('Explanation');
+    expect(text).not.toContain('acceptedForms');
+  });
+
+  it('keeps scores unchanged when a player disconnects or leaves mid-question', () => {
+    const { room, ids } = twoPlayerGame();
+    room.right(ids[0]);
+    room.send({ type: 'disconnect', playerId: ids[0] });
+    expect(snapshotOf(room.state).players.map((player) => player.score)).toEqual([0, 0]);
   });
 });

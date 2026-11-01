@@ -4,6 +4,7 @@ import { snapshotOf } from '../src/room/messages.js';
 import {
   RoomDriver,
   errorCodes,
+  messages,
   messagesOfType,
   pickItem,
   planOf,
@@ -87,9 +88,8 @@ describe('playing a tie-break', () => {
     const effects = room.next(host);
     const [question] = messagesOfType(effects, 'question');
     expect(question).toMatchObject({ itemKey: 's1', progress: { kind: 'tiebreak', round: 1 } });
-    expect(effects.some((effect) => effect.type === 'send' && effect.to.kind === 'everyone')).toBe(
-      true,
-    );
+    expect(messagesOfType(effects, 'question')).toHaveLength(1);
+    expect(messages(effects, 'everyone').some((message) => message.type === 'question')).toBe(true);
     expect(tiebreakOf(room)?.round).toBe(1);
   });
 

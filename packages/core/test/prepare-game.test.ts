@@ -168,3 +168,33 @@ describe('typed mode', () => {
     expect(plan.regular[0]?.mode).toBe('pick');
   });
 });
+
+describe('questions the protocol cannot carry', () => {
+  const entryWith = (change: Record<string, unknown>) => ({
+    ...textEntry('bad1'),
+    ...change,
+  });
+  const prepareWith = (change: Record<string, unknown>) =>
+    prepareGame(
+      repositoryOf({ id: 'fake-quiz-one', entries: [entryWith(change)] }),
+      settings({ questionCount: 1 }),
+      seededRandom(1),
+    );
+
+  it.each([
+    ['three options', { options: ['a', 'b', 'c'] }],
+    ['a correct index past the options', { correct: 4 }],
+    ['a negative correct index', { correct: -1 }],
+    ['a fractional correct index', { correct: 1.5 }],
+    ['an empty explanation', { explanation: '' }],
+    ['an empty option', { options: ['a', '', 'c', 'd'] }],
+    ['an over-long question', { question: 'x'.repeat(2_001) }],
+  ])('refuses a quiz with %s at setup', async (_name, change) => {
+    await expect(prepareWith(change)).rejects.toMatchObject({ reason: 'invalid-quiz' });
+  });
+
+  it('accepts a question at the length limits', async () => {
+    const plan = await prepareWith({ question: 'x'.repeat(2_000) });
+    expect(plan.regular).toHaveLength(1);
+  });
+});

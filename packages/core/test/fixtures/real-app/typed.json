@@ -127,7 +127,7 @@
           "near": false
         },
         {
-          "text": "MO’RA VANE",
+          "text": "MO\u2019RA VANE",
           "ok": true,
           "near": false
         },
@@ -139,9 +139,9 @@
       ]
     },
     {
-      "correct": "Café noir",
+      "correct": "Caf\u00e9 noir",
       "tooLong": false,
-      "forms": ["Café noir"],
+      "forms": ["Caf\u00e9 noir"],
       "checks": [
         {
           "text": "cafe noir",
@@ -149,7 +149,7 @@
           "near": false
         },
         {
-          "text": "CAFÉ NOIR",
+          "text": "CAF\u00c9 NOIR",
           "ok": true,
           "near": false
         },
@@ -269,15 +269,15 @@
       "normalised": "apple"
     },
     {
-      "text": "Mo’ra",
+      "text": "Mo\u2019ra",
       "normalised": "mora"
     },
     {
-      "text": "café",
+      "text": "cafe\u0301",
       "normalised": "cafe"
     },
     {
-      "text": "well‐known",
+      "text": "well\u2010known",
       "normalised": "well known"
     },
     {

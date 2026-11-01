@@ -4,6 +4,12 @@ import { send, toEveryone } from './effects.js';
 import type { Cursor, Game, QuestionRoom, RoomState } from './state.js';
 import type { Transition } from './transition.js';
 
+const MS_PER_SECOND = 1_000;
+/** The protocol never sends a question with no time left, however late the alarm. */
+const MIN_TIME_LEFT_MS = 1;
+
+const durationOf = (game: Game): number => game.settings.secondsPerQuestion * MS_PER_SECOND;
+
 /** The item a cursor points at: a regular question, or the spare question for a tie-break round. */
 export function itemAt(game: Game, cursor: Cursor): Item {
   const item =
@@ -15,7 +21,7 @@ export function itemAt(game: Game, cursor: Cursor): Item {
 /** Opens a question: starts its timer and tells everyone. Everyone sees it, watchers included. */
 export function openQuestion(room: RoomState, game: Game, cursor: Cursor, now: number): Transition {
   const item = itemAt(game, cursor);
-  const deadline = now + game.settings.secondsPerQuestion * 1_000;
+  const deadline = now + durationOf(game);
   const opened: QuestionRoom = {
     phase: 'question',
     roomId: room.roomId,
@@ -24,11 +30,7 @@ export function openQuestion(room: RoomState, game: Game, cursor: Cursor, now: n
     game,
     open: { cursor, item, deadline, answers: [] },
   };
-  const question = questionMessage(
-    item,
-    progressOf(game, cursor),
-    game.settings.secondsPerQuestion * 1_000,
-  );
+  const question = questionMessage(item, progressOf(game, cursor), durationOf(game));
   return {
     state: opened,
     effects: [
@@ -41,7 +43,7 @@ export function openQuestion(room: RoomState, game: Game, cursor: Cursor, now: n
 
 /** Time left on the open question, never less than 1 ms (the question is open, so it is positive). */
 export const timeLeft = (open: QuestionRoom['open'], now: number): number =>
-  Math.max(1, open.deadline - now);
+  Math.max(MIN_TIME_LEFT_MS, open.deadline - now);
 
 /** The players who may answer: everyone, or in a tie-break only the tied players. */
 export function askedIds(room: QuestionRoom): readonly string[] {

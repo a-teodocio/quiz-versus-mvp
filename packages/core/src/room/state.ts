@@ -53,16 +53,19 @@ export interface RoomBase {
   readonly seats: readonly Seat[];
 }
 
+/** Waiting for players; the host has not started the game. */
 export interface LobbyRoom extends RoomBase {
   readonly phase: 'lobby';
 }
 
+/** A question is open and answers are being collected. */
 export interface QuestionRoom extends RoomBase {
   readonly phase: 'question';
   readonly game: Game;
   readonly open: OpenQuestion;
 }
 
+/** A question has closed; its reveal is on screen until the host moves on. */
 export interface RevealRoom extends RoomBase {
   readonly phase: 'reveal';
   readonly game: Game;
@@ -70,6 +73,7 @@ export interface RevealRoom extends RoomBase {
   readonly reveal: RevealMessage;
 }
 
+/** The game is over and the standings are shown. */
 export interface ResultsRoom extends RoomBase {
   readonly phase: 'results';
   readonly game: Game;
@@ -78,8 +82,6 @@ export interface ResultsRoom extends RoomBase {
 
 /** The room state machine's state (docs/architecture.md). Phases match the wire phases. */
 export type RoomState = LobbyRoom | QuestionRoom | RevealRoom | ResultsRoom;
-/** A room that is running a game. */
-export type GameRoom = QuestionRoom | RevealRoom | ResultsRoom;
 
 /** An empty room waiting for its first player. */
 export function createRoom(roomId: string): LobbyRoom {

@@ -3,10 +3,10 @@ import type { Answer, GameSettings, ServerMessage } from '@quiz-versus/protocol'
 import type { GamePlan } from '../../src/game/game-plan.js';
 import type { Item } from '../../src/quiz/item.js';
 import type { Effect } from '../../src/room/effects.js';
-import type { RoomEvent } from '../../src/room/events.js';
 import { step } from '../../src/room/reducer.js';
 import { defaultRules } from '../../src/room/rules.js';
 import type { Rules } from '../../src/room/rules.js';
+import type { RoomInput } from '../../src/room/session.js';
 import { createRoom } from '../../src/room/state.js';
 import type { QuestionRoom, RoomState } from '../../src/room/state.js';
 
@@ -61,9 +61,7 @@ export class RoomDriver {
 
   constructor(private readonly rules: Rules = defaultRules) {}
 
-  send(
-    event: RoomEvent extends infer E ? (E extends { now: number } ? Omit<E, 'now'> : never) : never,
-  ): readonly Effect[] {
+  send(event: RoomInput): readonly Effect[] {
     const { state, effects } = step(this.state, { ...event, now: this.now }, this.rules);
     this.state = state;
     for (const effect of effects) {

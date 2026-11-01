@@ -3,6 +3,7 @@ import { finishGame } from './finish-game.js';
 import type { Rules } from './rules.js';
 import { chooseHost, findSeat, updateSeat } from './seats.js';
 import { settle } from './settle.js';
+import { createRoom } from './state.js';
 import type { Game, RoomState } from './state.js';
 import { stay } from './transition.js';
 import type { Transition } from './transition.js';
@@ -65,7 +66,10 @@ function removeSeat(room: RoomState, playerId: string): Removal {
 export function handleLeave(room: RoomState, event: LeaveEvent, rules: Rules): Transition {
   if (findSeat(room, event.playerId) === undefined) return stay(room);
   const { room: left, tieCollapsed } = removeSeat(room, event.playerId);
-  if (left.seats.length === 0) return stay(left, { type: 'clearTimer' }, { type: 'closeRoom' });
+  // A closed room goes back to an empty lobby, so a late alarm or join finds nothing to break.
+  if (left.seats.length === 0) {
+    return stay(createRoom(left.roomId), { type: 'clearTimer' }, { type: 'closeRoom' });
+  }
   if (tieCollapsed && left.phase === 'question') return finishGame(left, left.game);
   return settle(left, rules);
 }

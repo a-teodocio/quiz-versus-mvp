@@ -13,8 +13,11 @@ export interface GamePlan {
   readonly images: ReadonlyMap<string, string>;
 }
 
-/** Why a game could not be set up. The adapter answers `INVALID_SETTINGS` for both. */
-export type GameSetupFailure = 'unknown-quiz' | 'not-enough-questions';
+/**
+ * Why a game could not be set up. The adapter answers `INVALID_SETTINGS` for the first two; an
+ * `invalid-quiz` is a content fault (a question the protocol cannot carry), not the host's mistake.
+ */
+export type GameSetupFailure = 'unknown-quiz' | 'not-enough-questions' | 'invalid-quiz';
 
 export class GameSetupError extends Error {
   constructor(

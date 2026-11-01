@@ -70,21 +70,38 @@ describe('answering', () => {
     expect(answered.map((player) => player.id)).toEqual([ids[1]]);
   });
 
-  it.each([
-    ['a second answer', 'ALREADY_ANSWERED'],
-    ['an answer to another question', 'STALE_QUESTION'],
-    ['an answer of the wrong kind', 'INVALID_ANSWER'],
-  ])('refuses %s with %s', (label, code) => {
+  it('refuses a second answer with ALREADY_ANSWERED', () => {
     const { room, ids } = startedGame();
-    const player = ids[1] ?? '';
-    room.right(player);
-    const effects =
-      code === 'ALREADY_ANSWERED'
-        ? room.right(player)
-        : code === 'STALE_QUESTION'
-          ? room.answer(ids[2] ?? '', { kind: 'pick', index: 0 }, 'i-old')
-          : room.answer(ids[2] ?? '', { kind: 'type', text: 'hello' });
-    expect(errorCodes(effects), label).toEqual([code]);
+    room.right(ids[1] ?? '');
+    expect(errorCodes(room.right(ids[1] ?? ''))).toEqual(['ALREADY_ANSWERED']);
+  });
+
+  it('refuses an answer for another question with STALE_QUESTION', () => {
+    const { room, ids } = startedGame();
+    const effects = room.answer(ids[1] ?? '', { kind: 'pick', index: 0 }, 'i-old');
+    expect(errorCodes(effects)).toEqual(['STALE_QUESTION']);
+  });
+
+  it('refuses an answer of the wrong kind with INVALID_ANSWER', () => {
+    const { room, ids } = startedGame();
+    expect(errorCodes(room.answer(ids[1] ?? '', { kind: 'type', text: 'hello' }))).toEqual([
+      'INVALID_ANSWER',
+    ]);
+  });
+});
+
+describe('answers near the deadline and in small rooms', () => {
+  it('treats an answer at exactly the deadline as late', () => {
+    const { room, ids } = startedGame();
+    room.now = room.open().open.deadline;
+    expect(errorCodes(room.right(ids[0] ?? ''))).toEqual(['STALE_QUESTION']);
+    expect(room.state.phase).toBe('reveal');
+  });
+
+  it('lets a one-player game run: the machine does not enforce a minimum', () => {
+    const { room, ids } = startedGame(1, 1);
+    room.right(ids[0] ?? '');
+    expect(room.state.phase).toBe('reveal');
   });
 
   it('refuses an answer from someone who has not joined', () => {

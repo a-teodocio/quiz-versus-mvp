@@ -65,8 +65,5 @@ export function collectingLogger(): CollectingLogger {
     info: (event, fields) => {
       write('info', event, fields);
     },
-    warn: (event, fields) => {
-      write('warn', event, fields);
-    },
   };
 }

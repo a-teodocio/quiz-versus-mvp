@@ -1,17 +1,6 @@
 {
   "extends": "./tsconfig.base.json",
-  "compilerOptions": {
-    "composite": false,
-    "noEmit": true,
-    "types": []
-  },
+  "compilerOptions": { "composite": false, "noEmit": true, "types": [] },
   "files": ["vitest.config.ts"],
-  "references": [
-    {
-      "path": "packages/protocol"
-    },
-    {
-      "path": "packages/core"
-    }
-  ]
+  "references": [{ "path": "packages/protocol" }, { "path": "packages/core" }]
 }

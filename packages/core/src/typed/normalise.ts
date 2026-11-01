@@ -1,8 +1,8 @@
 /** Text comparison for typed answers. Ports of `normTyped`, `sameTyped` and `editDistance`. */
 
-const COMBINING_MARKS = /[̀-ͯ]/g;
-const APOSTROPHES = /['‘’ʼ`´]/g;
-const HYPHENS = /[-‐-―]/g;
+const COMBINING_MARKS = /[\u0300-\u036F]/g;
+const APOSTROPHES = /['\u2018\u2019\u02BC`\u00B4]/g;
+const HYPHENS = /[-\u2010-\u2015]/g;
 
 /**
  * Capitals, accents, apostrophes (any style, present or not), hyphen against space, extra spaces

@@ -12,9 +12,6 @@ export function updateSeat(
 export const findSeat = (room: RoomState, id: string): Seat | undefined =>
   room.seats.find((seat) => seat.id === id);
 
-export const connectedSeats = (room: RoomState): readonly Seat[] =>
-  room.seats.filter((seat) => seat.connected);
-
 /**
  * Who hosts. The host keeps the role while connected; otherwise it passes to the earliest-joined
  * connected player and a returning host does not take it back (ADR 7). With nobody connected the

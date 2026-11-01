@@ -15,8 +15,16 @@ export interface TypedCheck {
  */
 export function checkTyped(typed: string, correct: string): TypedCheck {
   const forms = answerForms(correct);
+  return forms === null ? { ok: false, near: false } : checkAgainstForms(typed, forms);
+}
+
+/**
+ * The same check against forms already worked out (an item stores them), so the forms that are
+ * revealed and the forms that are graded are one list. An empty entry is never right.
+ */
+export function checkAgainstForms(typed: string, forms: readonly string[]): TypedCheck {
   const entry = normaliseTyped(typed);
-  if (forms === null || entry === '') return { ok: false, near: false };
+  if (entry === '') return { ok: false, near: false };
   const accepted = forms.map(normaliseTyped);
   if (accepted.some((form) => sameTyped(entry, form))) return { ok: true, near: false };
   const closest = accepted.reduce(

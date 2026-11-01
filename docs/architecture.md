@@ -21,7 +21,7 @@ worker ───┘                    ^
    └───────────────────────────┘
 ```
 
-- `core` imports only types from `protocol`. No `node:*`, no Cloudflare APIs, no other package.
+- `core` imports only from `protocol` (types and constants such as limits). No `node:*`, no Cloudflare APIs, no other package.
 - `protocol` imports nothing from the repo.
 - `worker` and `web` may import `core` and `protocol`, never each other.
 - `web` talks to the server only through `protocol` messages over a WebSocket.
@@ -35,7 +35,7 @@ ESLint (`eslint.config.js`) fails the build when a package imports something it 
 | Port (in `core`) | Purpose                    | Production adapter    | Test adapter     |
 | ---------------- | -------------------------- | --------------------- | ---------------- |
 | `Clock`          | current time, timers       | Durable Object alarms | manual clock     |
-| `Random`         | seeded randomness          | seeded PRNG           | fixed sequence   |
+| `Random`         | randomness                 | crypto-backed source  | fixed sequence   |
 | `QuizRepository` | load quizzes and their key | static JSON assets    | in-memory        |
 | `Logger`         | structured logs            | console wrapper       | collecting array |
 
@@ -47,6 +47,7 @@ One room is one Durable Object instance holding one `core` room state. The state
 LOBBY ──start──> QUESTION ──all answered or timeout──> REVEAL ──next──> QUESTION
                                                           ├──tie for first──> QUESTION (tie-break, up to 5)
                                                           └──last──> RESULTS
+(a tie-break question can also go straight to RESULTS: if a tied player leaves and fewer than two are left)
 ```
 
 The wire phases stay these four; the tie-break is a question phase for the tied players only ([ADR 6](adr/0006-versus-game-rules.md)). The shape of the state machine, who prepares the game and how time and effects work are in [ADR 7](adr/0007-core-state-machine.md).

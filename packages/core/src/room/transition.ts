@@ -1,3 +1,4 @@
+import type { ErrorCode } from '@quiz-versus/protocol';
 import type { Effect } from './effects.js';
 import { refuse } from './effects.js';
 import type { RoomState } from './state.js';
@@ -11,8 +12,5 @@ export interface Transition {
 export const stay = (state: RoomState, ...effects: Effect[]): Transition => ({ state, effects });
 
 /** State unchanged, request refused. Illegal moves are rejected, never silently ignored. */
-export const reject = (
-  state: RoomState,
-  code: Parameters<typeof refuse>[0],
-  message: string,
-): Transition => stay(state, refuse(code, message));
+export const reject = (state: RoomState, code: ErrorCode, message: string): Transition =>
+  stay(state, refuse(code, message));

@@ -41,7 +41,7 @@ describe('RoomSession', () => {
     expect(session.state.phase).toBe('question');
   });
 
-  it('answers a timer that fires with the question closing', () => {
+  it('closes the open question when the timer fires after the deadline', () => {
     const { session, clock } = sessionWithOnePlayer();
     session.handle({
       type: 'start',
@@ -74,5 +74,15 @@ describe('RoomSession', () => {
     const before = session.state;
     session.handle({ type: 'next', playerId: playerIdOf(1) });
     expect(session.state).toBe(before);
+  });
+});
+
+describe('RoomSession logging of refusals', () => {
+  it('logs the error code of a refused request, and nothing about who or what', () => {
+    const { session, logger } = sessionWithOnePlayer();
+    session.handle({ type: 'next', playerId: playerIdOf(1) });
+    const line = logger.lines.at(-1) ?? '';
+    expect(line).toContain('"refused":"WRONG_PHASE"');
+    expect(line).not.toContain(playerIdOf(1));
   });
 });

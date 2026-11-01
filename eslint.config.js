@@ -5,7 +5,7 @@ import prettier from 'eslint-config-prettier';
 
 /**
  * Layer rules (see docs/architecture.md). Dependencies point inward only:
- *   web, worker -> protocol, core;  protocol -> (nothing in the repo);  core -> protocol types only.
+ *   web, worker -> protocol, core;  protocol -> (nothing in the repo);  core -> protocol only (types and constants).
  * `core` is pure logic: no I/O, no platform APIs, no other workspace package except `protocol`.
  */
 const forbid = (patterns, message) => ({
@@ -46,7 +46,7 @@ export default tseslint.config(
     rules: {
       ...forbid(
         ['@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*', '@cloudflare/*'],
-        'core must stay pure: it may import only from @quiz-versus/protocol (types).',
+        'core must stay pure: it may import only from @quiz-versus/protocol.',
       ),
       // Time and randomness come in through the Clock and Random ports (review-checklist A4).
       'no-restricted-globals': [

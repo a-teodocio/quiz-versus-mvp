@@ -7,6 +7,7 @@ import type { Random } from '../ports/random.js';
  */
 export function shuffle<T>(items: readonly T[], random: Random): T[] {
   const copy = [...items];
+  // Both indexes are in range by construction; the casts only satisfy noUncheckedIndexedAccess.
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(random.next() * (i + 1));
     const held = copy[i] as T;

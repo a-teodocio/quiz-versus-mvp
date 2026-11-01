@@ -12,7 +12,7 @@ export interface ScoringContext {
 export type ScoringRule = (correct: boolean, context: ScoringContext) => number;
 
 /** Points for a correct answer before any multiplier. */
-export const BASE_POINTS = 1;
+const BASE_POINTS = 1;
 
 /** The multiplier of the standard rule. A later rule can make it depend on the context. */
 const MULTIPLIER = 1;

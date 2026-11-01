@@ -15,6 +15,14 @@ export type RoomInput = RoomEvent extends infer E
     : never
   : never;
 
+/** The error code of a refused request, if the effects hold one. Logged without any detail. */
+function refusalCode(effects: readonly Effect[]): string | undefined {
+  for (const effect of effects) {
+    if (effect.type === 'send' && effect.message.type === 'error') return effect.message.code;
+  }
+  return undefined;
+}
+
 /** What a session needs from outside. */
 export interface RoomSessionDeps {
   readonly clock: Clock;
@@ -43,11 +51,18 @@ export class RoomSession {
 
   /** Applies one event and returns what the adapter must do about it. */
   handle(input: RoomInput): readonly Effect[] {
+    // `input` is one member of the RoomEvent union minus `now`; adding `now` gives that member back,
+    // which TypeScript cannot see through the distributive Omit.
     const event = { ...input, now: this.deps.clock.now() } as RoomEvent;
     const before = this.current.phase;
     const { state, effects } = step(this.current, event, this.deps.rules ?? defaultRules);
     this.current = state;
-    this.deps.logger.info('room.event', { event: event.type, phase: state.phase });
+    const refused = refusalCode(effects);
+    this.deps.logger.info('room.event', {
+      event: event.type,
+      phase: state.phase,
+      ...(refused === undefined ? {} : { refused }),
+    });
     if (state.phase !== before) {
       this.deps.logger.info('room.phase', { from: before, to: state.phase });
     }

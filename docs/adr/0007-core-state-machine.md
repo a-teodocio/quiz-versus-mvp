@@ -10,7 +10,7 @@ Status: accepted (2026-11-01)
 
 **A pure `step(state, event)` returns `{ state, effects }`.** State is a union by phase (`lobby`, `question`, `reveal`, `results`), so a field that only exists in one phase cannot be read in another. Rejected requests return the same state and one `error` effect; nothing is ignored silently, except a `disconnect` or `leave` from someone who is not in the room, and a timer that fires when no question is due.
 
-**The game is prepared before it starts.** `prepareGame` (async, because the `QuizRepository` loads) picks and shuffles the questions and a reserve of at most `MAX_TIEBREAK_ROUNDS` more for tie-breaks, and the `start` event carries the result (`GamePlan`). The state machine needs neither randomness nor loading, so it is replayable from its events. "No spare question left" is simply an empty reserve. The repository only loads quizzes; core derives the reserve.
+**The game is prepared before it starts.** `prepareGame` (async, because the `QuizRepository` loads) picks and shuffles the questions and a reserve of at most `MAX_TIEBREAK_ROUNDS` more for tie-breaks, and the `start` event carries the result (`GamePlan`). The state machine needs neither randomness nor loading, so it is replayable from its events. "No spare question left" is simply an empty reserve. The repository only loads quizzes; core derives the reserve. This supersedes the sentence in ADR 6's consequences that `QuizRepository` supplies spare questions.
 
 **Time arrives as data.** Every event carries `now`. `RoomSession` stamps it from the `Clock`. A question's deadline is stored, so a late joiner is sent the time left, never less than 1 ms. A timer is an effect (`setTimer` with an absolute time, `clearTimer`), at most one at a time, and its firing is an event. An answer that arrives after the deadline closes the question as a timeout and is then refused with `STALE_QUESTION`, so a late alarm cannot award points.
 
@@ -32,6 +32,11 @@ Status: accepted (2026-11-01)
 ## Consequences
 
 - Adapters must call `prepareGame` before `start`, supply ids and tokens, send `timerFired`, and carry out the effects.
+- **Randomness must be unpredictable in production.** One `Random` stream fixes the secret option order and the public image names, so a weak seeded generator could be recovered from what clients see and used to predict later answers. The worker must back `Random` with `crypto.getRandomValues`. Tests use a fixed or seeded one.
+- **Content is not trusted.** `prepareGame` refuses a question the protocol cannot carry (not exactly 4 options, a `correct` index that points at no option, empty or over-long text) with `GameSetupError('invalid-quiz')`, so a bad file fails at setup, not mid-game. The adapter answers `INVALID_SETTINGS`.
+- **Connections are the adapter's.** Events name a player, not a socket. The adapter must ignore a `disconnect` from a connection that a resume has replaced, and close the old connection when a resume takes over a seat that still shows as connected. A new `join` whose supplied player id is already seated is refused with `INTERNAL_ERROR`: the adapter must supply fresh ids.
+- **Abandoned rooms are the adapter's.** Core emits `closeRoom` only when the last player leaves (and then resets to an empty lobby, so a late alarm or join cannot break it). If everyone merely disconnects, the question times out and the reveal waits for a host who is gone; the worker owns an idle time limit.
+- **No minimum to start.** The machine starts a game for any room with a host, even one player. The "2 or more" in the roadmap is the aim, not a rule; the web client may ask for it.
 - The same events always give the same room, which is what lets integration tests in the worker script a game.
 - Host hand-over and the choices above are behaviour the web client will see; `docs/protocol.md` records the parts visible on the wire.
 - A different tie rule or a speed multiplier changes `tiebreak.ts` or the `ScoringRule` only.

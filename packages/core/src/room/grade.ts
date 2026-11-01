@@ -1,7 +1,7 @@
 import type { Answer, Progress, RevealMessage } from '@quiz-versus/protocol';
 import type { Item } from '../quiz/item.js';
 import { pointsFor } from '../scoring/scoring-rule.js';
-import { checkTyped } from '../typed/check-typed.js';
+import { checkAgainstForms } from '../typed/check-typed.js';
 import type { Rules } from './rules.js';
 import { askedIds as askedPlayerIds } from './open-question.js';
 import type { OpenQuestion, QuestionRoom, Seat } from './state.js';
@@ -17,9 +17,8 @@ interface Judgement {
 export function judge(item: Item, answer: Answer): Judgement {
   if (answer.kind === 'pick')
     return { correct: item.mode === 'pick' && answer.index === item.correctIndex, near: false };
-  const correctText = item.options[item.correctIndex] ?? '';
-  const checked =
-    item.mode === 'type' ? checkTyped(answer.text, correctText) : { ok: false, near: false };
+  if (item.mode !== 'type') return { correct: false, near: false };
+  const checked = checkAgainstForms(answer.text, item.acceptedForms);
   return { correct: checked.ok, near: checked.near };
 }
 
