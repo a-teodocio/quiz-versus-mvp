@@ -1,0 +1,26 @@
+name: Auto-merge
+
+# Asks GitHub to merge a pull request as soon as every required check has passed and the branch
+# has no conflicts. GitHub does the waiting and the merging; branch protection still decides what
+# counts as "passed". Open a pull request as a draft to hold it back, and mark it ready to release it.
+
+on:
+  pull_request:
+    types: [opened, reopened, ready_for_review]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  enable:
+    name: enable auto-merge
+    # Only the owner's own, non-draft pull requests. Dependabot and forks are left for a manual merge.
+    if: github.event.pull_request.user.login == github.repository_owner && !github.event.pull_request.draft
+    runs-on: ubuntu-latest
+    steps:
+      - name: Enable auto-merge
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PULL_REQUEST_URL: ${{ github.event.pull_request.html_url }}
+        run: gh pr merge --auto --merge "$PULL_REQUEST_URL"
