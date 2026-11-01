@@ -98,10 +98,31 @@ describe('answers near the deadline and in small rooms', () => {
     expect(room.state.phase).toBe('reveal');
   });
 
-  it('lets a one-player game run: the machine does not enforce a minimum', () => {
-    const { room, ids } = startedGame(1, 1);
-    room.right(ids[0] ?? '');
-    expect(room.state.phase).toBe('reveal');
+  it('starts with exactly two connected players', () => {
+    const { room } = startedGame(2, 1);
+    expect(room.state.phase).toBe('question');
+  });
+
+  it('refuses to start a versus game with one player', () => {
+    const room = new RoomDriver();
+    const [host] = room.joinMany(1) as [string];
+    expect(errorCodes(room.start(host, planOf([pickItem('i1')])))).toEqual(['NOT_ENOUGH_PLAYERS']);
+    expect(room.state.phase).toBe('lobby');
+  });
+
+  it('does not count a player who has dropped', () => {
+    const room = new RoomDriver();
+    const [host, other] = room.joinMany(2) as [string, string];
+    room.send({ type: 'disconnect', playerId: other });
+    expect(errorCodes(room.start(host, planOf([pickItem('i1')])))).toEqual(['NOT_ENOUGH_PLAYERS']);
+  });
+
+  it('checks the host before the number of players', () => {
+    const room = new RoomDriver();
+    room.joinMany(1);
+    expect(errorCodes(room.start('stranger-0000000000', planOf([pickItem('i1')])))).toEqual([
+      'NOT_HOST',
+    ]);
   });
 
   it('refuses an answer from someone who has not joined', () => {

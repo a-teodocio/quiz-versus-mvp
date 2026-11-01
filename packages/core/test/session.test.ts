@@ -10,7 +10,7 @@ import {
   tokenOf,
 } from './support/room-driver.js';
 
-function sessionWithOnePlayer(): {
+function sessionWithTwoPlayers(): {
   session: RoomSession;
   clock: ReturnType<typeof manualClock>;
   logger: ReturnType<typeof collectingLogger>;
@@ -24,12 +24,18 @@ function sessionWithOnePlayer(): {
     identity: { playerId: playerIdOf(1), resumeToken: tokenOf(1) },
     resumeToken: undefined,
   });
+  session.handle({
+    type: 'join',
+    name: 'Other Name',
+    identity: { playerId: playerIdOf(2), resumeToken: tokenOf(2) },
+    resumeToken: undefined,
+  });
   return { session, clock, logger };
 }
 
 describe('RoomSession', () => {
   it('stamps events with the time from the clock, so the deadline follows it', () => {
-    const { session, clock } = sessionWithOnePlayer();
+    const { session, clock } = sessionWithTwoPlayers();
     clock.set(90_000);
     const effects = session.handle({
       type: 'start',
@@ -42,7 +48,7 @@ describe('RoomSession', () => {
   });
 
   it('closes the open question when the timer fires after the deadline', () => {
-    const { session, clock } = sessionWithOnePlayer();
+    const { session, clock } = sessionWithTwoPlayers();
     session.handle({
       type: 'start',
       playerId: playerIdOf(1),
@@ -55,7 +61,7 @@ describe('RoomSession', () => {
   });
 
   it('logs events and phase changes without names, tokens or answers', () => {
-    const { session, logger } = sessionWithOnePlayer();
+    const { session, logger } = sessionWithTwoPlayers();
     session.handle({
       type: 'start',
       playerId: playerIdOf(1),
@@ -70,7 +76,7 @@ describe('RoomSession', () => {
   });
 
   it('keeps its state when an event is refused', () => {
-    const { session } = sessionWithOnePlayer();
+    const { session } = sessionWithTwoPlayers();
     const before = session.state;
     session.handle({ type: 'next', playerId: playerIdOf(1) });
     expect(session.state).toBe(before);
@@ -79,7 +85,7 @@ describe('RoomSession', () => {
 
 describe('RoomSession logging of refusals', () => {
   it('logs the error code of a refused request, and nothing about who or what', () => {
-    const { session, logger } = sessionWithOnePlayer();
+    const { session, logger } = sessionWithTwoPlayers();
     session.handle({ type: 'next', playerId: playerIdOf(1) });
     const line = logger.lines.at(-1) ?? '';
     expect(line).toContain('"refused":"WRONG_PHASE"');

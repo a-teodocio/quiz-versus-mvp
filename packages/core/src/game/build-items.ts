@@ -1,8 +1,10 @@
+import { MAX_QUESTIONS_PER_GAME } from '@quiz-versus/protocol';
 import type { Item } from '../quiz/item.js';
 import type { QuizEntry, QuizQuestionFields } from '../quiz/model.js';
 import type { Random } from '../ports/random.js';
 import { shuffleOptions } from '../shuffle/shuffle.js';
 import { answerForms } from '../typed/answer-forms.js';
+import { GameSetupError } from './game-plan.js';
 import { assertAskable } from './validate-question.js';
 
 /** Options that fix what an item looks like, shared by every item of one game. */
@@ -50,6 +52,9 @@ export function buildItems(
   imageAlias: string | undefined,
   style: ItemStyle,
 ): Item[] {
+  if (entry.type === 'image-group' && entry.parts.length > MAX_QUESTIONS_PER_GAME) {
+    throw new GameSetupError('invalid-quiz', `group ${entry.id} has too many parts`);
+  }
   if (entry.type !== 'image-group') {
     return [
       buildItem({ key: `i${String(ordinal)}`, fields: entry, imageAlias, part: undefined }, style),

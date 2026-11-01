@@ -15,7 +15,8 @@ export interface GamePlan {
 
 /**
  * Why a game could not be set up. The adapter answers `INVALID_SETTINGS` for the first two; an
- * `invalid-quiz` is a content fault (a question the protocol cannot carry), not the host's mistake.
+ * `invalid-quiz` is a content fault (a question or group the protocol cannot carry), not the
+ * host's mistake, so it answers `INTERNAL_ERROR`.
  */
 export type GameSetupFailure = 'unknown-quiz' | 'not-enough-questions' | 'invalid-quiz';
 

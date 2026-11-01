@@ -99,7 +99,7 @@ describe('the host', () => {
     room.send({ type: 'disconnect', playerId: other });
     const before = room.state;
     room.send({ type: 'disconnect', playerId: other });
-    expect(room.state.seats).toEqual(before.seats);
+    expect(room.state).toEqual(before);
   });
 });
 
@@ -132,10 +132,15 @@ describe('leaving in other phases', () => {
 describe('an emptied room', () => {
   function emptiedDuring(phase: 'question' | 'reveal'): RoomDriver {
     const room = new RoomDriver();
-    const [only] = room.joinMany(1) as [string];
-    room.start(only, planOf([pickItem('i1')]));
-    if (phase === 'reveal') room.right(only);
-    room.send({ type: 'leave', playerId: only });
+    const [first, second] = room.joinMany(2) as [string, string];
+    room.start(first, planOf([pickItem('i1')]));
+    if (phase === 'reveal') {
+      room.right(first);
+      room.right(second);
+    }
+    expect(room.state.phase).toBe(phase);
+    room.send({ type: 'leave', playerId: first });
+    room.send({ type: 'leave', playerId: second });
     return room;
   }
 

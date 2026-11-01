@@ -98,10 +98,18 @@ describe('other paths that must not leak', () => {
     expect(text).not.toContain('acceptedForms');
   });
 
-  it('keeps scores unchanged when a player disconnects or leaves mid-question', () => {
+  it('keeps scores unchanged when a player disconnects mid-question', () => {
     const { room, ids } = twoPlayerGame();
     room.right(ids[0]);
     room.send({ type: 'disconnect', playerId: ids[0] });
     expect(snapshotOf(room.state).players.map((player) => player.score)).toEqual([0, 0]);
+  });
+
+  it('keeps scores unchanged for those who stay when another player leaves mid-question', () => {
+    const { room, ids } = twoPlayerGame();
+    room.right(ids[1]);
+    room.send({ type: 'leave', playerId: ids[0] });
+    expect(room.state.phase).toBe('reveal');
+    expect(snapshotOf(room.state).players.map((player) => player.score)).toEqual([1]);
   });
 });

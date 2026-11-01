@@ -1,3 +1,4 @@
+import { MIN_PLAYERS_TO_START } from '@quiz-versus/protocol';
 import type { RoomEvent } from './events.js';
 import { openQuestion } from './open-question.js';
 import type { Game, RoomState } from './state.js';
@@ -12,6 +13,9 @@ export function handleStart(room: RoomState, event: StartEvent): Transition {
     return reject(room, 'NOT_HOST', 'Only the host can start the game.');
   }
   if (room.phase !== 'lobby') return reject(room, 'WRONG_PHASE', 'The game has already started.');
+  if (room.seats.filter((seat) => seat.connected).length < MIN_PLAYERS_TO_START) {
+    return reject(room, 'NOT_ENOUGH_PLAYERS', 'A versus game needs at least two players.');
+  }
   const { plan, settings } = event;
   if (plan.regular.length !== settings.questionCount) {
     return reject(room, 'INVALID_SETTINGS', 'The prepared game does not match the settings.');

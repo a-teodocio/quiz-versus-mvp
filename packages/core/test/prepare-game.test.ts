@@ -193,6 +193,15 @@ describe('questions the protocol cannot carry', () => {
     await expect(prepareWith(change)).rejects.toMatchObject({ reason: 'invalid-quiz' });
   });
 
+  it('refuses an image-group with more parts than a game may hold', async () => {
+    const plan = prepareGame(
+      repositoryOf({ id: 'fake-quiz-one', entries: [groupEntry('grp1', 'a.png', 101)] }),
+      settings({ questionCount: 1 }),
+      seededRandom(1),
+    );
+    await expect(plan).rejects.toMatchObject({ reason: 'invalid-quiz' });
+  });
+
   it('accepts a question at the length limits', async () => {
     const plan = await prepareWith({ question: 'x'.repeat(2_000) });
     expect(plan.regular).toHaveLength(1);

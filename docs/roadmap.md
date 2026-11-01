@@ -6,7 +6,7 @@ Last updated: 2026-11-01 (after `feat/core`)
 
 ## Goal
 
-Trial a live multiplayer (versus) mode for the user's MLS quiz app on a small, fake-content mock: invite a friend by link, join a room (2 or more players is the aim; core does not enforce it), answer the same random questions, and compete for the highest score. The mock must stay true to the real app's behaviour, and be built to production standards, so the lessons and much of the code can move to the real app. The experiment ends with `LESSONS.md`.
+Trial a live multiplayer (versus) mode for the user's MLS quiz app on a small, fake-content mock: invite a friend by link, join a room of 2 or more players (a game needs two connected players to start; solo play is the real app's own mode), answer the same random questions, and compete for the highest score. The mock must stay true to the real app's behaviour, and be built to production standards, so the lessons and much of the code can move to the real app. The experiment ends with `LESSONS.md`.
 
 The real app (a local Python server plus one large `index.html`) lives in the user's vault, folder `knowledge training`. It is read-only reference from this repo. Its question schema, shuffle, image-groups, typed answers and progress keys are what the mock must reproduce.
 
@@ -21,7 +21,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Hold TypeScript at 6.x until `typescript-eslint` supports 7                                                                                                                                                                | `known-issues.md`, `dependency-vetting.md`         |
 | Review by the `standards-reviewer` subagent before major PRs, not a required CI check yet                                                                                                                                  | `CLAUDE.md`, `review-checklist.md`                 |
 | zod validates every message at the boundary, inside `packages/protocol` only                                                                                                                                               | `adr/0004-zod-for-boundary-validation.md`          |
-| Wire protocol (version 2): strict JSON messages, `question` never carries the answer                                                                                                                                       | `protocol.md`                                      |
+| Wire protocol (version 3): strict JSON messages, `question` never carries the answer                                                                                                                                       | `protocol.md`                                      |
 | Core state machine: pure `step(state, event)`, game prepared before `start`, time as data, answers held until the reveal, item keys and image aliases issued by core, host hand-over rules                                 | `adr/0007-core-state-machine.md`                   |
 | Versus game rules: 1 point per correct answer (times a multiplier that is 1 for now), close when all connected players have answered, late joining allowed, tie-break questions for first place, equal scores share a rank | `adr/0006-versus-game-rules.md`                    |
 | Players per room: 8 for now (provisional, one constant: `MAX_PLAYERS_PER_ROOM`)                                                                                                                                            | `protocol.md`, `packages/protocol/src/limits.ts`   |
@@ -38,7 +38,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 7 | Done                                                           |
 | `standards-reviewer` subagent                                             | Done, run on `feat/core` (see its pull request)                |
 | Dependabot                                                                | Weekly, 14-day cooldown, TypeScript major bumps ignored        |
-| `packages/protocol`: schemas, codec, tests, `docs/protocol.md`            | Done and merged (protocol version 2)                           |
+| `packages/protocol`: schemas, codec, tests, `docs/protocol.md`            | Done and merged (protocol version 3)                           |
 | `packages/core`: ports, shuffle, typed answers, scoring, state machine    | Built on `feat/core` (merged once its pull request lands)      |
 | Application code (`worker`, `web`)                                        | **Not started**                                                |
 

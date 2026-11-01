@@ -14,7 +14,7 @@ Everything is exported from `src/index.ts`. Nothing else in the package may be i
 | Typed    | `answerForms`, `answerTooLong`, `checkTyped`, `normaliseTyped`, `sameTyped`, `editDistance`: ports of the real app's checker |
 | Scoring  | `ScoringRule`, `standardScoring`, `pointsFor`, `rankPlayers`                                                                 |
 | Game     | `prepareGame(repository, settings, random)` returns a `GamePlan`; `GameSetupError`                                           |
-| Room     | `createRoom`, `step` (the pure state machine), `RoomSession` (adds the clock and logging), `snapshotOf`, the state types     |
+| Room     | `createRoom`, `step` (the pure state machine), `RoomSession` (adds the clock and logging), the state types                   |
 | Wire-ish | `RoomEvent` in, `Effect` out (`send`, `setTimer`, `clearTimer`, `closeRoom`)                                                 |
 
 ## How a room is driven

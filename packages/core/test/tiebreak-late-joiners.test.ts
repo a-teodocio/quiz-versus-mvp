@@ -25,6 +25,18 @@ describe('a late joiner level at the top (ADR 7)', () => {
   it('leaves the others to play off, and the late joiner shares rank 1 on the equal score', () => {
     const { room, ids } = lateJoinerGame([0, 1, 2]);
     expect(snapshotOf(room.state).tiebreak?.playerIds).toEqual([ids[0], ids[1]]);
+    // Neither tied player scores in the only tie-break question, and no spare is left: they end
+    // level, and the late joiner (also on 1) shares rank 1 with them.
+    room.next(ids[0] ?? '');
+    room.wrong(ids[0] ?? '');
+    room.wrong(ids[1] ?? '');
+    room.next(ids[0] ?? '');
+    const standings = room.state.phase === 'results' ? room.state.results.standings : [];
+    expect(standings.map((row) => [row.playerId, row.rank, row.score])).toEqual([
+      [ids[0], 1, 1],
+      [ids[1], 1, 1],
+      [ids[2], 1, 1],
+    ]);
   });
 
   it('plays nothing when only one non-late player is level with the late joiner', () => {

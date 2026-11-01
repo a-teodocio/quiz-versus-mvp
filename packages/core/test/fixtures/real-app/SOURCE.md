@@ -4,7 +4,7 @@ These files pin the mock's shuffle and typed-answer logic to the real quiz app's
 
 - **Source:** the real app's `index.html` (not in this repo), last changed in its repository at commit `5146c4a6` (2026-10-31).
 - **Functions run:** `shuffle`, `shuffleQuestion` (the part that maps `correct`), `answerTooLong`, `answerForms`, `normTyped`, `sameTyped`, `editDistance`, `checkTyped`. In that file: the shuffle helpers sit between the `// Shuffle helper` and `// Typed answers` comments, and the typed-answer functions run from `const TYPED_CHARS` to just before `foldChar`.
-- **How they were made:** a throwaway script loaded those functions from the real file and ran them on made-up inputs, with `Math.random` replaced by a fixed list of numbers. The expected values below are what the real code returned. The script is `npm run fixtures:core` (`scripts/make-core-fixtures.mjs`).
+- **How they were made:** the generator script loaded those functions from the real file and ran them on made-up inputs, with `Math.random` replaced by a fixed list of numbers. The expected values below are what the real code returned. The script is `npm run fixtures:core` (`scripts/make-core-fixtures.mjs`).
 - **Content:** every string is invented. No real quiz text, answer or note is used (the repo is public).
 
 | File           | Holds                                                                                                                                                                                 |
