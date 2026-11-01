@@ -71,7 +71,7 @@ packages/<name>/
 
 - Real course content, questions, images or notes (public repo).
 - Build output (`dist/`), caches (`*.tsbuildinfo`, `.wrangler/`), coverage, logs, or local secrets (`.dev.vars`). The `.gitignore` covers these.
-- Scratch files, notes to self, or commented-out code. Use the branch, a PR description or `known-issues.md`.
+- Scratch files, notes to self, or commented-out code. Use the branch, a PR description or `known-issues.md`. (The one exception is the owner's personal checklist, `docs/owner-checklist.md`: it is git-ignored, so it stays on one machine and is never committed.)
 
 ## Keeping it clean
 
