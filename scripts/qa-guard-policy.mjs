@@ -198,10 +198,13 @@ export function decideWrite(filePath, repoRoot) {
 const reachesOutside = (pattern) =>
   typeof pattern === 'string' && (/^([a-zA-Z]:|[/\\])/.test(pattern) || /\.\.|~/.test(pattern));
 
+/** Braces, brackets and question marks make a glob too hard to check for secret names. */
+const usesGlobSyntax = (pattern) => typeof pattern === 'string' && /[{}[\]?]/.test(pattern);
+
 /** A glob that names a secret place. */
 const namesSecret = (pattern) =>
   typeof pattern === 'string' &&
-  /(^|[/\\{,*?[])(\.git|\.wrangler)(?=[/\\,}*?[\]]|$)|(^|[/\\{,*?[])\.(env|dev\.vars)(?=[./\\,}*?[\]]|$)|\.(pem|key)(?=[,}]|$)/i.test(
+  /(^|[/\\*])(\.git|\.wrangler)(?=[/\\*]|$)|(^|[/\\*])\.(env|dev\.vars)|\.(pem|key)(?=[/\\*]|$)/i.test(
     pattern,
   );
 
@@ -222,6 +225,7 @@ export function decideRead(toolName, toolInput, cwd, repoRoot) {
   // Glob's `pattern` and Grep's `glob` are file globs; Grep's `pattern` is a regex and is not checked.
   const glob = toolName === 'Glob' ? toolInput?.pattern : toolInput?.glob;
   if (reachesOutside(glob)) return deny('a glob must stay inside the search folder');
+  if (usesGlobSyntax(glob)) return deny('a glob may not use braces, brackets or question marks');
   if (namesSecret(glob)) return deny('a glob must not name secrets or the guard log');
   return allow('search inside the repository');
 }
