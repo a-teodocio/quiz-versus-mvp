@@ -106,10 +106,12 @@ describe('other paths that must not leak', () => {
   });
 
   it('keeps scores unchanged for those who stay when another player leaves mid-question', () => {
-    const { room, ids } = twoPlayerGame();
+    const room = new RoomDriver();
+    const ids = room.joinMany(3) as [string, string, string];
+    room.start(ids[0], planOf([pickItem('i1')]));
     room.right(ids[1]);
     room.send({ type: 'leave', playerId: ids[0] });
-    expect(room.state.phase).toBe('reveal');
-    expect(snapshotOf(room.state).players.map((player) => player.score)).toEqual([1]);
+    expect(room.state.phase).toBe('question');
+    expect(snapshotOf(room.state).players.map((player) => player.score)).toEqual([0, 0]);
   });
 });

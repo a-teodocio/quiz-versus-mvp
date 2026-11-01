@@ -97,7 +97,9 @@ describe('answers near the deadline and in small rooms', () => {
     expect(errorCodes(room.right(ids[0] ?? ''))).toEqual(['STALE_QUESTION']);
     expect(room.state.phase).toBe('reveal');
   });
+});
 
+describe('the two-player minimum', () => {
   it('starts with exactly two connected players', () => {
     const { room } = startedGame(2, 1);
     expect(room.state.phase).toBe('question');
@@ -115,6 +117,21 @@ describe('answers near the deadline and in small rooms', () => {
     const [host, other] = room.joinMany(2) as [string, string];
     room.send({ type: 'disconnect', playerId: other });
     expect(errorCodes(room.start(host, planOf([pickItem('i1')])))).toEqual(['NOT_ENOUGH_PLAYERS']);
+  });
+});
+
+describe('the order of the start checks', () => {
+  it('checks the phase before the number of players', () => {
+    const { room, ids } = startedGame(2, 1);
+    room.send({ type: 'disconnect', playerId: ids[1] ?? '' });
+    expect(errorCodes(room.start(ids[0] ?? '', planOf([pickItem('i1')])))).toEqual(['WRONG_PHASE']);
+  });
+
+  it('checks the number of players before the settings', () => {
+    const room = new RoomDriver();
+    const [host] = room.joinMany(1) as [string];
+    const effects = room.start(host, planOf([pickItem('i1')]), settingsFor(5));
+    expect(errorCodes(effects)).toEqual(['NOT_ENOUGH_PLAYERS']);
   });
 
   it('checks the host before the number of players', () => {
