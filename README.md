@@ -6,7 +6,7 @@ The quiz content is entirely fake. The code is written to production standards s
 
 ## Status
 
-Scaffolding. Tooling, CI and docs are in place; application packages come next. See [docs/architecture.md](docs/architecture.md) for the plan.
+Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `core`, `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
 
 ## Quickstart
 
@@ -34,6 +34,7 @@ npm run check
 - [Review checklist](docs/review-checklist.md): what every change is reviewed against
 - [Dependency vetting](docs/dependency-vetting.md): how third-party packages are checked
 - [Architecture](docs/architecture.md): packages, layers, game-room state machine
+- [Protocol](docs/protocol.md): every client and server message
 - [Architecture decisions](docs/adr/): why things are the way they are
 - [Fidelity log](docs/fidelity.md): where the mock differs from the real app
 - [Known issues](docs/known-issues.md)

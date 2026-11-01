@@ -1,6 +1,6 @@
 # Architecture
 
-Status: planned. The packages below do not exist yet; this document is the contract they are built to.
+Status: `protocol` is built; `core`, `worker` and `web` are planned. This document is the contract they are built to.
 
 ## Packages
 
