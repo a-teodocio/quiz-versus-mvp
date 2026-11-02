@@ -138,7 +138,7 @@ export class RoomHost {
   private dispatch(connection: Connection, link: Link, text: string): void {
     const decoded = decodeClientMessage(text);
     if (!decoded.ok) {
-      this.refuse(connection, decoded.code, decodeFailureText(decoded.code));
+      this.refuse(connection, decoded.code, decodeFailureText(decoded.code, decoded.detail));
       if (decoded.code === 'UNSUPPORTED_VERSION') connection.close(CLOSE_POLICY, 'version');
       return;
     }

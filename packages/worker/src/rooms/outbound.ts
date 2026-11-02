@@ -1,4 +1,12 @@
-import { encodeServerMessage, InvalidOutgoingMessageError } from '@quiz-versus/protocol';
+import {
+  encodeServerMessage,
+  InvalidOutgoingMessageError,
+  MAX_QUESTIONS_PER_GAME,
+  MAX_SECONDS_PER_QUESTION,
+  MIN_SECONDS_PER_QUESTION,
+  PLAYER_NAME_MAX_LENGTH,
+  TYPED_ANSWER_MAX_LENGTH,
+} from '@quiz-versus/protocol';
 import type { ErrorCode, ServerMessage } from '@quiz-versus/protocol';
 import type { ServerLogger } from '../ports/server-logger.js';
 
@@ -23,14 +31,31 @@ export function encodeOrLog(message: ServerMessage, logger: ServerLogger): strin
   }
 }
 
-/** Plain words for a message the decoder refused. */
-export function decodeFailureText(code: ErrorCode): string {
+const NOT_UNDERSTOOD = 'That message was not understood.';
+
+/**
+ * What to tell a player whose message was refused, in plain words. The decoder's `detail` starts
+ * with the field that failed (`name: too_small`), so a bad name, answer or setting gets a message
+ * that says what to change, not only that something was wrong.
+ */
+const FIELD_TEXT: Readonly<Record<string, string>> = {
+  name: `Your name must be 1 to ${String(PLAYER_NAME_MAX_LENGTH)} characters, with no control or invisible characters.`,
+  settings: `Those game settings are not allowed. Choose 1 to ${String(MAX_QUESTIONS_PER_GAME)} questions and ${String(MIN_SECONDS_PER_QUESTION)} to ${String(MAX_SECONDS_PER_QUESTION)} seconds for each.`,
+  answer: `Your answer must be 1 to ${String(TYPED_ANSWER_MAX_LENGTH)} characters.`,
+  resumeToken: 'That reconnection code is not valid. Join again as a new player.',
+};
+
+export function decodeFailureText(code: ErrorCode, detail: string): string {
   switch (code) {
     case 'MESSAGE_TOO_LARGE':
       return 'That message was too large.';
     case 'UNSUPPORTED_VERSION':
       return 'This game is a different version. Reload the page and try again.';
-    default:
-      return 'That message was not understood.';
+    default: {
+      const field = detail.split(/[.:]/, 1)[0] ?? '';
+      return Object.hasOwn(FIELD_TEXT, field)
+        ? (FIELD_TEXT[field] ?? NOT_UNDERSTOOD)
+        : NOT_UNDERSTOOD;
+    }
   }
 }

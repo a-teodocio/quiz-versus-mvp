@@ -16,7 +16,10 @@ function problemWith(room: QuestionRoom, event: AnswerEvent): [ErrorCode, string
   const { open } = room;
   if (event.itemKey !== open.item.key) return ['STALE_QUESTION', 'That is not the open question.'];
   if (!askedIds(room).includes(event.playerId)) {
-    return ['NOT_IN_TIEBREAK', 'You are watching this tie-break.'];
+    return [
+      'NOT_IN_TIEBREAK',
+      'Only the players tied for first place answer this question. You are watching.',
+    ];
   }
   if (open.answers.some((entry) => entry.playerId === event.playerId)) {
     return ['ALREADY_ANSWERED', 'You have already answered this question.'];
@@ -56,7 +59,12 @@ export function handleAnswer(room: RoomState, event: AnswerEvent, rules: Rules):
   if (!room.seats.some((seat) => seat.id === event.playerId)) {
     return reject(room, 'NOT_JOINED', 'Join the room first.');
   }
-  if (room.phase === 'reveal') return reject(room, 'STALE_QUESTION', 'That question has closed.');
+  if (room.phase === 'reveal')
+    return reject(
+      room,
+      'STALE_QUESTION',
+      'That question has closed, so your answer came too late.',
+    );
   if (room.phase !== 'question') return reject(room, 'WRONG_PHASE', 'No question is open.');
   return answerOpenQuestion(room, event, rules);
 }
