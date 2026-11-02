@@ -30,7 +30,8 @@ class SocketConnection implements Connection {
 
 function textOf(data: RawData): string {
   if (Array.isArray(data)) return Buffer.concat(data).toString('utf8');
-  return Buffer.from(data as Buffer).toString('utf8');
+  if (data instanceof ArrayBuffer) return Buffer.from(data).toString('utf8');
+  return data.toString('utf8');
 }
 
 function sendError(
@@ -78,5 +79,7 @@ export function refuseUnknownRoom(socket: WebSocket, logger: ServerLogger): void
   const connection = new SocketConnection(socket);
   sendError(connection, 'ROOM_NOT_FOUND', 'That room does not exist or has closed.', logger);
   connection.close(CLOSE_POLICY, 'no such room');
-  socket.on('error', () => undefined);
+  socket.on('error', (error: NodeJS.ErrnoException) => {
+    logger.info('socket.error', { code: error.code ?? 'unknown' });
+  });
 }

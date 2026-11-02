@@ -1,5 +1,5 @@
 import { GameSetupError, prepareGame } from '@quiz-versus/core';
-import type { GamePlan, QuizRepository, Random } from '@quiz-versus/core';
+import type { GamePlan, GameSetupFailure, QuizRepository, Random } from '@quiz-versus/core';
 import type { ErrorCode, GameSettings } from '@quiz-versus/protocol';
 import { MAX_PREPARE_ATTEMPTS } from '../config/defaults.js';
 import { ContentError } from '../content/content-error.js';
@@ -45,7 +45,12 @@ export interface SetupFailure {
   readonly reason: string;
 }
 
-const REASONS: Readonly<Record<string, SetupFailure>> = {
+const REASONS: Readonly<Record<GameSetupFailure, SetupFailure>> = {
+  'invalid-quiz': {
+    code: 'INTERNAL_ERROR',
+    text: 'The game could not be set up.',
+    reason: 'invalid-quiz',
+  },
   'unknown-quiz': {
     code: 'INVALID_SETTINGS',
     text: 'One of the chosen quizzes does not exist.',
@@ -60,8 +65,7 @@ const REASONS: Readonly<Record<string, SetupFailure>> = {
 
 /** Sorts a failure into the host's mistake (`INVALID_SETTINGS`) or a fault of ours. */
 export function describeSetupFailure(error: unknown): SetupFailure {
-  const known = error instanceof GameSetupError ? REASONS[error.reason] : undefined;
-  if (known !== undefined) return known;
+  if (error instanceof GameSetupError) return REASONS[error.reason];
   const reason =
     error instanceof ContentError
       ? `bad-content:${error.file}`

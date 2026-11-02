@@ -114,7 +114,9 @@ export class RoomHost {
     const playerId = link.playerId;
     if (this.closed || link.retired || playerId === undefined) return;
     this.members.delete(playerId);
-    this.apply(connection, { type: 'disconnect', playerId });
+    this.contained(() => {
+      this.apply(connection, { type: 'disconnect', playerId });
+    });
   }
 
   /** Ends the room: timers stop, pictures are forgotten, every socket is closed. */
@@ -309,7 +311,10 @@ export class RoomHost {
     this.cancelGameTimer();
     this.cancelGameTimer = this.deps.scheduler.after(at - this.deps.clock.now(), () => {
       this.cancelGameTimer = doNothing;
-      if (!this.closed) this.apply(NO_CALLER, { type: 'timerFired' });
+      if (this.closed) return;
+      this.contained(() => {
+        this.apply(NO_CALLER, { type: 'timerFired' });
+      });
     });
   }
 
@@ -323,6 +328,22 @@ export class RoomHost {
       this.cancelIdleTimer = this.deps.scheduler.after(this.deps.idleRoomMs, () => {
         this.close('idle');
       });
+    }
+  }
+
+  /**
+   * Runs an entry point that has no caller to answer (a timer, a socket closing). A fault there
+   * ends this room and is logged; it never escapes to take down every other room (ADR 11).
+   */
+  private contained(action: () => void): void {
+    try {
+      action();
+    } catch (error) {
+      this.deps.logger.error('room.fault', {
+        error: error instanceof Error ? error.name : 'unknown',
+        entry: 'background',
+      });
+      this.close('fault');
     }
   }
 

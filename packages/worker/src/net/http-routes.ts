@@ -51,16 +51,15 @@ function makeRoom(request: IncomingMessage, response: ServerResponse, deps: Http
     sendJson(response, 403, { error: 'ORIGIN_NOT_ALLOWED' });
     return;
   }
-  const created = deps.registry.create(request.socket.remoteAddress ?? 'unknown');
-  if (!created.ok) {
-    sendJson(response, 503, {
-      error: created.reason === 'server-full' ? 'SERVER_FULL' : 'TOO_MANY_ROOMS',
-    });
-    return;
-  }
-  // A page on another allowed origin may read the answer; the server's own page needs no header.
+  // A page on another allowed origin may read every answer; the server's own page needs no header.
   const cors =
     origin === undefined ? {} : { 'Access-Control-Allow-Origin': origin, Vary: 'Origin' };
+  const created = deps.registry.create(request.socket.remoteAddress ?? 'unknown');
+  if (!created.ok) {
+    const error = created.reason === 'server-full' ? 'SERVER_FULL' : 'TOO_MANY_ROOMS';
+    sendJson(response, 503, { error }, cors);
+    return;
+  }
   sendJson(response, 201, { roomId: created.room.roomId }, cors);
 }
 

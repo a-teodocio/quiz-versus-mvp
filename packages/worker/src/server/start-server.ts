@@ -1,5 +1,4 @@
 import { createServer } from 'node:http';
-import type { AddressInfo } from 'node:net';
 import { WebSocketServer } from 'ws';
 import type { Clock, Random } from '@quiz-versus/core';
 import { MAX_CLIENT_FRAME_BYTES } from '../config/defaults.js';
@@ -75,7 +74,11 @@ export async function startServer(config: ServerConfig, deps: ServerDeps): Promi
     http.listen(config.port, config.host, resolve);
   });
   heartbeat.start();
-  const port = (http.address() as AddressInfo).port;
+  const address = http.address();
+  if (address === null || typeof address === 'string') {
+    throw new Error('the server is not listening on a TCP port');
+  }
+  const port = address.port;
   deps.logger.info('server.listening', { port });
   return {
     port,

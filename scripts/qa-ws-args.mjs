@@ -21,8 +21,11 @@ export function vitestArguments(flags) {
     if (name === '--grep') args.push('-t', value);
     else if (name === '--workers') args.push('--maxWorkers', value);
     else if (name === '--retries') args.push('--retry', value);
-    else if (name === '--reporter') args.push(`--reporter=${READERS[value] ?? 'default'}`);
-    else return { error: `${name} is not a flag qa:ws knows` };
+    else if (name === '--reporter') {
+      if (!Object.hasOwn(READERS, value))
+        return { error: `${value} is not a reporter qa:ws knows` };
+      args.push(`--reporter=${READERS[value]}`);
+    } else return { error: `${name} is not a flag qa:ws knows` };
   }
   return { args };
 }

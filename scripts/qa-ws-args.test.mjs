@@ -29,6 +29,8 @@ describe('vitestArguments', () => {
     [['--repeat-each', '3'], '--repeat-each is not supported by qa:ws'],
     [['--update-snapshots', 'true'], '--update-snapshots is not a flag qa:ws knows'],
     [['--grep'], '--grep needs a value'],
+    [['--reporter', 'constructor'], 'constructor is not a reporter qa:ws knows'],
+    [['--reporter', 'html'], 'html is not a reporter qa:ws knows'],
   ])('refuses %j with a reason', (flags, error) => {
     expect(vitestArguments(flags)).toEqual({ error });
   });
