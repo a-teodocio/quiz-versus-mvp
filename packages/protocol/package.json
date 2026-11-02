@@ -6,7 +6,10 @@
   "description": "Client and server message schemas for versus mode",
   "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/src/index.js"
+    }
   },
   "scripts": {
     "typecheck": "tsc -b",
