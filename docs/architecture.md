@@ -61,6 +61,23 @@ The wire phases stay these four; the tie-break is a question phase for the tied 
 - The server holds the correct answers. Clients receive them only in `REVEAL`.
 - All inputs (join, leave, answer, start, next, disconnect, timer fired) are events applied to the pure `step` function, which returns the new state and effects (messages to send, a timer to set or clear). This makes every behaviour testable without a network. `RoomSession` adds the clock and logging around it.
 
+## Server
+
+`packages/worker` is a plain Node process ([ADR 11](adr/0011-node-websocket-server.md)). A request is handled in these steps; each is a module you can read on its own.
+
+```
+HTTP  POST /rooms ──> RoomRegistry.create ──> RoomHost (one per room, holds a core RoomSession)
+HTTP  GET /images/<alias> ──> ImageIndex (alias to file) ──> ImageStore (contained in content/images)
+WS    /rooms/<id> ──> origin check ──> bindSocket (rate limit, text only) ──> RoomHost.receive
+                                                                     │
+                  decodeClientMessage ──> core step ──> effects ──> sockets, timer, close
+```
+
+- A `RoomHost` owns the sockets of one room and nothing about its rules. It decodes a frame, turns it into a core event, and carries out the effects: sends to a caller, a player or everyone, the one question timer, and closing. It starts a game by first asking core (a dry run of `step`) whether the host may start at all, so a player who may not start cannot make the server read a file; only then does it prepare the game, one at a time.
+- Seats outlive sockets. A dropped socket is a `disconnect`; a resume closes the older socket on the same seat and ignores its later close.
+- Closing a room (last player left, or idle with nobody connected) clears its timers, forgets its picture names and closes its sockets. The registry holds no closed room.
+- Limits: players per room (core), rooms in memory and per address, idle time, sockets per room, a join deadline, message size (frames a little over `MAX_CLIENT_MESSAGE_BYTES` get `MESSAGE_TOO_LARGE`, larger ones close the socket), message rate, and a ping that drops a dead socket.
+
 ## Data
 
 Quiz files use the real app's JSON schema (text, image and image-group entries; `correct` indexes the unshuffled options). Content is fake and lives in `content/` (see [content/README.md](../content/README.md)); `quiz-validator` checks it in `npm run check`. See [fidelity.md](fidelity.md) for where the mock simplifies the real app.

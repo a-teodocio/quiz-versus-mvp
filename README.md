@@ -6,7 +6,7 @@ The quiz content is entirely fake. The code is written to production standards s
 
 ## Status
 
-Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
+Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `packages/worker` (the Node game server) is built; `web` comes next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
 
 ## Quickstart
 
@@ -26,6 +26,8 @@ npm run check
 | `npm run test`             | tests across all packages                           |
 | `npm run build`            | build all packages                                  |
 | `npm run validate:content` | check `content/` against the real validator's rules |
+| `npm run qa:start`         | build and start the game server in the background   |
+| `npm run qa:stop`          | stop it                                             |
 
 ## Documentation
 
