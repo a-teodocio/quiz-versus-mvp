@@ -1,0 +1,22 @@
+{
+  "name": "@quiz-versus/worker",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "The versus-mode game server: a Node WebSocket adapter around the core room state machine",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run --root ../.. packages/worker"
+  },
+  "dependencies": {
+    "@quiz-versus/core": "*",
+    "@quiz-versus/protocol": "*"
+  }
+}
