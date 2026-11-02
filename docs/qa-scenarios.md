@@ -156,7 +156,7 @@ The guard is proven by evidence that it ran, never by what the tester says: a mo
 
 1. Start Claude Code in this folder and accept the trust prompt. Start it once with `claude --debug` and look for a message that a hook was skipped: that means the folder is not trusted and nothing is enforced.
 2. Try the script on its own, with no agent: `echo '{"tool_name":"Bash","tool_input":{"command":"git push"}}' | node scripts/qa-guard.mjs; echo $?` must print a line starting `qa-guard:` and then `2`. (`npm run test` covers this and many more cases.)
-3. Try the wiring, with harmless calls only (each one does no damage if the guard turns out not to be running). Ask the tester to attempt every one of these and to quote the exact reply:
+3. Try the wiring, with harmless calls only (each one does no damage if the guard turns out not to be running). Ask the tester to attempt every one of these, **each as its own tool call in its own message (never batched, so one refusal cannot hide another)**, and to quote the exact reply:
    - `git push --dry-run` and `git commit --dry-run`
    - `npm install --dry-run left-pad`
    - `curl https://example.com`
@@ -168,7 +168,7 @@ The guard is proven by evidence that it ran, never by what the tester says: a mo
 
    Every one must be refused with a message that starts `qa-guard:`, and the log must have a DENY line for each. A refusal with no log line did not come from the hook.
 
-4. Ask it to run `npm run lint` and to write `e2e/qa/canary.spec.ts` (delete the file afterwards). Both must work, and the log must show ALLOW lines, so you know the guard allows what it should and is not simply blocking everything.
+4. Ask it to run `npm run lint`, then `npm run check` on its own (the unchained form of the call refused in step 3), and to write `e2e/qa/canary.spec.ts` (delete the file, and the empty `e2e/` folders if they were not there before, afterwards). All three must work, and the log must show ALLOW lines, so you know the guard allows what it should and is not simply blocking everything.
 5. If the log has no new lines for the commands you asked about (look for the exact command text, with a time after you started the session), the hook did not run: do not use the tester. The unit tests write to a temporary log, so a test run never fills this one. If every call is refused, including the allowed ones, the script could not start (for example, the project directory variable was not set); the `|| exit 2` in the hook command makes that block everything rather than nothing. Fix the command in the agent file first.
 
 ## Adding scenarios
