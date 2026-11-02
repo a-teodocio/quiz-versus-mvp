@@ -62,7 +62,7 @@ client                                   server
 
 The server ([ADR 11](adr/0011-node-websocket-server.md)) answers three routes and `404` for anything else.
 
-- `POST /rooms` makes a room and answers `201` with `{ "roomId": "<id>" }`. The id is unguessable (see the limits). `503` with `{ "error": "SERVER_FULL" }` when the server holds its maximum number of rooms.
+- `POST /rooms` makes a room and answers `201` with `{ "roomId": "<id>" }`. The id is unguessable (see the limits). `503` with `{ "error": "SERVER_FULL" }` when the server holds its maximum number of rooms, or `{ "error": "TOO_MANY_ROOMS" }` when the sender's network address already has its share. `403` when the `Origin` is not allowed.
 - `GET /rooms/<id>` with a WebSocket upgrade is the connection above. Text frames only: a binary frame is refused with `MALFORMED_MESSAGE`. A room that was never made, or has closed, still completes the upgrade, sends one `error` `ROOM_NOT_FOUND` and closes, so the client can read the code. A browser sends an `Origin` header; one that is not in the server's allowed list is refused with `403` before the upgrade. A request with no `Origin` is allowed.
 - `GET /images/<alias>` serves the picture of a question in a game in progress. The alias is the opaque name from `question.imageUrl`.
 
