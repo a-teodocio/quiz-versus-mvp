@@ -6,7 +6,7 @@
 // The real folder is only read, never copied. Pass a Python that has Pillow installed (the real
 // tool reads picture widths with it); the default is `python`. Every string below is invented (the
 // repo is public). After running, update the commit in
-// packages/quiz-validator/test/fixtures/real-app/SOURCE.md and review the diff: a change means the
+// packages/quiz-validator/test/fixtures/real-app/SOURCE.md, run `npm run format` (the file is plain JSON) and review the diff: a change means the
 // real validator's behaviour changed.
 import { Buffer } from 'node:buffer';
 import { spawnSync } from 'node:child_process';
@@ -226,10 +226,10 @@ const cases = [
         text('one_12', { question: 'What does the arrow labelled C point to?' }),
         text('one_13', { question: 'What is the letter D near the top?' }),
         text('one_14', { question: 'Where is the box E?' }),
-        text('one_15', { question: 'What marks a secondary follicle?' }),
+        text('one_15', { question: 'What marks a secondary feather?' }),
         text('one_16', { question: 'What does the label a show?' }),
         text('one_17', { question: 'What is labelled a?' }),
-        text('one_18', { explanation: 'M marks the medulla.' }),
+        text('one_18', { explanation: 'M marks the shaft.' }),
         text('one_19', { explanation: 'The pointer GM marks it.' }),
         text('one_20', { explanation: 'It marks a layer, and arrow b is the edge.' }),
         text('one_21', { question: 'What does arrow a\u00e9 mean?' }),
@@ -354,11 +354,11 @@ const cases = [
         group('one_group_01', [
           part('one_group_01_p1', {
             options: ['Red', 'Blue', 'Green', 'Black'],
-            explanation: 'The stain is red, and it turns the nuclei purple.',
+            explanation: 'The dye is red, and it turns the feather tips purple.',
           }),
           part('one_group_01_p2', {
             options: ['Purple', 'Pink', 'Grey', 'Brown'],
-            explanation: 'Nuclei are purple.',
+            explanation: 'Feather tips are purple.',
           }),
           part('one_group_01_p3', {
             options: ['Green', 'Pink', 'Tan', 'Teal'],
@@ -449,8 +449,9 @@ function writeTree(root, testCase) {
   mkdirSync(quizzes, { recursive: true });
   const put = (path, content) => {
     mkdirSync(dirname(path), { recursive: true });
-    const bytes = Buffer.isBuffer(content) ? content : JSON.stringify(content, null, 2);
-    writeFileSync(path, bytes);
+    // A string is written as it is (a file that is not JSON); anything else as JSON.
+    const raw = Buffer.isBuffer(content) || typeof content === 'string';
+    writeFileSync(path, raw ? content : JSON.stringify(content, null, 2));
   };
   if (testCase.registry !== null) put(join(quizzes, 'courses.json'), testCase.registry);
   for (const [path, body] of Object.entries(testCase.files)) put(join(quizzes, path), body);
@@ -464,22 +465,40 @@ function writeTree(root, testCase) {
 
 const FINDING = /^(ERROR|WARN|NOTE)\s+(\S+) \[(.*?)\] (.*)$/;
 
+const SUMMARY = /(\d+) errors, (\d+) warnings, (\d+) notes/;
+
 function runRealValidator(root) {
   const run = spawnSync(python, ['-B', 'tools/validate_quiz.py', '--strict', '--quiz-dir', root], {
     cwd: realApp,
     encoding: 'utf8',
     env: { ...env, PYTHONDONTWRITEBYTECODE: '1' },
   });
+  if (run.error !== undefined) throw new Error(`could not run ${python}: ${run.error.message}`);
+  // The validator exits 0 when clean and 1 when it found errors; anything else is a failure to run.
+  if (run.status !== 0 && run.status !== 1) {
+    throw new Error(
+      `the real validator exited with ${String(run.status)}:\n${run.stdout}${run.stderr}`,
+    );
+  }
   if (run.stdout.includes('Pillow not installed')) {
     throw new Error('the real validator needs Pillow: pass a Python that has it');
   }
-  if (run.stderr.includes('Traceback'))
+  if (run.stderr.includes('Traceback')) {
     throw new Error(`the real validator crashed:\n${run.stderr}`);
-  return run.stdout
+  }
+  const findings = run.stdout
     .split(/\r?\n/)
     .map((line) => FINDING.exec(line))
     .filter((match) => match !== null)
     .map(([, level, file, where, message]) => ({ level, file, where, message }));
+  // The validator ends with its own tally; the lines read must add up to it, or some were missed.
+  const tally = SUMMARY.exec(run.stdout);
+  const count = (level) => findings.filter((finding) => finding.level === level).length;
+  const counted = [count('ERROR'), count('WARN'), count('NOTE')].join();
+  if (tally === null || [tally[1], tally[2], tally[3]].map(Number).join() !== counted) {
+    throw new Error(`the findings read do not match the validator's own tally:\n${run.stdout}`);
+  }
+  return findings;
 }
 
 const results = [];

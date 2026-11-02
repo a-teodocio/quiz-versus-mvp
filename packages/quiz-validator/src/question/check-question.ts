@@ -147,10 +147,15 @@ function checkExplanationLength(place: Place, explanation: string): Finding[] {
   if (explanation === '') return [];
   const sentences = countSentences(explanation);
   if (sentences <= MAX_EXPLANATION_SENTENCES) return [];
-  return [warn(place, `explanation has ${String(sentences)} sentences (guide: 3 max)`)];
+  return [
+    warn(
+      place,
+      `explanation has ${String(sentences)} sentences (guide: ${String(MAX_EXPLANATION_SENTENCES)} max)`,
+    ),
+  ];
 }
 
-/** `--strict` only: a correct answer much longer than every distractor gives itself away. */
+/** A note: a correct answer much longer than every distractor gives itself away. */
 function checkAnswerLength(place: Place, fields: QuestionFields): Finding[] {
   const { options, correct } = fields;
   if (!isWholeNumber(correct) || correct < 0 || correct >= options.length) return [];
@@ -184,7 +189,7 @@ function checkAskable(place: Place, node: JsonObject, fields: QuestionFields): F
  * schema errors, then the wording guidelines. Then, only if the real rules found no error, the
  * mock's own rule that the question can be sent over the protocol.
  */
-export function checkQuestion(place: Place, node: JsonObject, strict: boolean): Finding[] {
+export function checkQuestion(place: Place, node: JsonObject): Finding[] {
   const { fields, findings: errors } = checkRequired(place, node);
   const findings = [
     ...errors,
@@ -192,7 +197,7 @@ export function checkQuestion(place: Place, node: JsonObject, strict: boolean): 
     ...checkLabelBrackets(place, fields),
     ...checkOptionWording(place, fields.options),
     ...checkExplanationLength(place, fields.explanation),
-    ...(strict ? checkAnswerLength(place, fields) : []),
+    ...checkAnswerLength(place, fields),
   ];
   return errors.length === 0 ? [...findings, ...checkAskable(place, node, fields)] : findings;
 }

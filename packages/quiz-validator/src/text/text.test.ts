@@ -22,8 +22,8 @@ describe('normaliseText', () => {
 
 describe('containsPhrase', () => {
   it.each<[string, string, string, boolean]>([
-    ['a whole word', 'the stain is red', 'red', true],
-    ['inside a longer word', 'the stain is reddish', 'red', false],
+    ['a whole word', 'the dye is red', 'red', true],
+    ['inside a longer word', 'the dye is reddish', 'red', false],
     ['at the start and the end', 'red', 'red', true],
     ['beside an accented letter', 'a cafés table', 'café', false],
     ['after an accented letter', 'un éred', 'red', false],
@@ -66,7 +66,7 @@ describe('bracketLabels', () => {
     ['a list of letters', 'Arrows a, b and c show it.', 'Arrows (a), (b) and (c) show it.'],
     ['a capital after labelled', 'The arrow labelled C is it.', 'The arrow labelled (C) is it.'],
     ['two or three capitals', 'Pointer GM is here.', 'Pointer (GM) is here.'],
-    ['a label that opens an explanation', 'M marks the medulla.', '(M) marks the medulla.'],
+    ['a label that opens an explanation', 'M marks the shaft.', '(M) marks the shaft.'],
     [
       'a letter already in brackets',
       'What does arrow (a) point to?',
@@ -75,8 +75,8 @@ describe('bracketLabels', () => {
     ['a number', 'Pointer 1 shows what?', 'Pointer 1 shows what?'],
     [
       '"marks a" followed by a noun',
-      'What marks a secondary follicle?',
-      'What marks a secondary follicle?',
+      'What marks a secondary feather?',
+      'What marks a secondary feather?',
     ],
     ['"label a" followed by a verb', 'What does the label a show?', 'What does the label a show?'],
     ['an accented letter after the letter', 'What does arrow aé mean?', 'What does arrow aé mean?'],

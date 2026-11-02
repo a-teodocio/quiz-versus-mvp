@@ -1,9 +1,17 @@
-import { isQuizId } from '@quiz-versus/protocol';
+import { isQuizId, MAX_QUIZ_ID_LENGTH } from '@quiz-versus/protocol';
 import { error, MOCK_ONLY_PREFIX, note, warn } from '../findings/finding.js';
 import type { Finding, Place } from '../findings/finding.js';
 import { checkImage } from '../images/check-image.js';
 import type { ImageSource } from '../images/image-source.js';
-import { isFilled, isList, isObject, isText, isTruthy, pythonRepr } from '../json/json-values.js';
+import {
+  isFilled,
+  isList,
+  isObject,
+  isText,
+  isTruthy,
+  pythonRepr,
+  pythonText,
+} from '../json/json-values.js';
 import type { JsonObject } from '../json/json-values.js';
 import { checkLeaks } from '../question/check-leaks.js';
 import { checkQuestion } from '../question/check-question.js';
@@ -34,7 +42,6 @@ export interface QuizFileInput {
   /** The file's registry entry, or undefined for an unregistered course. */
   readonly course: CourseEntry | undefined;
   readonly images: ImageSource;
-  readonly strict: boolean;
 }
 
 export interface QuizFileResult {
@@ -86,7 +93,7 @@ class QuizFileChecker {
       this.findings.push(
         error(
           place,
-          `${MOCK_ONLY_PREFIX}the file name must make a quiz id (lowercase words joined by hyphens, 64 characters at most)`,
+          `${MOCK_ONLY_PREFIX}the file name must make a quiz id (lowercase words joined by hyphens, ${String(MAX_QUIZ_ID_LENGTH)} characters at most)`,
         ),
       );
     }
@@ -94,7 +101,9 @@ class QuizFileChecker {
 
   private checkGroupLabel(place: Place, label: unknown): void {
     const valid =
-      isText(label) && label.trim() !== '' && label.trim().length <= GROUP_LABEL_MAX_LENGTH;
+      isText(label) &&
+      label.trim() !== '' &&
+      Array.from(label.trim()).length <= GROUP_LABEL_MAX_LENGTH;
     if (valid) return;
     const message = `top-level "group" must be a non-empty text of at most ${String(GROUP_LABEL_MAX_LENGTH)} characters`;
     this.findings.push(error(place, message));
@@ -124,7 +133,7 @@ class QuizFileChecker {
   checkEntry(entry: unknown, number: number): void {
     this.entries += 1;
     const id = isObject(entry) ? entry['id'] : undefined;
-    const where = isTruthy(id) ? String(id) : `#${String(number)}`;
+    const where = isTruthy(id) ? pythonText(id) : `#${String(number)}`;
     const place = this.place(where);
     if (!isObject(entry)) {
       this.findings.push(error(place, 'entry is not an object'));
@@ -172,9 +181,7 @@ class QuizFileChecker {
       this.findings.push(make(place, `${String(parts.length)} parts (target ${target})`));
     }
     this.checkParts(place.where, id, parts);
-    this.findings.push(
-      ...checkLeaks(this.file, place.where, parts.filter(isObject), this.input.strict),
-    );
+    this.findings.push(...checkLeaks(this.file, place.where, parts.filter(isObject)));
   }
 
   private checkParts(where: string, groupId: unknown, parts: readonly unknown[]): void {
@@ -188,7 +195,7 @@ class QuizFileChecker {
       this.scored += 1;
       previousNumber =
         this.checkPartId(place, part['id'], groupId, previousNumber) ?? previousNumber;
-      this.findings.push(...checkQuestion(place, part, this.input.strict));
+      this.findings.push(...checkQuestion(place, part));
     });
   }
 
@@ -234,7 +241,7 @@ class QuizFileChecker {
     if ('parts' in entry) {
       this.findings.push(warn(place, `type ${pythonRepr(type)} entry has a "parts" list`));
     }
-    this.findings.push(...checkQuestion(place, entry, this.input.strict));
+    this.findings.push(...checkQuestion(place, entry));
     this.checkRepeatedText(place, entry['question']);
   }
 

@@ -23,7 +23,7 @@ const LABEL = new RegExp(
   'dgiu',
 );
 const BARE_TOKEN = new RegExp(`(?<![\\p{L}\\p{N}_(])(${TOKEN})(?![-\\p{L}\\p{N}_)'/])`, 'gu');
-/** "M marks the medulla": a label that opens the sentence. */
+/** "M marks the shaft": a label that opens the sentence. */
 const LEADING_LABEL = new RegExp(
   `(?<![\\p{L}\\p{N}_(])([A-Z]{1,3})(?= marks${NOT_BEFORE_WORD})`,
   'gu',
@@ -37,7 +37,7 @@ const inBrackets = (list: string): string =>
   list.replace(BARE_TOKEN, (_match, token: string) => `(${token})`);
 
 /**
- * "marks a secondary follicle" is not a label, so after a weak keyword a bare "a" counts only when
+ * "marks a secondary feather" is not a label, so after a weak keyword a bare "a" counts only when
  * the phrase stops or a verb follows; after "label" a bare "a" only when the phrase stops or joins.
  */
 function isReallyALabel(keyword: string, filler: string, list: string, tail: string): boolean {

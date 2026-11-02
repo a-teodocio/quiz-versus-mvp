@@ -46,13 +46,23 @@ const PYTHON_ESCAPES: Readonly<Record<string, string>> = {
   '\t': '\\t',
 };
 
+/** A character Python's `repr` does not show as it is: a backslash, or one that is not printable. */
+const NEEDS_ESCAPE = /[\\\p{C}\p{Z}]/gu;
+
+function escapeCharacter(character: string): string {
+  if (character === ' ') return character;
+  const named = PYTHON_ESCAPES[character];
+  if (named !== undefined) return named;
+  const code = character.codePointAt(0) ?? 0;
+  const hex = code.toString(16);
+  if (code <= 0xff) return `\\x${hex.padStart(2, '0')}`;
+  return code <= 0xffff ? `\\u${hex.padStart(4, '0')}` : `\\U${hex.padStart(8, '0')}`;
+}
+
 /** A string as Python shows it: single quotes, unless it holds a single quote and no double quote. */
 function pythonStringRepr(text: string): string {
   const quote = text.includes("'") && !text.includes('"') ? '"' : "'";
-  const escaped = text.replace(
-    /[\\\n\r\t]/g,
-    (character) => PYTHON_ESCAPES[character] ?? character,
-  );
+  const escaped = text.replace(NEEDS_ESCAPE, escapeCharacter);
   return `${quote}${quote === "'" ? escaped.replaceAll("'", "\\'") : escaped}${quote}`;
 }
 
@@ -63,7 +73,8 @@ export function pythonRepr(value: unknown): string {
   if (typeof value === 'number') return String(value);
   if (typeof value === 'string') return pythonStringRepr(value);
   if (Array.isArray(value)) return `[${value.map(pythonRepr).join(', ')}]`;
-  const pairs = Object.entries(value as Record<string, unknown>).map(
+  // Parsed JSON holds nothing but the cases above and objects, so anything else shows as empty.
+  const pairs = Object.entries(isObject(value) ? value : {}).map(
     ([key, inner]) => `${pythonRepr(key)}: ${pythonRepr(inner)}`,
   );
   return `{${pairs.join(', ')}}`;

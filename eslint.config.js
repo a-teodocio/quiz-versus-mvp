@@ -2,6 +2,7 @@
 import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import prettier from 'eslint-config-prettier';
+import { builtinModules } from 'node:module';
 
 /**
  * Layer rules (see docs/architecture.md). Dependencies point inward only:
@@ -118,10 +119,27 @@ export default tseslint.config(
     // The checks stay pure: the file system is reached only through src/disk (and the tests).
     files: ['packages/quiz-validator/src/**/*.ts'],
     ignores: ['packages/quiz-validator/src/disk/**'],
-    rules: forbid(
-      ['@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*', '@cloudflare/*'],
-      'only src/disk may touch the file system; the checks take a ContentTree.',
-    ),
+    rules: {
+      // Both the prefixed and the bare spelling of every Node built-in (`node:fs` and `fs`).
+      ...forbid(
+        [
+          '@quiz-versus/worker',
+          '@quiz-versus/web',
+          'node:*',
+          ...builtinModules,
+          'cloudflare:*',
+          '@cloudflare/*',
+        ],
+        'only src/disk may touch the file system; the checks take a ContentTree.',
+      ),
+      'no-restricted-globals': [
+        'error',
+        ...['process', 'Buffer', 'fetch'].map((name) => ({
+          name,
+          message: `the checks are pure: do not use ${name}; src/disk is the only adapter.`,
+        })),
+      ],
+    },
   },
   prettier,
 );

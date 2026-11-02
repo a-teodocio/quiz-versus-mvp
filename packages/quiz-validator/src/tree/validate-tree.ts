@@ -4,6 +4,7 @@ import { error, sortFindings } from '../findings/finding.js';
 import type { Finding } from '../findings/finding.js';
 import { checkRegistry } from '../registry/check-registry.js';
 import { loadRegistry, readRegistry } from '../registry/registry.js';
+import { compareCodePoints } from '../text/compare.js';
 import type { ContentTree, QuizFileSource } from './content-tree.js';
 
 export interface ValidateOptions {
@@ -24,11 +25,8 @@ export interface ValidationResult {
   readonly files: readonly FileSummary[];
 }
 
-const byCourseThenName = (a: QuizFileSource, b: QuizFileSource): number => {
-  if (a.course !== b.course) return a.course < b.course ? -1 : 1;
-  if (a.name === b.name) return 0;
-  return a.name < b.name ? -1 : 1;
-};
+const byCourseThenName = (a: QuizFileSource, b: QuizFileSource): number =>
+  compareCodePoints(a.course, b.course) || compareCodePoints(a.name, b.name);
 
 /** Where each progress key was first used, so a key reused in another file is caught. */
 type KeyOwners = Map<string, { course: string; name: string }>;
@@ -89,7 +87,6 @@ export function validateTree(tree: ContentTree, options: ValidateOptions): Valid
       text: file.text,
       course: registry.get(file.course),
       images: tree.images,
-      strict: options.strict,
     });
     findings.push(...result.findings);
     if (result.stats !== undefined) {

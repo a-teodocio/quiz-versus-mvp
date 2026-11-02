@@ -4,6 +4,8 @@
 
 - **Source:** the real app's `tools/validate_quiz.py`, last changed in its repository at commit `83c88e86` (2026-10-24), and `quiz.py` (which the validator imports for `entry_keys`, the registry rules, the file listing and the image-path guard), last changed at commit `6561eea9` (2026-10-31). Neither file is in this repo.
 - **How they were made:** `npm run fixtures:validator` (`scripts/make-validator-fixtures.mjs`) writes each made-up content folder below to a temporary folder, runs the real validator on it with `--strict --quiz-dir <folder>`, and records every finding it prints (level, file, place, message). The real folder is only read. The Python used had Pillow installed, which the real tool needs to read picture widths.
+- **Checks the script makes:** it fails if Python cannot run, exits with anything but 0 or 1, lacks Pillow, crashes, or prints findings that do not add up to the tool's own tally. A string body in a case is written as a file that is not JSON. After regenerating, run `npm run format`.
+- **The fake content:** the real tool was also run by hand on `content/` (`--strict --quiz-dir content`) on 2026-11-02, with the validator at the commit above: 0 errors, 0 warnings, 0 notes. That run is not repeatable in CI, which is why the port and its parity fixtures exist.
 - **Content:** every string is invented. No real quiz text, answer or note is used (the repo is public).
 - **The test:** `test/parity.test.ts` builds the same folder in memory, runs `validateTree` with `strict` and expects the same lines in the same order. Findings whose message carries `mock: ` (rules only the mock has) are left out of the comparison.
 

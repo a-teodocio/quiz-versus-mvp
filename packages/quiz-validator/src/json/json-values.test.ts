@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-import { entryKeys } from '../file/entry-keys.js';
 import { isTruthy, jsText, pythonRepr, pythonText } from './json-values.js';
 
 describe('isTruthy (Python truthiness)', () => {
@@ -28,6 +27,25 @@ describe('pythonRepr and pythonText', () => {
     ['a string with a single quote', "it's", '"it\'s"', "it's"],
     ['a string with both quotes', 'it\'s "x"', "'it\\'s \"x\"'", 'it\'s "x"'],
     ['backslashes and new lines', 'a\\b\nc', "'a\\\\b\\nc'", 'a\\b\nc'],
+    ['a tab and a bell', 'a\tb\x07', "'a\\tb\\x07'", 'a\tb\x07'],
+    [
+      'a non-breaking space',
+      'a' + String.fromCodePoint(0xa0) + 'b',
+      "'a\\xa0b'",
+      'a' + String.fromCodePoint(0xa0) + 'b',
+    ],
+    [
+      'an emoji is printable',
+      String.fromCodePoint(0x1f642),
+      "'" + String.fromCodePoint(0x1f642) + "'",
+      String.fromCodePoint(0x1f642),
+    ],
+    [
+      'a zero-width space',
+      'a' + String.fromCodePoint(0x200b),
+      "'a\\u200b'",
+      'a' + String.fromCodePoint(0x200b),
+    ],
     ['a list', [1, 'a'], "[1, 'a']", "[1, 'a']"],
     ['an object', { a: [true] }, "{'a': [True]}", "{'a': [True]}"],
   ])('%s', (_name, value, repr, text) => {
@@ -47,28 +65,5 @@ describe('jsText', () => {
     ['an object', { a: 1 }, '[object Object]'],
   ])('%s', (_name, value, expected) => {
     expect(jsText(value)).toBe(expected);
-  });
-});
-
-describe('entryKeys (the progress keys of the real app)', () => {
-  it.each<[string, unknown, string[]]>([
-    ['a question with an id', { type: 'text', id: 'q1', question: 'Q?' }, ['q1']],
-    ['a question with no id, keyed by its text', { type: 'text', question: 'Q?' }, ['Q?']],
-    ['a question with an empty id', { id: '', question: 'Q?' }, ['Q?']],
-    ['a question with neither', { type: 'text' }, ['undefined']],
-    [
-      'a group, keyed by its parts',
-      { type: 'image-group', id: 'g', parts: [{ id: 'g_p1' }, { id: 'g_p2' }] },
-      ['g_p1', 'g_p2'],
-    ],
-    [
-      'a group whose parts have no ids',
-      { type: 'image-group', id: 'g', parts: [{}, { id: '' }, 5] },
-      ['g#0', 'g#1', 'g#2'],
-    ],
-    ['a group with no id and no parts list', { type: 'image-group', parts: 'x' }, []],
-    ['an entry that is not an object', 'text', []],
-  ])('%s', (_name, entry, keys) => {
-    expect(entryKeys(entry)).toEqual(keys);
   });
 });

@@ -46,7 +46,7 @@ const isAbsolute = (normal: string): boolean =>
 export function resolveImagePath(imagePath: string): ImagePathResult {
   const normal = imagePath.replaceAll('\\', '/');
   if (isAbsolute(normal)) return { ok: false, problem: 'absolute paths are not allowed' };
-  if (normal.split('/')[0]?.toLowerCase() !== IMAGE_ROOT) {
+  if (normal.split('/')[0] !== IMAGE_ROOT) {
     return { ok: false, problem: `mock: pictures live under ${IMAGE_ROOT}/ only` };
   }
   const segments = resolveSegments(normal);

@@ -8,14 +8,14 @@ It is a port, not a wrapper: the same rules, the same messages, and parity tests
 
 Everything is exported from `src/index.ts`.
 
-| Export                                         | What it is                                                                                                              |
-| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
-| `validateTree(tree, { strict })`               | Checks a whole content folder. Returns the `findings` (sorted as the real tool prints them) and the per-file counts     |
-| `readContentTree(root)`                        | Reads `quizzes/` and `images/` under `root` from disk into a `ContentTree` (the only code that touches the file system) |
-| `ContentTree`, `ImageSource`                   | What the checks need, as data and one small interface, so tests build a folder in memory                                |
-| `formatFinding`, `Finding`, `MOCK_ONLY_PREFIX` | A finding, and the line the real tool would print for it                                                                |
-| `readRegistry`, `loadRegistry`, `CourseEntry`  | The course registry (`quizzes/courses.json`), with the real server's defaults                                           |
-| `entryKeys`                                    | The progress keys of an entry, as the real server and page work them out                                                |
+| Export                                                                              | What it is                                                                                                              |
+| ----------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| `validateTree(tree, { strict })`                                                    | Checks a whole content folder. Returns the `findings` (sorted as the real tool prints them) and the per-file counts     |
+| `readContentTree(root)`                                                             | Reads `quizzes/` and `images/` under `root` from disk into a `ContentTree` (the only code that touches the file system) |
+| `ContentTree`, `ImageSource`                                                        | What the checks need, as data and one small interface, so tests build a folder in memory                                |
+| `formatFinding`, `Finding`, `FindingLevel`, `MOCK_ONLY_PREFIX`                      | A finding, and the line the real tool would print for it                                                                |
+| `readRegistry`, `loadRegistry`, `CourseEntry`, `AnswerMode`, `RegistryRead`         | The course registry (`quizzes/courses.json`), with the real server's defaults                                           |
+| `FileSummary`, `FileStats`, `ValidateOptions`, `ValidationResult`, `QuizFileSource` | The types the signatures above mention                                                                                  |
 
 ## Findings
 
@@ -39,7 +39,7 @@ Where the port differs from the real tool, [docs/fidelity.md](../../docs/fidelit
 
 ## Dependencies
 
-May import `@quiz-versus/core` and `@quiz-versus/protocol` only. ESLint also keeps `node:*` out of everything except `src/disk/`, so the checks stay pure. See [ADR 10](../../docs/adr/0010-quiz-validator-package.md).
+May import `@quiz-versus/core` and `@quiz-versus/protocol` only. ESLint also keeps every Node built-in (`node:fs` and plain `fs` alike) and the `process` and `Buffer` globals out of everything except `src/disk/`, so the checks stay pure. See [ADR 10](../../docs/adr/0010-quiz-validator-package.md).
 
 ## Running it
 

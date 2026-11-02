@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { resolveImagePath, suffixOf } from './image-path.js';
+import { pictureHead } from '../../test/support/picture-head.js';
 import { pngWidth } from './image-source.js';
 
 describe('resolveImagePath', () => {
@@ -29,8 +30,15 @@ describe('resolveImagePath', () => {
     expect(resolveImagePath(path)).toEqual({ ok: false, problem });
   });
 
-  it.each(['slides/a.png', 'imagesx/a.png', '../images/a.png', 'a.png'])(
-    'refuses %s, which is outside the only root the mock has',
+  it.each([
+    'slides/a.png',
+    'imagesx/a.png',
+    '../images/a.png',
+    'a.png',
+    'Images/a.png',
+    'IMAGES/a.png',
+  ])(
+    'refuses %s, which is outside the only root the mock has (spelled exactly as images/)',
     (path) => {
       const result = resolveImagePath(path);
       expect(result.ok).toBe(false);
@@ -55,14 +63,7 @@ describe('suffixOf', () => {
 });
 
 describe('pngWidth', () => {
-  const header = (width: number): Uint8Array => {
-    const bytes = new Uint8Array(32);
-    bytes.set([
-      0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52,
-    ]);
-    new DataView(bytes.buffer).setUint32(16, width);
-    return bytes;
-  };
+  const header = pictureHead;
 
   it.each([1, 300, 480, 65_536, 4_000_000_000])('reads a width of %d', (width) => {
     expect(pngWidth(header(width))).toBe(width);

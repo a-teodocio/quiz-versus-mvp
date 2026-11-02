@@ -72,14 +72,9 @@ function leaksFrom(parts: readonly JsonObject[], earlier: number): Leak[] {
 /**
  * An earlier part's explanation must not state a later part's answer, because the explanation is
  * shown right after the earlier part. A leak of something that is also one of the earlier part's
- * options is only a note (`--strict`), since a distractor may well repeat later.
+ * options is only a note, since a distractor may well repeat later.
  */
-export function checkLeaks(
-  file: string,
-  groupId: string,
-  parts: readonly JsonObject[],
-  strict: boolean,
-): Finding[] {
+export function checkLeaks(file: string, groupId: string, parts: readonly JsonObject[]): Finding[] {
   const findings: Finding[] = [];
   for (let earlier = 0; earlier < parts.length; earlier++) {
     for (const leak of leaksFrom(parts, earlier)) {
@@ -93,7 +88,7 @@ export function checkLeaks(
             `explanation of ${first} contains the answer of p${String(leak.later + 1)}: "${leak.answer}"`,
           ),
         );
-      } else if (strict) {
+      } else {
         findings.push(
           note(
             place,

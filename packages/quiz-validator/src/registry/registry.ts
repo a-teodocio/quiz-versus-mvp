@@ -1,8 +1,11 @@
-import { isFilled, isObject, isText, isWholeNumber } from '../json/json-values.js';
+import type { GameSettings } from '@quiz-versus/protocol';
+import { isFilled, isList, isObject, isText, isWholeNumber } from '../json/json-values.js';
 
-/** How a course's questions are asked by default ("Answer by" in the real app). */
-export const ANSWER_MODES = ['pick', 'type'] as const;
-export type AnswerMode = (typeof ANSWER_MODES)[number];
+/** How a course's questions are asked by default ("Answer by" in the real app); the game's own setting. */
+export type AnswerMode = GameSettings['answerBy'];
+
+/** The modes a registry may name. Typed as the setting, so a new setting makes this list worth a look. */
+export const ANSWER_MODES: readonly AnswerMode[] = ['pick', 'type'];
 
 /** Where a course with no `order` sorts: after every numbered one. */
 const UNREGISTERED_ORDER = 9999;
@@ -36,10 +39,8 @@ export function readRegistry(text: string | undefined): RegistryRead {
   } catch (cause) {
     return { kind: 'broken', problem: cause instanceof Error ? cause.message : 'not valid JSON' };
   }
-  if (!Array.isArray(data)) {
-    return { kind: 'broken', problem: 'top level must be a list of courses' };
-  }
-  return { kind: 'list', list: data as unknown[] };
+  if (!isList(data)) return { kind: 'broken', problem: 'top level must be a list of courses' };
+  return { kind: 'list', list: data };
 }
 
 const isAnswerMode = (value: unknown): value is AnswerMode =>

@@ -12,7 +12,7 @@ Where to put it was open. `core` must stay pure and is about the game, not about
 
 **A new package, `packages/quiz-validator`**, that may import `core` and `protocol` and that nothing else imports. It is the only place that knows the real validator's rules.
 
-**Pure checks, one adapter.** `validateTree` takes a `ContentTree`: the registry text, the course folders, every quiz file's text and an `ImageSource` (the first bytes of a picture). It returns findings as data. Only `src/disk/` touches the file system (`readContentTree`); ESLint keeps `node:*` out of the rest. Tests build a tree in memory.
+**Pure checks, one adapter.** `validateTree` takes a `ContentTree`: the registry text, the course folders, every quiz file's text and an `ImageSource` (the first bytes of a picture). It returns findings as data. Only `src/disk/` touches the file system (`readContentTree`); ESLint keeps every Node built-in (`node:fs` and plain `fs` alike) and the `process` and `Buffer` globals out of the rest. Tests build a tree in memory.
 
 **Parity by the real tool's own output, not by reading its code.** `scripts/make-validator-fixtures.mjs` runs the real validator on small invented folders and records what it prints; `test/parity.test.ts` expects the port to print the same lines in the same order. The traps found in the Python are covered: its `\w`, `\b` and `\s` know every language's letters, JavaScript's do not, so the port spells them out, and the fixtures include accented text that would pass under the wrong class. The fixtures record the real tool's commit.
 
@@ -27,7 +27,7 @@ Where to put it was open. `core` must stay pure and is about the game, not about
 - The fake content cannot drift from the real schema and rules unnoticed, and a port of the real validator to TypeScript exists for the real app to reuse.
 - One dev dependency is added, `@types/node` 24.19.2, for the disk adapter and tests; it is vetted in [dependency-vetting.md](../dependency-vetting.md) and its types apply to this package only (the other packages keep `types: []`).
 - `core` gained one export (`askableProblem`) and `protocol` one (`isQuizId`), both tiny and tested.
-- A new package is a major change, so it was reviewed by the `standards-reviewer` before its pull request.
-- Differences between the port and the real tool are recorded in [fidelity.md](../fidelity.md): only PNG widths, one picture root, error texts for unreadable JSON, and a whole number written as `1.0`.
+- A new package is a major change, so it goes through the `standards-reviewer` (with the second look after fixes) before its pull request; the pull request names the commit the final review covered.
+- Differences between the port and the real tool are recorded in [fidelity.md](../fidelity.md) (pictures, reading JSON and running the tool, and the rules the mock adds).
 - Parity covers the cases in the fixtures. A rule the fixtures do not exercise could still differ; add a case when one is found.
 - Alternatives considered: putting the checks in `core` (would give it a file system or a pile of authoring rules it does not use), a script in `scripts/` (not type-checked or linted like a package, and cannot share the model types), running the Python from CI (the real app is not in this repo and the repo is public).

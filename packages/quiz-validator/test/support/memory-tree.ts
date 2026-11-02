@@ -1,4 +1,5 @@
 import type { ContentTree, QuizFileSource } from '../../src/index.js';
+import { isCourseFolderName, isQuizFileName } from '../../src/tree/listing-rules.js';
 import { pictureHead } from './picture-head.js';
 
 /** A content folder described as data: what a test wants the validator to look at. */
@@ -14,8 +15,6 @@ export interface MemoryFolder {
   readonly images?: Readonly<Record<string, number>>;
 }
 
-const isCourseFolder = (name: string): boolean => !name.startsWith('_') && !name.startsWith('.');
-const isQuizName = (name: string): boolean => name.endsWith('.json') && !name.startsWith('_');
 const textOf = (body: unknown): string => (typeof body === 'string' ? body : JSON.stringify(body));
 
 /** Builds the tree the real server's rules would find in such a folder. */
@@ -25,7 +24,7 @@ export function memoryTree(folder: MemoryFolder): ContentTree {
   for (const [path, body] of Object.entries(folder.files)) {
     const [course = '', name = ''] = path.split('/');
     folders.add(course);
-    if (isCourseFolder(course) && isQuizName(name)) {
+    if (isCourseFolderName(course) && isQuizFileName(name)) {
       quizFiles.push({ course, name, text: textOf(body) });
     }
   }
@@ -34,9 +33,9 @@ export function memoryTree(folder: MemoryFolder): ContentTree {
   );
   return {
     registryText: folder.registry === null ? undefined : textOf(folder.registry),
-    courseFolders: [...folders].filter(isCourseFolder),
+    courseFolders: [...folders].filter(isCourseFolderName),
     quizFiles,
-    looseQuizFileNames: Object.keys(folder.rootFiles ?? {}).filter(isQuizName),
+    looseQuizFileNames: Object.keys(folder.rootFiles ?? {}).filter(isQuizFileName),
     images: { fileHead: (path) => heads.get(path) },
   };
 }

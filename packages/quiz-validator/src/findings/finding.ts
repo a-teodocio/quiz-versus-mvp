@@ -1,3 +1,5 @@
+import { compareCodePoints } from '../text/compare.js';
+
 /** How serious a finding is. The levels and their meaning are the real validator's. */
 export type FindingLevel = 'ERROR' | 'WARN' | 'NOTE';
 
@@ -41,14 +43,9 @@ export function formatFinding(finding: Finding): string {
 
 const LEVEL_ORDER: Readonly<Record<FindingLevel, number>> = { ERROR: 0, WARN: 1, NOTE: 2 };
 
-const byCodePoint = (a: string, b: string): number => {
-  if (a === b) return 0;
-  return a < b ? -1 : 1;
-};
-
 /** Errors first, then warnings, then notes, each group by file; otherwise the order they were made. */
 export function sortFindings(findings: readonly Finding[]): Finding[] {
   return [...findings].sort(
-    (a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level] || byCodePoint(a.file, b.file),
+    (a, b) => LEVEL_ORDER[a.level] - LEVEL_ORDER[b.level] || compareCodePoints(a.file, b.file),
   );
 }

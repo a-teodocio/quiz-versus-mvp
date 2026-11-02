@@ -1122,7 +1122,7 @@
             {
               "type": "text",
               "id": "one_15",
-              "question": "What marks a secondary follicle?",
+              "question": "What marks a secondary feather?",
               "options": ["Alpha", "Beta", "Gamma", "Delta"],
               "correct": 0,
               "explanation": "It is the first one."
@@ -1149,7 +1149,7 @@
               "question": "What is item one_18?",
               "options": ["Alpha", "Beta", "Gamma", "Delta"],
               "correct": 0,
-              "explanation": "M marks the medulla."
+              "explanation": "M marks the shaft."
             },
             {
               "type": "text",
@@ -2204,14 +2204,14 @@
                   "question": "What is item one_group_01_p1?",
                   "options": ["Red", "Blue", "Green", "Black"],
                   "correct": 0,
-                  "explanation": "The stain is red, and it turns the nuclei purple."
+                  "explanation": "The dye is red, and it turns the feather tips purple."
                 },
                 {
                   "id": "one_group_01_p2",
                   "question": "What is item one_group_01_p2?",
                   "options": ["Purple", "Pink", "Grey", "Brown"],
                   "correct": 0,
-                  "explanation": "Nuclei are purple."
+                  "explanation": "Feather tips are purple."
                 },
                 {
                   "id": "one_group_01_p3",

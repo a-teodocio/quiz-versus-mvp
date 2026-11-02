@@ -3,9 +3,12 @@ import type { QuizRepository, Random } from '@quiz-versus/core';
 import { MAX_TIEBREAK_ROUNDS } from '@quiz-versus/protocol';
 import type { GameSettings } from '@quiz-versus/protocol';
 import { describe, expect, it } from 'vitest';
-import { loadContent, questionsOf } from './support/content-files.js';
+import { LARGEST_TEST_GAME, loadContent, questionsOf } from './support/content-files.js';
 
-/** A small deterministic generator, so these tests never depend on real randomness. */
+/**
+ * A small deterministic generator, so these tests never depend on real randomness. It is a copy of
+ * the one in core's test support, which is not public API and so cannot be imported (A2).
+ */
 function seededRandom(seed: number): Random {
   let state = seed >>> 0;
   return {
@@ -50,10 +53,10 @@ describe('the fake content, played through the game logic', () => {
     const ids = quizzes.map((quiz) => quiz.id);
     const plan = await prepareGame(
       repository,
-      { ...settings(ids, 'pick'), questionCount: 40 },
+      { ...settings(ids, 'pick'), questionCount: LARGEST_TEST_GAME },
       seededRandom(3),
     );
-    expect(plan.regular).toHaveLength(40);
+    expect(plan.regular).toHaveLength(LARGEST_TEST_GAME);
     expect(plan.images.size).toBeGreaterThan(0);
     for (const path of plan.images.values()) expect(tree.images.fileHead(path)).toBeDefined();
   });
@@ -79,7 +82,7 @@ describe('the fake content, played through the game logic', () => {
     const ids = quizzes.map((quiz) => quiz.id);
     const plan = await prepareGame(
       repository,
-      { ...settings(ids, 'pick'), questionCount: 40 },
+      { ...settings(ids, 'pick'), questionCount: LARGEST_TEST_GAME },
       seededRandom(5),
     );
     expect([...plan.regular, ...plan.spare].every((item) => item.mode === 'pick')).toBe(true);
