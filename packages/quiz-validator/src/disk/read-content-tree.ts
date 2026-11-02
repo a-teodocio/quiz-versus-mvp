@@ -60,7 +60,7 @@ function quizFilesIn(quizzes: string, course: string): QuizFileSource[] {
 
 /**
  * Reads the content folder (`quizzes/` and `images/` inside `root`) into a tree the validator can
- * check. It throws if there is no `quizzes/` folder. Only pictures are held inside `images/`
+ * check. It throws if there is no `quizzes/` folder, or if a link in a course folder points at nothing. Only pictures are held inside `images/`
  * (they are the files a server hands out); quiz files and the registry are read as they are, links
  * included, because they are tracked files in the repository, so a link to elsewhere would be
  * a change a reviewer sees.

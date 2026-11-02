@@ -2,7 +2,7 @@ import { error, warn } from '../findings/finding.js';
 import type { Finding, Place } from '../findings/finding.js';
 import { isObject, isText, isWholeNumber, pythonRepr } from '../json/json-values.js';
 import type { JsonObject } from '../json/json-values.js';
-import { ANSWER_MODES } from './registry.js';
+import { ANSWER_MODE_NAMES, isAnswerMode } from './registry.js';
 import type { RegistryRead } from './registry.js';
 
 /** The registry's own file name, used as the "file" of its findings. */
@@ -53,8 +53,8 @@ function checkOptionalFields(place: Place, item: JsonObject): Finding[] {
   }
   if ('term' in item && !isText(item['term'])) findings.push(error(place, '"term" must be text'));
   const answerBy = item['answer_by'];
-  if ('answer_by' in item && !ANSWER_MODES.some((mode) => mode === answerBy)) {
-    const allowed = ANSWER_MODES.join(', ');
+  if ('answer_by' in item && !isAnswerMode(answerBy)) {
+    const allowed = ANSWER_MODE_NAMES.join(', ');
     findings.push(
       error(place, `"answer_by" must be one of ${allowed} (got ${pythonRepr(answerBy)})`),
     );

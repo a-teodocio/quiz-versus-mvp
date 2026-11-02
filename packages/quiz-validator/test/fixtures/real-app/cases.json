@@ -2348,6 +2348,109 @@
       ]
     },
     {
+      "name": "group labels counted in characters, odd ids, and file names above the basic plane",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-～.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀"
+        },
+        "c1/one-😀.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀"
+        },
+        "c1/one-w1-z.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": true,
+              "question": "What is item true?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": 7,
+              "question": "What is item 7?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-z.json",
+          "where": "True",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-z.json",
+          "where": "7",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-～.json",
+          "where": "one_01",
+          "message": "missing or empty question text"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-😀.json",
+          "where": "-",
+          "message": "top-level \"group\" must be a non-empty text of at most 30 characters"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-😀.json",
+          "where": "one_02",
+          "message": "missing or empty question text"
+        }
+      ]
+    },
+    {
       "name": "ids and names across files and courses",
       "registry": [
         {

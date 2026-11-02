@@ -4,8 +4,17 @@ import { isFilled, isList, isObject, isText, isWholeNumber } from '../json/json-
 /** How a course's questions are asked by default ("Answer by" in the real app); the game's own setting. */
 export type AnswerMode = GameSettings['answerBy'];
 
-/** The modes a registry may name. Typed as the setting, so a new setting makes this list worth a look. */
-export const ANSWER_MODES: readonly AnswerMode[] = ['pick', 'type'];
+/**
+ * Every mode a registry may name. A record, so a mode added to the game's setting stops the build
+ * here until it is listed (a plain list would accept any subset).
+ */
+const ANSWER_MODE_FLAGS: Readonly<Record<AnswerMode, true>> = { pick: true, type: true };
+
+/** The modes as text, for messages. */
+export const ANSWER_MODE_NAMES: readonly string[] = Object.keys(ANSWER_MODE_FLAGS);
+
+export const isAnswerMode = (value: unknown): value is AnswerMode =>
+  typeof value === 'string' && Object.hasOwn(ANSWER_MODE_FLAGS, value);
 
 /** Where a course with no `order` sorts: after every numbered one. */
 const UNREGISTERED_ORDER = 9999;
@@ -42,9 +51,6 @@ export function readRegistry(text: string | undefined): RegistryRead {
   if (!isList(data)) return { kind: 'broken', problem: 'top level must be a list of courses' };
   return { kind: 'list', list: data };
 }
-
-const isAnswerMode = (value: unknown): value is AnswerMode =>
-  ANSWER_MODES.some((mode) => mode === value);
 
 /** A registry object with every field defaulted, or undefined if it has no usable code. */
 function courseFrom(raw: unknown): CourseEntry | undefined {

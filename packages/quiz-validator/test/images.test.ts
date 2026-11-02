@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { resolveImagePath, suffixOf } from './image-path.js';
-import { pictureHead } from '../../test/support/picture-head.js';
-import { pngWidth } from './image-source.js';
+import { resolveImagePath, suffixOf } from '../src/images/image-path.js';
+import { pictureHead } from './support/picture-head.js';
+import { pngWidth } from '../src/images/image-source.js';
 
 describe('resolveImagePath', () => {
   it.each<[string, string, string]>([

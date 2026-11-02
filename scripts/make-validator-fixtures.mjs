@@ -6,8 +6,8 @@
 // The real folder is only read, never copied. Pass a Python that has Pillow installed (the real
 // tool reads picture widths with it); the default is `python`. Every string below is invented (the
 // repo is public). After running, update the commit in
-// packages/quiz-validator/test/fixtures/real-app/SOURCE.md, run `npm run format` (the file is plain JSON) and review the diff: a change means the
-// real validator's behaviour changed.
+// packages/quiz-validator/test/fixtures/real-app/SOURCE.md, run `npm run format` (the file is plain
+// JSON) and review the diff: a change means the real validator's behaviour changed.
 import { Buffer } from 'node:buffer';
 import { spawnSync } from 'node:child_process';
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
@@ -400,6 +400,26 @@ const cases = [
     images: IMAGES,
   },
   {
+    name: 'group labels counted in characters, odd ids, and file names above the basic plane',
+    registry: [course('c1', 'one')],
+    files: {
+      // A file name past U+FFFF sorts after one at U+FF5E by code point, but before it by UTF-16 unit.
+      [`c1/one-${String.fromCodePoint(0xff5e)}.json`]: quiz(
+        'c1',
+        [text('one_01', { question: '' })],
+        { group: `${'a'.repeat(29)}${String.fromCodePoint(0x1f600)}` },
+      ),
+      [`c1/one-${String.fromCodePoint(0x1f600)}.json`]: quiz(
+        'c1',
+        [text('one_02', { question: '' })],
+        { group: `${'a'.repeat(30)}${String.fromCodePoint(0x1f600)}` },
+      ),
+      // An id that is not a string is shown the way Python writes it.
+      'c1/one-w1-z.json': quiz('c1', [text(true), text(7)]),
+    },
+    images: IMAGES,
+  },
+  {
     name: 'ids and names across files and courses',
     registry: [course('c1', 'one'), course('c2', 'one2', { legacy_ids: true })],
     files: {
@@ -471,7 +491,7 @@ function runRealValidator(root) {
   const run = spawnSync(python, ['-B', 'tools/validate_quiz.py', '--strict', '--quiz-dir', root], {
     cwd: realApp,
     encoding: 'utf8',
-    env: { ...env, PYTHONDONTWRITEBYTECODE: '1' },
+    env: { ...env, PYTHONDONTWRITEBYTECODE: '1', PYTHONIOENCODING: 'utf-8' },
   });
   if (run.error !== undefined) throw new Error(`could not run ${python}: ${run.error.message}`);
   // The validator exits 0 when clean and 1 when it found errors; anything else is a failure to run.
