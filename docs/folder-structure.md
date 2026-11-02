@@ -64,6 +64,7 @@ packages/<name>/
 - Group by feature (`room/`, `scoring/`, `quiz/`), not by kind (`utils/`, `helpers/`, `types/`). There is no `utils` or `common` folder.
 - Fixtures copied from the real app live in `packages/<name>/test/fixtures/real-app/` (today `core` and `quiz-validator`) with a `SOURCE.md` recording the source commit and what was copied.
 - Anything exported from `src/index.ts` is public API. Everything else is internal and must not be imported by another package.
+- `core` and `protocol` list two entries in `exports`: the TypeScript source under the `development` condition, which Vitest and `tsc` use (`resolve.conditions` in `vitest.config.ts`, `customConditions` in `tsconfig.base.json`), and the built JavaScript in `dist/` by default, which plain Node uses. Plain Node cannot load the source: imports are spelled `.js` and the files are `.ts`. Run `npm run build` before running anything under `node`. A new package that another package runs under Node does the same.
 
 ## Naming
 

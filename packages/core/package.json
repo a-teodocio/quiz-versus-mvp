@@ -6,7 +6,10 @@
   "description": "Pure game logic for versus mode: room state machine, scoring, shuffle, typed answers",
   "license": "MIT",
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/src/index.js"
+    }
   },
   "scripts": {
     "typecheck": "tsc -b",

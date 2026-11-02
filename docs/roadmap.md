@@ -31,6 +31,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | Versus asks for typed text only where the real app can auto-check it; the rest stay multiple choice                                                                                                                                                                                      | `fidelity.md`                                       |
 | The owner's PRs merge themselves once `check` passes; a draft is held back                                                                                                                                                                                                               | `adr/0005-auto-merge-owner-pull-requests.md`        |
 | The real validator is ported as its own package, `quiz-validator`, with pure checks, a disk adapter, parity fixtures made by running the real tool, and a content test inside `check`; "options that shuffle to the same position" is a property of a fixed `Random`, not of the content | `adr/0010-quiz-validator-package.md`, `fidelity.md` |
+| Packages export source under the `development` condition and built JavaScript by default, so plain Node can run them                                                                                                                                                                     | `folder-structure.md`, `architecture.md`            |
 
 ## Status
 
