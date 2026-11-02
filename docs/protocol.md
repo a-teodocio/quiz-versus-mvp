@@ -33,6 +33,7 @@ All in `src/limits.ts`; nothing else repeats the numbers.
 | Seconds per question             | 5 to 120                            |                                                                                                                     |
 | Options per question             | 4                                   | As the real app's validator requires                                                                                |
 | Room id, player id, resume token | 16 to 64 URL-safe characters        | The server generates them from a cryptographic source: at least 16 random bytes, written as 22 base64url characters |
+| Messages per connection          | 30 in any 10 seconds                | Counted by the server; over it the server sends `RATE_LIMITED`. A player sends a few messages per question          |
 | Item key                         | 1 to 64 (letters, digits, `_`, `-`) | Issued by the server, unique within a game (see below)                                                              |
 | Quiz id                          | up to 64                            | Lowercase words joined by single hyphens                                                                            |
 | Prompt                           | 1 to 2000                           |                                                                                                                     |
@@ -101,27 +102,27 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 
 `error.code` is one of a fixed list (`ERROR_CODES`); clients branch on the code and show `message` as text only.
 
-| Code                   | Meaning                                                                                  |
-| ---------------------- | ---------------------------------------------------------------------------------------- |
-| `MALFORMED_MESSAGE`    | Not JSON, not an object, unknown type, wrong or extra fields                             |
-| `MESSAGE_TOO_LARGE`    | Over the size limit                                                                      |
-| `UNSUPPORTED_VERSION`  | `join` or `welcome` from another protocol version                                        |
-| `NOT_JOINED`           | A message other than `join` before joining                                               |
-| `ALREADY_JOINED`       | A second `join` on the same connection                                                   |
-| `INVALID_RESUME_TOKEN` | The token matches no seat in this room                                                   |
-| `ROOM_NOT_FOUND`       | No such room                                                                             |
-| `ROOM_FULL`            | The room has `MAX_PLAYERS_PER_ROOM` players                                              |
-| `GAME_OVER`            | A new join after the results were shown (a resume token still restores its seat)         |
-| `NOT_IN_TIEBREAK`      | `answer` from a player who is watching a tie-break                                       |
-| `NOT_HOST`             | `start` or `next` from a player who is not the host                                      |
-| `NOT_ENOUGH_PLAYERS`   | `start` while fewer than `MIN_PLAYERS_TO_START` (2) players are connected                |
-| `WRONG_PHASE`          | The message is not allowed in the current phase                                          |
-| `INVALID_SETTINGS`     | Well-formed settings the server cannot honour (for example, too few questions available) |
-| `STALE_QUESTION`       | `answer` for a question that is not the open one, including one that has just closed     |
-| `ALREADY_ANSWERED`     | A second answer to the same question                                                     |
-| `INVALID_ANSWER`       | `answer` of the wrong kind for the question's mode                                       |
-| `RATE_LIMITED`         | Too many messages too fast                                                               |
-| `INTERNAL_ERROR`       | Server fault; nothing the client did                                                     |
+| Code                   | Meaning                                                                                    |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| `MALFORMED_MESSAGE`    | Not JSON, not an object, unknown type, wrong or extra fields                               |
+| `MESSAGE_TOO_LARGE`    | Over the size limit                                                                        |
+| `UNSUPPORTED_VERSION`  | `join` or `welcome` from another protocol version                                          |
+| `NOT_JOINED`           | A message other than `join` before joining                                                 |
+| `ALREADY_JOINED`       | A second `join` on the same connection                                                     |
+| `INVALID_RESUME_TOKEN` | The token matches no seat in this room                                                     |
+| `ROOM_NOT_FOUND`       | No such room                                                                               |
+| `ROOM_FULL`            | The room has `MAX_PLAYERS_PER_ROOM` players                                                |
+| `GAME_OVER`            | A new join after the results were shown (a resume token still restores its seat)           |
+| `NOT_IN_TIEBREAK`      | `answer` from a player who is watching a tie-break                                         |
+| `NOT_HOST`             | `start` or `next` from a player who is not the host                                        |
+| `NOT_ENOUGH_PLAYERS`   | `start` while fewer than `MIN_PLAYERS_TO_START` (2) players are connected                  |
+| `WRONG_PHASE`          | The message is not allowed in the current phase                                            |
+| `INVALID_SETTINGS`     | Well-formed settings the server cannot honour (for example, too few questions available)   |
+| `STALE_QUESTION`       | `answer` for a question that is not the open one, including one that has just closed       |
+| `ALREADY_ANSWERED`     | A second answer to the same question                                                       |
+| `INVALID_ANSWER`       | `answer` of the wrong kind for the question's mode                                         |
+| `RATE_LIMITED`         | More than `MAX_MESSAGES_PER_WINDOW` messages in `MESSAGE_RATE_WINDOW_MS` on one connection |
+| `INTERNAL_ERROR`       | Server fault; nothing the client did                                                       |
 
 Decoding reports a failure as `{ ok: false, code, detail }`. `detail` names the field and the kind of problem and never repeats what the sender wrote, so it is safe to log.
 
