@@ -3,7 +3,7 @@
   "compilerOptions": {
     "composite": false,
     "noEmit": true,
-    "types": []
+    "types": ["node"]
   },
   "files": ["vitest.config.ts"],
   "references": [

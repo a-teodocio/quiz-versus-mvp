@@ -49,7 +49,15 @@ A scenario that cannot run yet is reported as "could not run", not as failed.
 3. Report in the format of the agent definition (findings with their basis, personas, what works well, product questions, and what needs a human check). The author reads the tester's tests as code, runs `npm run format` and `npm run check` on them (the tester cannot), verifies each finding against the app and the code, fixes the real ones, and the same tester looks again at the fixes (as for the standards-reviewer).
 4. The pull request description gives the verdict and the commit the final run covered.
 
-The exact commands to start the app, and a seed that makes a game repeatable, are added by the branch that makes them real (`feat/worker`, `feat/web-versus`). Until then this page says what to check, not how to start it.
+## Running the server
+
+- `npm run qa:start` builds the packages, starts the server in the background on `http://localhost:8787` (loopback only, the fake content in `content/`) and prints its address. If one is already running it says so. `npm run qa:stop` stops it. Both can be run again safely.
+- A room is made with `POST /rooms` (for example `curl -s -X POST http://localhost:8787/rooms`) and answers `{ "roomId": "..." }`; players connect with a WebSocket to `ws://localhost:8787/rooms/<roomId>`. The routes are in [protocol.md](protocol.md).
+- `npm run qa:ws` runs the tests in `packages/worker/test/qa/` against that server, with `--grep`, `--workers`, `--retries` and `--reporter list|line|dot` after `--` (`--project` and `--repeat-each` are for the browser level and are refused). The ordinary `npm run test` leaves those tests out.
+- Time and randomness are real here (the tests of `packages/worker` use manual ones). A question lasts as long as the settings say, at least 5 seconds, so the tests choose the shortest. Questions and options are shuffled differently every game, so a test reads the question it is given and never assumes an order.
+- The server forgets every room when it stops. The `.pid` and log files are in `node_modules/.cache/quiz-versus/`, which the tester cannot read.
+
+A browser-level run (`npm run qa:browser`) comes with `feat/web-versus`.
 
 ## Lobby and joining
 

@@ -35,7 +35,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
 │   ├── worker/                The game server: HTTP routes, WebSocket adapter, rooms in memory
 │   └── web/                   Browser app (planned)
-├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share), and the qa-tester guard (qa-guard.mjs) with its tests
+├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share, the QA server and test runners qa-server.mjs and qa-ws.mjs), and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md
@@ -59,7 +59,7 @@ packages/<name>/
 └── test/               tests that need fixtures or cross several modules
 ```
 
-- Tests the qa-tester writes for a package live in `test/qa/` (today `packages/worker/test/qa/`, planned); the author owns the rest of `test/`.
+- Tests the qa-tester writes for a package live in `test/qa/` (today `packages/worker/test/qa/`, created by the first tester run); the author owns the rest of `test/`.
 - Unit tests sit next to the code as `thing.test.ts`. Larger tests and fixtures go in `test/`.
 - Group by feature (`room/`, `scoring/`, `quiz/`), not by kind (`utils/`, `helpers/`, `types/`). There is no `utils` or `common` folder.
 - Fixtures copied from the real app live in `packages/<name>/test/fixtures/real-app/` (today `core` and `quiz-validator`) with a `SOURCE.md` recording the source commit and what was copied.

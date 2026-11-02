@@ -1,6 +1,6 @@
 // The command that runs the server: `node packages/worker/dist/src/main.js` (after `npm run build`).
 // Settings come from environment variables; see `loadConfig`.
-import { cwd, env, exit, on, stdout } from 'node:process';
+import process, { cwd, env, exit, stdout } from 'node:process';
 import { loadConfig } from './config/server-config.js';
 import { cryptoIds } from './platform/crypto-ids.js';
 import { cryptoRandom } from './platform/crypto-random.js';
@@ -30,10 +30,10 @@ try {
       },
     );
   };
-  on('SIGINT', () => {
+  process.on('SIGINT', () => {
     stop('SIGINT');
   });
-  on('SIGTERM', () => {
+  process.on('SIGTERM', () => {
     stop('SIGTERM');
   });
 } catch (error) {
