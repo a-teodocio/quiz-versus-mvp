@@ -31,6 +31,11 @@ describe('decodeFailureText', () => {
     expect(textFor(answer)).toMatch(/^Your answer must be 1 to 200 characters/);
   });
 
+  it('does not blame the length of the answer for a pick that is out of range', () => {
+    const pick = { type: 'answer', itemKey: 'i1', answer: { kind: 'pick', index: 9 } };
+    expect(textFor(pick)).toBe('That message was not understood.');
+  });
+
   it('keeps a general sentence for anything else, and for a message that is too large', () => {
     expect(textFor({ type: 'next', extra: true })).toBe('That message was not understood.');
     expect(textFor(join('x'.repeat(3000)))).toBe('That message was too large.');

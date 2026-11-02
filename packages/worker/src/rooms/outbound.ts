@@ -41,10 +41,11 @@ const NOT_UNDERSTOOD = 'That message was not understood.';
 const FIELD_TEXT: Readonly<Record<string, string>> = {
   name: `Your name must be 1 to ${String(PLAYER_NAME_MAX_LENGTH)} characters, with no control or invisible characters.`,
   settings: `Those game settings are not allowed. Choose 1 to ${String(MAX_QUESTIONS_PER_GAME)} questions and ${String(MIN_SECONDS_PER_QUESTION)} to ${String(MAX_SECONDS_PER_QUESTION)} seconds for each.`,
-  answer: `Your answer must be 1 to ${String(TYPED_ANSWER_MAX_LENGTH)} characters.`,
+  'answer.text': `Your answer must be 1 to ${String(TYPED_ANSWER_MAX_LENGTH)} characters.`,
   resumeToken: 'That reconnection code is not valid. Join again as a new player.',
 };
 
+/** The sentence for a message the decoder refused: a specific one when the field is known. */
 export function decodeFailureText(code: ErrorCode, detail: string): string {
   switch (code) {
     case 'MESSAGE_TOO_LARGE':
@@ -52,10 +53,11 @@ export function decodeFailureText(code: ErrorCode, detail: string): string {
     case 'UNSUPPORTED_VERSION':
       return 'This game is a different version. Reload the page and try again.';
     default: {
-      const field = detail.split(/[.:]/, 1)[0] ?? '';
-      return Object.hasOwn(FIELD_TEXT, field)
-        ? (FIELD_TEXT[field] ?? NOT_UNDERSTOOD)
-        : NOT_UNDERSTOOD;
+      const path = detail.split(':', 1)[0] ?? '';
+      const known = Object.keys(FIELD_TEXT).find(
+        (key) => path === key || path.startsWith(`${key}.`),
+      );
+      return (known === undefined ? undefined : FIELD_TEXT[known]) ?? NOT_UNDERSTOOD;
     }
   }
 }
