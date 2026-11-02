@@ -21,4 +21,4 @@ A workflow (`.github/workflows/auto-merge.yml`) turns on GitHub's auto-merge for
 - Branch protection stays the gate: if `check` is not required, auto-merge would not wait for it.
 - The token can merge into this repository, so the workflow must never run code from the pull request. It only calls `gh`, and only for the owner's non-draft pull requests (fork pull requests get no secrets).
 - The token expires (set a reminder, at most one year). When it does, auto-merge stops enabling and pull requests wait for a manual merge. Renew it and update the secret.
-- To verify after the first merge that uses the token: CI runs on `main` for the merge commit, and the head branch is deleted. If the branch is still there, record it here and add a scheduled cleanup workflow.
+- Verified on pull request 20 (2026-11-02): with the token, CI runs on `main` for the merge commit and the head branch is deleted. If either stops, suspect an expired token first.
