@@ -13,6 +13,7 @@ export function isOriginAllowed(
 ): boolean {
   if (origin === undefined) return true;
   if (allowedOrigins.includes(origin)) return true;
+  // Known weakness: DNS rebinding makes Origin and Host agree (docs/known-issues.md, ADR 11).
   return host !== undefined && hostOf(origin) === host;
 }
 

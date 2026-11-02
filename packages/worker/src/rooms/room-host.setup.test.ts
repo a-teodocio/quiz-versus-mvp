@@ -35,6 +35,7 @@ describe('starting a game', () => {
 describe('a game that cannot be set up', () => {
   it('tells the host when a quiz does not exist, and stays in the lobby', async () => {
     const { fixture, host } = lobby();
+    const register = vi.spyOn(fixture.images, 'register');
     say(fixture.room, host.connection, {
       type: 'start',
       settings: settings({ quizIds: ['no-such-quiz'] }),
@@ -43,7 +44,7 @@ describe('a game that cannot be set up', () => {
       expect(host.connection.errors).toEqual(['INVALID_SETTINGS']);
     });
     expect(host.connection.last('room').room.phase).toBe('lobby');
-    expect(fixture.images.collidesWith([])).toBe(false);
+    expect(register).not.toHaveBeenCalled();
   });
 
   it('tells the host when the chosen quizzes have too few questions', async () => {
@@ -94,17 +95,5 @@ describe('a game that is being set up', () => {
     await vi.waitFor(() => {
       expect(host.connection.errors).toEqual(['WRONG_PHASE', 'INVALID_SETTINGS']);
     });
-  });
-
-  it('does not start a game for a room that closed while the files were being read', async () => {
-    const { fixture, host, friend } = lobby();
-    say(fixture.room, host.connection, { type: 'start', settings: settings() });
-    say(fixture.room, host.connection, { type: 'leave' });
-    say(fixture.room, friend.connection, { type: 'leave' });
-    await vi.waitFor(() => {
-      expect(fixture.loads.count).toBeGreaterThan(0);
-    });
-    expect(fixture.room.isClosed).toBe(true);
-    expect(fixture.images.collidesWith([])).toBe(false);
   });
 });

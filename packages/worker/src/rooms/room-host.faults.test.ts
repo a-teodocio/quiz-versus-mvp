@@ -7,33 +7,71 @@ import { say } from '../../test/support/fake-connection.js';
 import { lobby, startGame } from '../../test/support/game-helpers.js';
 import { settings } from '../../test/support/room-fixture.js';
 
+/** A repository that waits for `release()`, then loads for real and says when it has finished. */
+function heldRepository(): {
+  repository: QuizRepository;
+  release: () => void;
+  loaded: Promise<void>;
+} {
+  const disk = createDiskQuizRepository(fakeContentRoot);
+  let release: () => void = () => undefined;
+  let loadedNow: () => void = () => undefined;
+  const held = new Promise<void>((resolve) => {
+    release = resolve;
+  });
+  const loaded = new Promise<void>((resolve) => {
+    loadedNow = resolve;
+  });
+  const repository: QuizRepository = {
+    load: async (quizId) => {
+      await held;
+      const quiz = await disk.load(quizId);
+      loadedNow();
+      return quiz;
+    },
+  };
+  return { repository, release, loaded };
+}
+
+/** Lets the code that was waiting on a finished load run to the end. */
+const afterLoad = async (loaded: Promise<void>): Promise<void> => {
+  await loaded;
+  await new Promise<void>((resolve) => setImmediate(resolve));
+};
+
 describe('a room that closes while its game is being prepared', () => {
   it('starts nothing and registers no pictures', async () => {
-    const disk = createDiskQuizRepository(fakeContentRoot);
-    let release: () => void = () => undefined;
-    const held = new Promise<void>((resolve) => {
-      release = resolve;
-    });
-    const slow: QuizRepository = {
-      load: async (quizId) => {
-        await held;
-        return disk.load(quizId);
-      },
-    };
-    const { fixture, host, friend } = lobby({ repository: slow });
+    const { repository, release, loaded } = heldRepository();
+    const { fixture, host, friend } = lobby({ repository });
     const register = vi.spyOn(fixture.images, 'register');
     say(fixture.room, host.connection, { type: 'start', settings: settings() });
     say(fixture.room, host.connection, { type: 'leave' });
     say(fixture.room, friend.connection, { type: 'leave' });
     expect(fixture.room.isClosed).toBe(true);
     release();
-    await vi.waitFor(() => {
-      expect(fixture.log.lines.some((line) => line.event === 'room.closed')).toBe(true);
-    });
-    await new Promise<void>((resolve) => setImmediate(resolve));
+    await afterLoad(loaded);
     expect(register).not.toHaveBeenCalled();
     expect(fixture.log.lines.filter((line) => line.event === 'room.phase')).toEqual([]);
     expect(fixture.time.pending).toBe(0);
+  });
+});
+
+describe('a start that core refuses after the game was prepared', () => {
+  it('forgets the picture names it registered', async () => {
+    const { repository, release, loaded } = heldRepository();
+    const { fixture, host } = lobby({ repository });
+    const register = vi.spyOn(fixture.images, 'register');
+    say(fixture.room, host.connection, { type: 'start', settings: settings({ questionCount: 9 }) });
+    say(fixture.room, host.connection, { type: 'leave' });
+    release();
+    await afterLoad(loaded);
+    expect(register).toHaveBeenCalledOnce();
+    const aliases = [...(register.mock.calls[0]?.[1].keys() ?? [])];
+    expect(aliases.length).toBeGreaterThan(0);
+    expect(aliases.map((alias) => fixture.images.pathFor(alias))).toEqual(
+      aliases.map(() => undefined),
+    );
+    expect(fixture.room.isClosed).toBe(false);
   });
 });
 

@@ -1,4 +1,5 @@
 import { createServer } from 'node:http';
+import type { Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import type { Clock, Random } from '@quiz-versus/core';
 import { MAX_CLIENT_FRAME_BYTES } from '../config/defaults.js';
@@ -31,6 +32,16 @@ export interface RunningServer {
   readonly roomCount: () => number;
   /** Closes every room and every connection, then stops listening. */
   close(): Promise<void>;
+}
+
+/** The TCP port a listening server got; closes it first if it is not on one. */
+function listeningPort(http: Server): number {
+  const address = http.address();
+  if (address === null || typeof address === 'string') {
+    http.close();
+    throw new Error('the server is not listening on a TCP port');
+  }
+  return address.port;
 }
 
 /**
@@ -73,12 +84,8 @@ export async function startServer(config: ServerConfig, deps: ServerDeps): Promi
     http.once('error', reject);
     http.listen(config.port, config.host, resolve);
   });
+  const port = listeningPort(http);
   heartbeat.start();
-  const address = http.address();
-  if (address === null || typeof address === 'string') {
-    throw new Error('the server is not listening on a TCP port');
-  }
-  const port = address.port;
   deps.logger.info('server.listening', { port });
   return {
     port,
