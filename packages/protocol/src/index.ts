@@ -6,6 +6,7 @@ export { ERROR_CODES } from './errors/error-code.js';
 export type { ErrorCode } from './errors/error-code.js';
 
 export type { GameSettings } from './room/settings.js';
+export { isQuizId } from './room/identifiers.js';
 export type { PlayerSummary, RoomPhase, RoomSnapshot } from './room/snapshot.js';
 export type { Answer } from './game/answer.js';
 export type { Progress } from './game/progress.js';

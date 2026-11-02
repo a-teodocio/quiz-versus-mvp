@@ -11,9 +11,10 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 ├── .claude/agents/            Subagent definitions (standards-reviewer, qa-tester)
 ├── .github/                   CI and auto-merge workflows, Dependabot config, PR template
 ├── .husky/                    Git hooks (pre-commit, commit-msg)
-├── content/                   FAKE quiz data only (planned)
+├── content/                   FAKE quiz data only (see content/README.md)
+│   ├── quizzes/courses.json   The course registry, as in the real app
 │   ├── quizzes/<course>/      Quiz JSON in the real app's schema
-│   └── images/<course>/       Generated placeholder images
+│   └── images/<course>/       Generated placeholder images (scripts/make-content-images.mjs)
 ├── docs/
 │   ├── adr/                   Architecture decision records, numbered
 │   ├── roadmap.md             Status, decisions, next steps (read first in a new session)
@@ -31,9 +32,10 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 ├── packages/
 │   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic
+│   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
 │   ├── worker/                Cloudflare Worker and Durable Object (planned)
 │   └── web/                   Browser app (planned)
-├── scripts/                   Repo tooling run from npm scripts, and the qa-tester guard (qa-guard.mjs) with its tests
+├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share), and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md
@@ -60,7 +62,7 @@ packages/<name>/
 - Tests the qa-tester writes for a package live in `test/qa/` (today `packages/worker/test/qa/`, planned); the author owns the rest of `test/`.
 - Unit tests sit next to the code as `thing.test.ts`. Larger tests and fixtures go in `test/`.
 - Group by feature (`room/`, `scoring/`, `quiz/`), not by kind (`utils/`, `helpers/`, `types/`). There is no `utils` or `common` folder.
-- Fixtures copied from the real app live in `packages/core/test/fixtures/real-app/` with a `SOURCE.md` recording the source commit and what was copied.
+- Fixtures copied from the real app live in `packages/<name>/test/fixtures/real-app/` (today `core` and `quiz-validator`) with a `SOURCE.md` recording the source commit and what was copied.
 - Anything exported from `src/index.ts` is public API. Everything else is internal and must not be imported by another package.
 
 ## Naming

@@ -1,0 +1,55 @@
+{
+  "title": "Pretend Minerals: Lab Methods",
+  "course": "demo-2002 Pretend Minerals",
+  "unit": "Week 2: Lab methods",
+  "questions": [
+    {
+      "type": "text",
+      "id": "rocks_20",
+      "question": "How long should a sample soak before it is weighed?",
+      "options": ["Ten minutes", "One hour", "Overnight", "A whole week"],
+      "correct": 0,
+      "explanation": "Ten minutes is long enough for the surface water to drain. A longer soak changes the weight."
+    },
+    {
+      "type": "text",
+      "id": "rocks_21",
+      "question": "What goes on the label of every tray?",
+      "options": ["The tray number", "The lab's address", "A phone number", "A weather note"],
+      "correct": 0,
+      "explanation": "Every tray is labelled with its number, so results can be matched to it. Nothing else is needed on the label."
+    },
+    {
+      "type": "text",
+      "id": "rocks_22",
+      "question": " What is worn  while cutting stone? ",
+      "options": ["Safety\tgoggles", "A sun hat", "Wool gloves", "Open shoes"],
+      "correct": 0,
+      "explanation": "Safety goggles are worn for every cut.  Gloves are worn only when handling hot samples."
+    },
+    {
+      "type": "text",
+      "id": "rocks_23",
+      "question": "What is the weight limit for a hand sample, in grams?",
+      "options": ["9 grams", "90 grams", "900 grams", "9000 grams"],
+      "correct": 1,
+      "explanation": "A hand sample may weigh up to 90 grams. Heavier ones go on the bench scale."
+    },
+    {
+      "type": "text",
+      "id": "rocks_24",
+      "question": "Who signs a sample out of the store?",
+      "options": ["The shift lead", "The visitor", "Any student", "The cleaner"],
+      "correct": 0,
+      "explanation": "The shift lead signs it out and writes the time. Visitors never carry samples."
+    },
+    {
+      "type": "text",
+      "id": "rocks_25",
+      "question": "What do you call the order in which steps are written in the lab book?",
+      "options": ["A method", "A guess", "A habit", "A rumour"],
+      "correct": 0,
+      "explanation": "The written order of steps is the method. A guess has no steps."
+    }
+  ]
+}

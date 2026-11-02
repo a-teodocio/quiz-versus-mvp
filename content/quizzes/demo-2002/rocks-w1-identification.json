@@ -1,0 +1,159 @@
+{
+  "title": "Pretend Minerals: Identification",
+  "course": "demo-2002 Pretend Minerals",
+  "unit": "Week 1: Identification",
+  "questions": [
+    {
+      "type": "text",
+      "id": "rocks_01",
+      "question": "What is the dark mineral that scratches glass in the practice set?",
+      "options": ["Glimmerite", "Fennelite", "Duskspar", "Rustwort"],
+      "correct": 0,
+      "explanation": "Glimmerite is dark and hard enough to scratch glass. Duskspar is dark too but leaves no mark."
+    },
+    {
+      "type": "text",
+      "id": "rocks_02",
+      "question": "Which practice mineral splits into thin sheets?",
+      "options": ["Fennel stone", "Glass rock", "Tumble clay", "Dust brick"],
+      "correct": 0,
+      "explanation": "Fennel stone splits along flat planes into thin sheets. Tumble clay crumbles instead."
+    },
+    {
+      "type": "text",
+      "id": "rocks_03",
+      "question": "What is the lab book's short name for the clear mineral with a ring pattern?",
+      "options": ["Orrery quartz (OQ)", "Ringed glass (RG)", "Clear spar (CS)", "Halo stone (HS)"],
+      "correct": 0,
+      "explanation": "The lab book writes orrery quartz as OQ. The other short names belong to different samples."
+    },
+    {
+      "type": "text",
+      "id": "rocks_04",
+      "question": "What do collectors call flint found on the hill behind the lab?",
+      "options": ["Hob's flint", "Hill flint", "Back-lab flint", "Ridge flint"],
+      "correct": 0,
+      "explanation": "Collectors call it Hob's flint after the person who first listed it. Ridge flint is found elsewhere."
+    },
+    {
+      "type": "text",
+      "id": "rocks_05",
+      "question": "Which gem is named after the first lab assistant?",
+      "options": ["Pip’s agate", "Tam's jasper", "Wren's opal", "Moss agate"],
+      "correct": 0,
+      "explanation": "Pip’s agate is named after the first lab assistant. Moss agate is named for its green streaks."
+    },
+    {
+      "type": "text",
+      "id": "rocks_06",
+      "question": "What is the cream-coloured spar with a flower pattern called?",
+      "options": ["Crème-fleur spar", "Plain spar", "Dusk spar", "Needle spar"],
+      "correct": 0,
+      "explanation": "The flower pattern gives crème-fleur spar its name. Plain spar has no pattern at all."
+    },
+    {
+      "type": "text",
+      "id": "rocks_07",
+      "question": "What is the grade of tuff that lets water pass through?",
+      "options": ["Loose (porous) tuff", "Packed tuff", "Glazed tuff", "Dense tuff"],
+      "correct": 0,
+      "explanation": "Loose tuff is porous, so water passes through it. Dense tuff holds water at the surface."
+    },
+    {
+      "type": "text",
+      "id": "rocks_08",
+      "question": "What hardness grade does Glimmerite get on the practice scale?",
+      "options": ["Grade 2", "Grade 3", "Grade 4", "Grade 5"],
+      "correct": 2,
+      "explanation": "Glimmerite is graded 4 on the practice scale. Grade 5 is kept for the hardest samples."
+    },
+    {
+      "type": "text",
+      "id": "rocks_09",
+      "question": "Which two colours mark the safe edge of the sample tray?",
+      "options": ["Red, blue", "Green, grey", "Black, white", "Orange, purple"],
+      "correct": 0,
+      "explanation": "Red and blue stripes mark the safe edge of the tray. Samples stay inside the stripes."
+    },
+    {
+      "type": "text",
+      "id": "rocks_10",
+      "question": "Which two layers meet at the seam in the practice cliff?",
+      "options": ["Lime / shale", "Sand / clay", "Salt / chalk", "Coal / marl"],
+      "correct": 0,
+      "explanation": "Lime and shale meet at the seam. The other pairs sit higher in the cliff."
+    },
+    {
+      "type": "text",
+      "id": "rocks_11",
+      "question": "What does the lab book call the largest sample on the shelf?",
+      "options": [
+        "Seven-layered grey crystal slab",
+        "Grey crystal slab",
+        "Shelf block of crystal",
+        "Crystal block"
+      ],
+      "correct": 0,
+      "explanation": "The lab book gives the full name, which is too long to type in a hurry. Everyone says grey slab for short."
+    },
+    {
+      "type": "text",
+      "id": "rocks_12",
+      "question": "Which pair of codes is written on the twin sample bag?",
+      "options": [
+        "Alpha (A) or Beta (B)",
+        "Gamma (G) or Delta (D)",
+        "Alpha (A) only",
+        "Beta (B) only"
+      ],
+      "correct": 0,
+      "explanation": "The twin bag carries both codes, alpha and beta. A single code marks an ordinary bag."
+    },
+    {
+      "type": "image",
+      "id": "rocks_13",
+      "image_path": "images/demo-2002/sample-tray.png",
+      "question": "Which circle on the tray is yellow?",
+      "options": ["Circle A", "Circle B", "Circle C", "Circle D"],
+      "correct": 2,
+      "explanation": "Circle (C) is yellow. Circle (B) is green."
+    },
+    {
+      "type": "image",
+      "id": "rocks_14",
+      "image_path": "images/demo-2002/strata-layers.png",
+      "question": "What colour is the lowest layer in the picture?",
+      "options": ["Sand", "Grey", "Red", "Black"],
+      "correct": 3,
+      "explanation": "The layers run sand, grey, red, black from the top, so the lowest is black. The red layer sits just above it."
+    },
+    {
+      "type": "image-group",
+      "id": "rocks_group_01",
+      "image_path": "images/demo-2002/crystal-grid.png",
+      "parts": [
+        {
+          "id": "rocks_group_01_p1",
+          "question": "How many squares does the grid hold?",
+          "options": ["Six", "Eight", "Nine", "Twelve"],
+          "correct": 2,
+          "explanation": "The grid has three rows of three squares. Count them row by row."
+        },
+        {
+          "id": "rocks_group_01_p2",
+          "question": "What colour is the square in the centre of the grid?",
+          "options": ["Blue", "Purple", "Red", "Yellow"],
+          "correct": 1,
+          "explanation": "The centre square is purple and every other square is blue. Red and yellow do not appear."
+        },
+        {
+          "id": "rocks_group_01_p3",
+          "question": "What does a lone purple crystal in a blue grid usually show in the lab book?",
+          "options": ["A seed crystal", "A cracked tile", "A spare label", "A dyed sample"],
+          "correct": 0,
+          "explanation": "It marks the seed crystal, the first one grown, with the others forming around it. A dyed sample would colour the whole grid."
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+[
+  {
+    "code": "demo-1001",
+    "name": "Imaginary Birds",
+    "short": "birds",
+    "term": "Fake Term",
+    "order": 1,
+    "answer_by": "pick"
+  },
+  {
+    "code": "demo-2002",
+    "name": "Pretend Minerals",
+    "short": "rocks",
+    "term": "Fake Term",
+    "order": 2,
+    "answer_by": "type"
+  }
+]

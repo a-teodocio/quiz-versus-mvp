@@ -1,0 +1,2701 @@
+{
+  "cases": [
+    {
+      "name": "a clean course",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "What is item one_02?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": []
+    },
+    {
+      "name": "registry entries that are wrong",
+      "registry": [
+        5,
+        {
+          "code": "Bad Code",
+          "name": "Course Bad Code",
+          "short": "x",
+          "order": 1
+        },
+        {
+          "code": "c1",
+          "name": "",
+          "short": "A!",
+          "order": true,
+          "archived": "yes",
+          "legacy_ids": 1,
+          "term": 3,
+          "answer_by": "speak"
+        },
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "dup",
+          "order": 1
+        },
+        {
+          "code": "c2",
+          "name": "Course c2",
+          "short": "dup",
+          "order": 1
+        },
+        {
+          "code": "c3",
+          "name": "Course c3",
+          "short": "three",
+          "order": "first"
+        }
+      ],
+      "files": {
+        "c1/dup-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "dup_01",
+              "question": "What is item dup_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "emptyFolders": ["c4", "_hidden", ".cache"],
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "c4",
+          "where": "-",
+          "message": "course folder has no entry in quizzes/courses.json"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "#1",
+          "message": "entry is not an object"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "#2",
+          "message": "\"code\" must be lowercase letters, digits and hyphens, like the folder name (got 'Bad Code')"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"short\" must be lowercase letters and digits, the file-name and id prefix (got 'A!')"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"name\" must be non-empty text"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"order\" must be a whole number"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"archived\" must be true or false"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"legacy_ids\" must be true or false"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"term\" must be text"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "\"answer_by\" must be one of pick, type (got 'speak')"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c1",
+          "message": "duplicate code"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c2",
+          "message": "\"short\" 'dup' is also used by c1"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c3",
+          "message": "\"order\" must be a whole number"
+        },
+        {
+          "level": "ERROR",
+          "file": "dup-w1-a.json",
+          "where": "-",
+          "message": "file name must start with \"A!-\" (the short name of course c1)"
+        },
+        {
+          "level": "ERROR",
+          "file": "dup-w1-a.json",
+          "where": "dup_01",
+          "message": "id dup_01 must start with \"A!_\" (course c1)"
+        },
+        {
+          "level": "WARN",
+          "file": "courses.json",
+          "where": "c2",
+          "message": "no folder quizzes/c2/"
+        },
+        {
+          "level": "WARN",
+          "file": "courses.json",
+          "where": "c3",
+          "message": "no folder quizzes/c3/"
+        }
+      ]
+    },
+    {
+      "name": "registry top level is not a list",
+      "registry": {
+        "code": "c1"
+      },
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "c1",
+          "where": "-",
+          "message": "course folder has no entry in quizzes/courses.json"
+        },
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "-",
+          "message": "cannot read the course registry: top level must be a list of courses"
+        }
+      ]
+    },
+    {
+      "name": "no registry file",
+      "registry": null,
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "c1",
+          "where": "-",
+          "message": "course folder has no entry in quizzes/courses.json"
+        }
+      ]
+    },
+    {
+      "name": "files that are not quizzes",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": [],
+        "c1/one-w1-b.json": {
+          "questions": 5
+        },
+        "c1/one-w1-c.json": {
+          "title": "x",
+          "course": "c1",
+          "unit": "u",
+          "questions": []
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "-",
+          "message": "top level must be an object with a \"questions\" list"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-b.json",
+          "where": "-",
+          "message": "top level must be an object with a \"questions\" list"
+        }
+      ]
+    },
+    {
+      "name": "top-level fields and the group label",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c1/one-w1-b.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "What is item one_02?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": ""
+        },
+        "c1/one-w1-c.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_03",
+              "question": "What is item one_03?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+        },
+        "c1/one-w1-d.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_04",
+              "question": "What is item one_04?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": " Starter "
+        },
+        "c1/one-w1-e.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_05",
+              "question": "What is item one_05?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": 7
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-b.json",
+          "where": "-",
+          "message": "top-level \"group\" must be a non-empty text of at most 30 characters"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-c.json",
+          "where": "-",
+          "message": "top-level \"group\" must be a non-empty text of at most 30 characters"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-e.json",
+          "where": "-",
+          "message": "top-level \"group\" must be a non-empty text of at most 30 characters"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "-",
+          "message": "top-level \"title\" missing"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "-",
+          "message": "top-level \"course\" missing"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "-",
+          "message": "top-level \"unit\" missing"
+        }
+      ]
+    },
+    {
+      "name": "file name, course label and id prefix",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        },
+        {
+          "code": "c2",
+          "name": "Course c2",
+          "short": "two",
+          "order": 1,
+          "legacy_ids": true
+        },
+        {
+          "code": "c3",
+          "name": "Course c3",
+          "short": "",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/other-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c1/one-w1-b.json": {
+          "title": "A quiz",
+          "course": "c9 Something",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "What is item one_02?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c1/one-w1-c.json": {
+          "title": "A quiz",
+          "course": "C1 Upper",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "wrong_03",
+              "question": "What is item wrong_03?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_04",
+              "question": "What is item one_04?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c2/two-w1-a.json": {
+          "title": "A quiz",
+          "course": "c2",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "anything_05",
+              "question": "What is item anything_05?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c3/whatever.json": {
+          "title": "A quiz",
+          "course": "c3",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "free_06",
+              "question": "What is item free_06?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "courses.json",
+          "where": "c3",
+          "message": "\"short\" must be lowercase letters and digits, the file-name and id prefix (got '')"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-c.json",
+          "where": "wrong_03",
+          "message": "id wrong_03 must start with \"one_\" (course c1)"
+        },
+        {
+          "level": "ERROR",
+          "file": "other-w1-a.json",
+          "where": "-",
+          "message": "file name must start with \"one-\" (the short name of course c1)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-b.json",
+          "where": "-",
+          "message": "\"course\" is 'c9 Something' but the file is in course folder c1"
+        }
+      ]
+    },
+    {
+      "name": "entries that are not questions",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            3,
+            "text",
+            {},
+            {
+              "type": "bogus",
+              "id": "one_01"
+            },
+            {
+              "type": "text"
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "What is item one_02?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "A different question?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "id": "one_03",
+              "question": "No type?"
+            },
+            {
+              "type": "text",
+              "id": 7,
+              "question": "What is item 7?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "",
+              "question": "What is item ?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#1",
+          "message": "entry is not an object"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#2",
+          "message": "entry is not an object"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#3",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#3",
+          "message": "unknown type None"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_01",
+          "message": "unknown type 'bogus'"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#5",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#5",
+          "message": "missing or empty question text"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#5",
+          "message": "options must be a list of 4 (got None)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#5",
+          "message": "\"correct\" must be an index into options (got None)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#5",
+          "message": "missing or empty explanation"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "duplicate id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_03",
+          "message": "unknown type None"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "7",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "#10",
+          "message": "missing id"
+        }
+      ]
+    },
+    {
+      "name": "questions that break the schema",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": 5,
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_03",
+              "question": "What is item one_03?",
+              "options": ["a", "b", "c"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_04",
+              "question": "What is item one_04?",
+              "options": "abcd",
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_05",
+              "question": "What is item one_05?",
+              "options": ["a", "", "c", "d"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_06",
+              "question": "What is item one_06?",
+              "options": ["a", 5, "c", "d"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_07",
+              "question": "What is item one_07?",
+              "options": ["Cell", "cell.", "Tea", "Milk"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_08",
+              "question": "What is item one_08?",
+              "options": ["Café", "café", "Tea", "Milk"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_09",
+              "question": "What is item one_09?",
+              "options": ["Naïve one", "Na ve one", "Tea", "Milk"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_10",
+              "question": "What is item one_10?",
+              "options": ["a/b", "a b", "Tea", "Milk"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_11",
+              "question": "What is item one_11?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 4,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_12",
+              "question": "What is item one_12?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": -1,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_13",
+              "question": "What is item one_13?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": "1",
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_14",
+              "question": "What is item one_14?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": true,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_15",
+              "question": "What is item one_15?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": null,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_16",
+              "question": "What is item one_16?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "  "
+            },
+            {
+              "type": "text",
+              "id": "one_17",
+              "question": "What is item one_17?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": 12
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_01",
+          "message": "missing or empty question text"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "missing or empty question text"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_03",
+          "message": "options must be a list of 4 (got 3)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_04",
+          "message": "options must be a list of 4 (got abcd)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_05",
+          "message": "an option is empty or not a string"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_06",
+          "message": "an option is empty or not a string"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_07",
+          "message": "duplicate options"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_08",
+          "message": "duplicate options"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_11",
+          "message": "\"correct\" must be an index into options (got 4)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_12",
+          "message": "\"correct\" must be an index into options (got -1)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_13",
+          "message": "\"correct\" must be an index into options (got '1')"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_14",
+          "message": "\"correct\" must be an index into options (got True)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_15",
+          "message": "\"correct\" must be an index into options (got None)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_16",
+          "message": "missing or empty explanation"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_17",
+          "message": "missing or empty explanation"
+        }
+      ]
+    },
+    {
+      "name": "wording warnings",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is this",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "What is this? Or that?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_03",
+              "question": "Which of the following is a bird?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_04",
+              "question": "What is a bird? Explain.",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_05",
+              "question": "Name a bird? Describe",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_06",
+              "question": "What is item one_06?",
+              "options": ["All of the above", "None of the above", "Both of the above", "Tea"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_07",
+              "question": "What is item one_07?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "One. Two. Three. Four."
+            },
+            {
+              "type": "text",
+              "id": "one_08",
+              "question": "What is item one_08?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is so. See (a). Then (b)? Yes! \"Quoted\" ends. 4 is next."
+            },
+            {
+              "type": "text",
+              "id": "one_09",
+              "question": "What does arrow a point to?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_10",
+              "question": "What do arrows a and b point to?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_11",
+              "question": "What does bracket (a) mark?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_12",
+              "question": "What does the arrow labelled C point to?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_13",
+              "question": "What is the letter D near the top?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_14",
+              "question": "Where is the box E?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_15",
+              "question": "What marks a secondary feather?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_16",
+              "question": "What does the label a show?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_17",
+              "question": "What is labelled a?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_18",
+              "question": "What is item one_18?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "M marks the shaft."
+            },
+            {
+              "type": "text",
+              "id": "one_19",
+              "question": "What is item one_19?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "The pointer GM marks it."
+            },
+            {
+              "type": "text",
+              "id": "one_20",
+              "question": "What is item one_20?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It marks a layer, and arrow b is the edge."
+            },
+            {
+              "type": "text",
+              "id": "one_21",
+              "question": "What does arrow aé mean?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_22",
+              "question": "What is it? éexplain.",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_23",
+              "question": "What do the labels a, b or c show?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_24",
+              "question": "Pointer 1 shows what?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_25",
+              "question": "Is arrow a is the end?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_01",
+          "message": "stem does not end with a question mark"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "stem contains more than one question mark (one question per stem)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_03",
+          "message": "stem opens with \"Which of the following\""
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_04",
+          "message": "stem does not end with a question mark"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_04",
+          "message": "stem ends with \"Explain.\"/\"Describe.\""
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_05",
+          "message": "stem does not end with a question mark"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_05",
+          "message": "stem ends with \"Explain.\"/\"Describe.\""
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_06",
+          "message": "option \"All of the above\" (never use all/none of the above)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_06",
+          "message": "option \"None of the above\" (never use all/none of the above)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_06",
+          "message": "option \"Both of the above\" (never use all/none of the above)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_07",
+          "message": "explanation has 4 sentences (guide: 3 max)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_08",
+          "message": "explanation has 6 sentences (guide: 3 max)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_09",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_10",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_12",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_13",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_14",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_17",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_18",
+          "message": "explanation has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_19",
+          "message": "explanation has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_20",
+          "message": "explanation has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_22",
+          "message": "stem does not end with a question mark"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_23",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_25",
+          "message": "stem has a letter label without round brackets (write \"arrow (a)\", not \"arrow a\")"
+        }
+      ]
+    },
+    {
+      "name": "a long correct answer",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": [
+                "An answer that is far too long to be plausible here",
+                "No",
+                "Yes",
+                "Maybe"
+              ],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "What is item one_02?",
+              "options": ["A", "An answer that is too long and sits among options", "B", "C"],
+              "correct": 1,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_01",
+          "message": "correct answer is more than twice as long as every distractor"
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "correct answer is more than twice as long as every distractor"
+        }
+      ]
+    },
+    {
+      "name": "pictures that cannot be used",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "image",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "image",
+              "id": "one_02",
+              "question": "What is item one_02?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": ""
+            },
+            {
+              "type": "image",
+              "id": "one_03",
+              "question": "What is item one_03?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": 5
+            },
+            {
+              "type": "image",
+              "id": "one_04",
+              "question": "What is item one_04?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/../ok.png"
+            },
+            {
+              "type": "image",
+              "id": "one_06",
+              "question": "What is item one_06?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "/images/c1/ok.png"
+            },
+            {
+              "type": "image",
+              "id": "one_07",
+              "question": "What is item one_07?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "C:\\images\\c1\\ok.png"
+            },
+            {
+              "type": "image",
+              "id": "one_08",
+              "question": "What is item one_08?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/ok.bmp"
+            },
+            {
+              "type": "image",
+              "id": "one_09",
+              "question": "What is item one_09?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/missing.png"
+            },
+            {
+              "type": "image",
+              "id": "one_10",
+              "question": "What is item one_10?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images"
+            },
+            {
+              "type": "image",
+              "id": "one_11",
+              "question": "What is item one_11?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images\\c1\\ok.png"
+            },
+            {
+              "type": "image",
+              "id": "one_12",
+              "question": "What is item one_12?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/../c1/ok.png"
+            },
+            {
+              "type": "image",
+              "id": "one_13",
+              "question": "What is item one_13?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/big.PNG"
+            },
+            {
+              "type": "text",
+              "id": "one_14",
+              "question": "What is item one_14?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/ok.png"
+            },
+            {
+              "type": "text",
+              "id": "one_15",
+              "question": "What is item one_15?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "parts": []
+            },
+            {
+              "type": "image",
+              "id": "one_16",
+              "question": "What is item one_16?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/ok.png"
+            },
+            {
+              "type": "image",
+              "id": "one_17",
+              "question": "What is item one_17?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/narrow.png"
+            },
+            {
+              "type": "image",
+              "id": "one_18",
+              "question": "What is item one_18?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/narrow.png"
+            },
+            {
+              "type": "image",
+              "id": "one_19",
+              "question": "What is item one_19?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/narrow.jpg"
+            }
+          ]
+        },
+        "c1/one-w1-b.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "image",
+              "id": "one_20",
+              "question": "What is item one_20?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one.",
+              "image_path": "images/c1/narrow.png"
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500,
+        "images/c1/big.PNG": 500,
+        "images/c1/narrow.png": 300,
+        "images/c1/ok.bmp": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_01",
+          "message": "image entry has no image_path"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "image entry has no image_path"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_03",
+          "message": "image entry has no image_path"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_04",
+          "message": "image_path 'images/../ok.png': path escapes the images folder"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_06",
+          "message": "image_path '/images/c1/ok.png': absolute paths are not allowed"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_07",
+          "message": "image_path 'C:\\\\images\\\\c1\\\\ok.png': absolute paths are not allowed"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_08",
+          "message": "image_path 'images/c1/ok.bmp': unsupported image extension '.bmp'"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_09",
+          "message": "image_path 'images/c1/missing.png': file not found"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_10",
+          "message": "image_path 'images': path escapes the images folder"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_19",
+          "message": "image_path 'images/c1/narrow.jpg': file not found"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_14",
+          "message": "text question has an image_path (quiz.py shows it as an image question only when type is \"image\")"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_15",
+          "message": "type 'text' entry has a \"parts\" list"
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_17",
+          "message": "low-resolution image (300px wide): images/c1/narrow.png"
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-b.json",
+          "where": "one_20",
+          "message": "low-resolution image (300px wide): images/c1/narrow.png"
+        }
+      ]
+    },
+    {
+      "name": "repeated question text",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is a feather?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "what  is a FEATHER",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_03",
+              "question": "What is a feather!?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": "one_04",
+              "question": "What is a feather?",
+              "options": ["x", "y", "z", "w"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "stem does not end with a question mark"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_02",
+          "message": "same question text as one_01 (mixed-unit mode drops duplicates)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_03",
+          "message": "same question text as one_01 (mixed-unit mode drops duplicates)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_04",
+          "message": "same question text as one_01 (mixed-unit mode drops duplicates)"
+        }
+      ]
+    },
+    {
+      "name": "image-groups that are wrong",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "image-group",
+              "id": "one_group_01",
+              "image_path": "images/c1/ok.png",
+              "parts": []
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_02",
+              "image_path": "images/c1/ok.png",
+              "parts": "parts"
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_03",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_03_p1",
+                  "question": "What is item one_group_03_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_04",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_04_p1",
+                  "question": "What is item one_group_04_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_04_p2",
+                  "question": "What is item one_group_04_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_04_p3",
+                  "question": "What is item one_group_04_p3?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_04_p4",
+                  "question": "What is item one_group_04_p4?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_04_p5",
+                  "question": "What is item one_group_04_p5?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_04_p6",
+                  "question": "What is item one_group_04_p6?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_05",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_05_p1",
+                  "question": "What is item one_group_05_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_05_p2",
+                  "question": "What is item one_group_05_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ],
+              "question": "Stray?",
+              "options": [],
+              "correct": 0,
+              "explanation": "Stray."
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_06",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                7,
+                {
+                  "id": "",
+                  "question": "What is item ?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_06_p1",
+                  "question": "What is item one_group_06_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_06_p1",
+                  "question": "What is item one_group_06_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_06_p3",
+                  "question": "What is item one_group_06_p3?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_06_p2",
+                  "question": "What is item one_group_06_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "wrong_p9",
+                  "question": "What is item wrong_p9?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_06_pX",
+                  "question": "What is item one_group_06_pX?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_07",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "question": "No id?"
+                },
+                {
+                  "id": "one_group_07_p2",
+                  "question": "What is item one_group_07_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_08",
+              "image_path": "",
+              "parts": [
+                {
+                  "id": "one_group_08_p1",
+                  "question": "What is item one_group_08_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_08_p2",
+                  "question": "What is item one_group_08_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_09",
+              "image_path": "images/c1/ok.png"
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_10",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_10_p1",
+                  "question": "What is item one_group_10_p1?",
+                  "options": ["a", "b"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_10_p2",
+                  "question": "What is item one_group_10_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_01",
+          "message": "image-group needs a non-empty \"parts\" list"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_02",
+          "message": "image-group needs a non-empty \"parts\" list"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p1",
+          "message": "part is not an object"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p2",
+          "message": "part has no id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p4",
+          "message": "duplicate id one_group_06_p1"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p7",
+          "message": "id wrong_p9 must start with \"one_\" (course c1)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_07 p1",
+          "message": "part has no id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_07 p1",
+          "message": "options must be a list of 4 (got None)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_07 p1",
+          "message": "\"correct\" must be an index into options (got None)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_07 p1",
+          "message": "missing or empty explanation"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_08",
+          "message": "image entry has no image_path"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_09",
+          "message": "image-group needs a non-empty \"parts\" list"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_group_10 p1",
+          "message": "options must be a list of 4 (got 2)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_03",
+          "message": "1 parts (target 2 to 5)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_05",
+          "message": "group has a top-level \"question\" (belongs on the parts)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_05",
+          "message": "group has a top-level \"options\" (belongs on the parts)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_05",
+          "message": "group has a top-level \"correct\" (belongs on the parts)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_05",
+          "message": "group has a top-level \"explanation\" (belongs on the parts)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p4",
+          "message": "part id one_group_06_p1 is not higher than the part before it (_p1)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p6",
+          "message": "part id one_group_06_p2 is not higher than the part before it (_p3)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p7",
+          "message": "part id wrong_p9 is not one_group_06_p<number>"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_06 p8",
+          "message": "part id one_group_06_pX is not one_group_06_p<number>"
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_group_04",
+          "message": "6 parts (target 2 to 5)"
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_group_06",
+          "message": "8 parts (target 2 to 5)"
+        }
+      ]
+    },
+    {
+      "name": "explanations that give away a later part",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "image-group",
+              "id": "one_group_01",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_01_p1",
+                  "question": "What is item one_group_01_p1?",
+                  "options": ["Red", "Blue", "Green", "Black"],
+                  "correct": 0,
+                  "explanation": "The dye is red, and it turns the feather tips purple."
+                },
+                {
+                  "id": "one_group_01_p2",
+                  "question": "What is item one_group_01_p2?",
+                  "options": ["Purple", "Pink", "Grey", "Brown"],
+                  "correct": 0,
+                  "explanation": "Feather tips are purple."
+                },
+                {
+                  "id": "one_group_01_p3",
+                  "question": "What is item one_group_01_p3?",
+                  "options": ["Green", "Pink", "Tan", "Teal"],
+                  "correct": 0,
+                  "explanation": "Nothing here."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_02",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_02_p1",
+                  "question": "What is item one_group_02_p1?",
+                  "options": ["Skin", "Bone", "Gut", "Lung"],
+                  "correct": 0,
+                  "explanation": "It is not bone, and it is not Gut either."
+                },
+                {
+                  "id": "one_group_02_p2",
+                  "question": "What is item one_group_02_p2?",
+                  "options": ["Bone", "Fat", "Hair", "Nail"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_02_p3",
+                  "question": "What is item one_group_02_p3?",
+                  "options": ["Fat", "Bone", "Hair", "Nail"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_03",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_03_p1",
+                  "question": "What is item one_group_03_p1?",
+                  "options": ["Cell wall", "Cell", "Wall", "Gel"],
+                  "correct": 0,
+                  "explanation": "A cell walls it in."
+                },
+                {
+                  "id": "one_group_03_p2",
+                  "question": "What is item one_group_03_p2?",
+                  "options": ["Cell", "Wall", "Gel", "Pore"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_03_p3",
+                  "question": "What is item one_group_03_p3?",
+                  "options": ["Pore", "Gel", "Wall", "Cell"],
+                  "correct": 0,
+                  "explanation": "The pore in the cell wall."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_04",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_04_p1",
+                  "question": "What is item one_group_04_p1?",
+                  "options": ["Café table", "Tea", "Milk", "Cake"],
+                  "correct": 0,
+                  "explanation": "It is not a cafés."
+                },
+                {
+                  "id": "one_group_04_p2",
+                  "question": "What is item one_group_04_p2?",
+                  "options": ["Café", "Tea", "Milk", "Cake"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_05",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_05_p1",
+                  "question": "What is item one_group_05_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "x"
+                },
+                {
+                  "id": "one_group_05_p2",
+                  "question": "What is item one_group_05_p2?",
+                  "options": ["Al", "Bo", "Cy", "Di"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "WARN",
+          "file": "one-w1-a.json",
+          "where": "one_group_01 p1->p2",
+          "message": "explanation of p1 contains the answer of p2: \"Purple\""
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_group_02 p1->p2",
+          "message": "p1 explanation mentions \"Bone\" (a distractor of p1, but it is the answer of p2)"
+        },
+        {
+          "level": "NOTE",
+          "file": "one-w1-a.json",
+          "where": "one_group_03 p1->p2",
+          "message": "p1 explanation mentions \"Cell\" (a distractor of p1, but it is the answer of p2)"
+        }
+      ]
+    },
+    {
+      "name": "group labels counted in characters, odd ids, and file names above the basic plane",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        }
+      ],
+      "files": {
+        "c1/one-～.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀"
+        },
+        "c1/one-😀.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_02",
+              "question": "",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ],
+          "group": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa😀"
+        },
+        "c1/one-w1-z.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": true,
+              "question": "What is item true?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "id": 7,
+              "question": "What is item 7?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-z.json",
+          "where": "True",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-z.json",
+          "where": "7",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-～.json",
+          "where": "one_01",
+          "message": "missing or empty question text"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-😀.json",
+          "where": "-",
+          "message": "top-level \"group\" must be a non-empty text of at most 30 characters"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-😀.json",
+          "where": "one_02",
+          "message": "missing or empty question text"
+        }
+      ]
+    },
+    {
+      "name": "ids and names across files and courses",
+      "registry": [
+        {
+          "code": "c1",
+          "name": "Course c1",
+          "short": "one",
+          "order": 1
+        },
+        {
+          "code": "c2",
+          "name": "Course c2",
+          "short": "one2",
+          "order": 1,
+          "legacy_ids": true
+        }
+      ],
+      "files": {
+        "c1/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "What is item one_01?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "image-group",
+              "id": "one_group_01",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_01_p1",
+                  "question": "What is item one_group_01_p1?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_01_p2",
+                  "question": "What is item one_group_01_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            }
+          ]
+        },
+        "c1/one-w1-b.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "Another question?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c1/one-w1-c.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "image-group",
+              "id": "one_group_02",
+              "image_path": "images/c1/ok.png",
+              "parts": [
+                {
+                  "id": "one_group_01_p2",
+                  "question": "What is item one_group_01_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                },
+                {
+                  "id": "one_group_02_p2",
+                  "question": "What is item one_group_02_p2?",
+                  "options": ["Alpha", "Beta", "Gamma", "Delta"],
+                  "correct": 0,
+                  "explanation": "It is the first one."
+                }
+              ]
+            }
+          ]
+        },
+        "c2/one-w1-a.json": {
+          "title": "A quiz",
+          "course": "c2",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "Third question?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "c2/one2-w1-b.json": {
+          "title": "A quiz",
+          "course": "c2",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_01",
+              "question": "Fourth question?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            },
+            {
+              "type": "text",
+              "question": "Keyed by its text?",
+              "options": ["a", "b", "c", "d"],
+              "correct": 0,
+              "explanation": "Yes."
+            }
+          ]
+        },
+        "c2/one2-w1-c.json": {
+          "title": "A quiz",
+          "course": "c2",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "question": "Keyed by its text?",
+              "options": ["a", "b", "c", "d"],
+              "correct": 0,
+              "explanation": "Yes."
+            }
+          ]
+        },
+        "c1/_draft.json": {
+          "not": "a quiz"
+        },
+        "_hidden/one-w1-z.json": {
+          "not": "a quiz"
+        }
+      },
+      "rootFiles": {
+        "stray.json": {
+          "title": "A quiz",
+          "course": "c1",
+          "unit": "Week 1",
+          "questions": [
+            {
+              "type": "text",
+              "id": "one_77",
+              "question": "What is item one_77?",
+              "options": ["Alpha", "Beta", "Gamma", "Delta"],
+              "correct": 0,
+              "explanation": "It is the first one."
+            }
+          ]
+        },
+        "_ignored.json": {
+          "x": 1
+        }
+      },
+      "images": {
+        "images/c1/ok.png": 500
+      },
+      "expected": [
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "-",
+          "message": "file name also used in course c1: the page finds files by name"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "-",
+          "message": "file name must start with \"one2-\" (the short name of course c2)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-a.json",
+          "where": "one_01",
+          "message": "id also used in one-w1-a.json in course c1 (mixed-unit mode drops it, and progress is saved by id)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-b.json",
+          "where": "one_01",
+          "message": "id also used in one-w1-a.json (mixed-unit mode drops it, and progress is saved by id)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one-w1-c.json",
+          "where": "one_group_01_p2",
+          "message": "id also used in one-w1-a.json (mixed-unit mode drops it, and progress is saved by id)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one2-w1-b.json",
+          "where": "#2",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one2-w1-b.json",
+          "where": "one_01",
+          "message": "id also used in one-w1-a.json in course c1 (mixed-unit mode drops it, and progress is saved by id)"
+        },
+        {
+          "level": "ERROR",
+          "file": "one2-w1-c.json",
+          "where": "#1",
+          "message": "missing id"
+        },
+        {
+          "level": "ERROR",
+          "file": "one2-w1-c.json",
+          "where": "Keyed by its text?",
+          "message": "id also used in one2-w1-b.json (mixed-unit mode drops it, and progress is saved by id)"
+        },
+        {
+          "level": "ERROR",
+          "file": "stray.json",
+          "where": "-",
+          "message": "quiz file is loose in quizzes/ (it belongs in a course folder, and the server ignores it)"
+        },
+        {
+          "level": "WARN",
+          "file": "one-w1-c.json",
+          "where": "one_group_02 p1",
+          "message": "part id one_group_01_p2 is not one_group_02_p<number>"
+        }
+      ]
+    }
+  ]
+}

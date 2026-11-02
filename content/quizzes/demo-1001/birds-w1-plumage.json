@@ -1,0 +1,86 @@
+{
+  "title": "Imaginary Birds: Plumage",
+  "course": "demo-1001 Imaginary Birds",
+  "unit": "Week 1: Plumage",
+  "group": "Starter pack",
+  "questions": [
+    {
+      "type": "text",
+      "id": "birds_01",
+      "question": "How many tail feathers does a Quillfinch grow?",
+      "options": ["Two", "Four", "Six", "Eight"],
+      "correct": 1,
+      "explanation": "A Quillfinch grows four tail feathers, two long and two short. Two is the count for the Ember wren."
+    },
+    {
+      "type": "text",
+      "id": "birds_02",
+      "question": "What colour is the crest of a male Ember wren?",
+      "options": ["Violet", "Silver", "Scarlet", "Cream"],
+      "correct": 2,
+      "explanation": "The male Ember wren has a scarlet crest. The female crest is cream."
+    },
+    {
+      "type": "text",
+      "id": "birds_03",
+      "question": "When does a Marsh trumpeter moult its wing feathers?",
+      "options": ["In spring", "In the dry season", "Just after hatching", "Once a decade"],
+      "correct": 1,
+      "explanation": "Marsh trumpeters moult in the dry season, when the water is low. They cannot fly during the moult."
+    },
+    {
+      "type": "text",
+      "id": "birds_04",
+      "question": "What is the soft layer under the outer feathers called?",
+      "options": ["Down", "Vane", "Barbule", "Plume"],
+      "correct": 0,
+      "explanation": "Down is the soft layer that keeps the bird warm. The vane is the flat part of an outer feather."
+    },
+    {
+      "type": "image",
+      "id": "birds_05",
+      "image_path": "images/demo-1001/feather-bands.png",
+      "question": "What colour is the third band from the top of the picture?",
+      "options": ["Red", "Orange", "Yellow", "Green"],
+      "correct": 2,
+      "explanation": "The bands run red, orange, yellow, green, blue from the top, so the third band is yellow. Count from the top edge."
+    },
+    {
+      "type": "image",
+      "id": "birds_06",
+      "image_path": "images/demo-1001/perch-labelled.png",
+      "question": "What colour is the circle marked (B)?",
+      "options": ["Red", "Blue", "Green", "Black"],
+      "correct": 1,
+      "explanation": "The circle marked (B) is blue. Circle (A) is red and circle (C) is green."
+    },
+    {
+      "type": "image-group",
+      "id": "birds_group_01",
+      "image_path": "images/demo-1001/flock-silhouettes.png",
+      "parts": [
+        {
+          "id": "birds_group_01_p1",
+          "question": "How many silhouettes does the picture show?",
+          "options": ["Four", "Five", "Six", "Seven"],
+          "correct": 2,
+          "explanation": "Six silhouettes stand in a row. Count every one, including the one that looks different."
+        },
+        {
+          "id": "birds_group_01_p2",
+          "question": "What colour is the silhouette that differs from the others?",
+          "options": ["Orange", "Purple", "Green", "Black"],
+          "correct": 0,
+          "explanation": "One silhouette is orange and the rest are teal. Purple does not appear in the picture."
+        },
+        {
+          "id": "birds_group_01_p3",
+          "question": "What does the field guide call a lone orange bird in a teal flock?",
+          "options": ["A beacon", "A drifter", "A mimic", "A mascot"],
+          "correct": 0,
+          "explanation": "The field guide calls it a beacon, because the others follow it. A mimic copies the colours of the flock."
+        }
+      ]
+    }
+  ]
+}

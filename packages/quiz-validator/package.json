@@ -1,0 +1,19 @@
+{
+  "name": "@quiz-versus/quiz-validator",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Checks quiz files and the course registry against the real app's validator rules",
+  "license": "MIT",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run --root ../.. packages/quiz-validator"
+  },
+  "dependencies": {
+    "@quiz-versus/core": "*",
+    "@quiz-versus/protocol": "*"
+  }
+}
