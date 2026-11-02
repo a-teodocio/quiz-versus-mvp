@@ -37,7 +37,7 @@ Some things need a person. The tester lists them in every report under "Needs a 
 
 ## Levels
 
-- **W (worker):** needs the running Worker and Durable Object. Played with several scripted WebSocket clients speaking the protocol (Node has a built-in `WebSocket` client, so no extra package is needed). Becomes possible with `feat/worker`.
+- **W (worker):** needs the running server (`npm run qa:start`). Played with several scripted WebSocket clients speaking the protocol (Node has a built-in `WebSocket` client, so no extra package is needed). Becomes possible with `feat/worker`.
 - **B (browser):** needs the web client. Played in two or three browser windows. Becomes possible with `feat/web-versus`. A browser scenario also covers what the W scenario with the same subject checks. All accessibility and usability scenarios are level B.
 
 A scenario that cannot run yet is reported as "could not run", not as failed.

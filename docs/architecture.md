@@ -1,6 +1,6 @@
 # Architecture
 
-Status: `protocol`, `core` and `quiz-validator` are built; `worker` and `web` are planned. This document is the contract they are built to.
+Status: `protocol`, `core`, `quiz-validator` and `worker` are built; `web` is planned. This document is the contract they are built to.
 
 ## Packages
 
@@ -8,7 +8,7 @@ Status: `protocol`, `core` and `quiz-validator` are built; `worker` and `web` ar
 packages/
   protocol/   message types + zod schemas shared by server and client
   core/       pure game logic: room state machine, scoring, seeded shuffle, quiz model
-  worker/     Cloudflare Worker + Durable Object: WebSocket adapter, quiz loading, clock/random
+  worker/     Node server: HTTP routes, WebSocket adapter, rooms in memory, quiz files and pictures from disk, clock, timers and secure random (ADR 11)
   web/        browser app: quiz UI (forked from the real app) + versus client
   quiz-validator/  authoring tool: checks content/ against the real app's validator rules
 ```
@@ -22,7 +22,7 @@ worker ───┘                    ^
    └───────────────────────────┘
 ```
 
-- `core` imports only from `protocol` (types and constants such as limits). No `node:*`, no Cloudflare APIs, no other package.
+- `core` imports only from `protocol` (types and constants such as limits). No `node:*`, no platform APIs, no other package.
 - `protocol` imports nothing from the repo.
 - `worker` and `web` may import `core` and `protocol`, never each other.
 - `web` talks to the server only through `protocol` messages over a WebSocket.
@@ -31,22 +31,23 @@ worker ───┘                    ^
 
 ESLint (`eslint.config.js`) fails the build when a package imports something it should not.
 
-How packages are loaded: tests and the type checker read each package's TypeScript source; a plain Node process (the server, once it exists) runs the JavaScript that `npm run build` emits into `dist/`. See [folder-structure.md](folder-structure.md).
+How packages are loaded: tests and the type checker read each package's TypeScript source; a plain Node process (the server) runs the JavaScript that `npm run build` emits into `dist/`. See [folder-structure.md](folder-structure.md).
 
 ## Ports and adapters
 
-`core` owns small interfaces; adapters implement them.
+`core` owns small interfaces; adapters implement them. The server adds one of its own, `Scheduler`, because a timer is not something `core` may touch.
 
-| Port (in `core`) | Purpose                    | Production adapter    | Test adapter     |
-| ---------------- | -------------------------- | --------------------- | ---------------- |
-| `Clock`          | current time, timers       | Durable Object alarms | manual clock     |
-| `Random`         | randomness                 | crypto-backed source  | fixed sequence   |
-| `QuizRepository` | load quizzes and their key | static JSON assets    | in-memory        |
-| `Logger`         | structured logs            | console wrapper       | collecting array |
+| Port                    | Purpose                    | Production adapter                         | Test adapter     |
+| ----------------------- | -------------------------- | ------------------------------------------ | ---------------- |
+| `Clock` (core)          | current time               | system clock                               | manual clock     |
+| `Scheduler` (worker)    | one timer per room         | `setTimeout`, cleared when the room closes | manual scheduler |
+| `Random` (core)         | randomness                 | `crypto.getRandomValues`                   | fixed sequence   |
+| `QuizRepository` (core) | load quizzes and their key | quiz files read from disk and checked      | in-memory        |
+| `Logger` (core)         | structured logs            | line-per-event JSON on standard output     | collecting array |
 
 ## Game room
 
-One room is one Durable Object instance holding one `core` room state. The state machine:
+One room is one `RoomSession` from `core` held in the server's memory, so one process holds every room ([ADR 11](adr/0011-node-websocket-server.md)). The state machine:
 
 ```
 LOBBY ──start──> QUESTION ──all answered or timeout──> REVEAL ──next──> QUESTION

@@ -33,7 +33,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic
 │   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
-│   ├── worker/                Cloudflare Worker and Durable Object (planned)
+│   ├── worker/                The game server: HTTP routes, WebSocket adapter, rooms in memory
 │   └── web/                   Browser app (planned)
 ├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share), and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
@@ -75,7 +75,7 @@ packages/<name>/
 ## What never goes in the repo
 
 - Real course content, questions, images or notes (public repo).
-- Build output (`dist/`), caches (`*.tsbuildinfo`, `.wrangler/`), coverage, logs, or local secrets (`.dev.vars`). The `.gitignore` covers these.
+- Build output (`dist/`), caches (`*.tsbuildinfo`), coverage, logs, the QA server pid file, or local secrets (`.env`, `.dev.vars`). The `.gitignore` covers these.
 - Scratch files, notes to self, or commented-out code. Use the branch, a PR description or `known-issues.md`. (The one exception is the owner's personal checklist, `docs/owner-checklist.md`: it is git-ignored, so it stays on one machine and is never committed.)
 
 ## Keeping it clean

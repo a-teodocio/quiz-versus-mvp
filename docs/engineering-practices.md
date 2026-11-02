@@ -5,7 +5,7 @@ The data in this repo is mock; the code is not. Everything here is written so it
 ## Architecture
 
 - **Layers, one-way dependencies.** `core` (pure game logic) <- `protocol` (message shapes) <- adapters (`worker`, `web`). Inner layers never import outer ones. See [architecture.md](architecture.md).
-- **Core has no I/O.** No network, clock, randomness or storage inside `core`: they come in as injected interfaces (`Clock`, `Random`, `QuizRepository`). This keeps the core deterministic and testable without Cloudflare or a browser.
+- **Core has no I/O.** No network, clock, randomness or storage inside `core`: they come in as injected interfaces (`Clock`, `Random`, `QuizRepository`). This keeps the core deterministic and testable without a server or a browser.
 - **Depend on interfaces, not implementations.** Adapters implement interfaces owned by the layer that uses them.
 - **One protocol, validated at the boundary.** All client/server messages are defined once in `protocol` and parsed with a schema (zod) wherever they enter the system. Nothing past the boundary handles unvalidated data.
 - **Explicit state machine** for a game room: lobby, question, reveal, results. Illegal transitions are unrepresentable or rejected, never silently ignored.
@@ -36,7 +36,7 @@ The dependency rule is enforced by ESLint (`eslint.config.js`), not just describ
 Test pyramid, from cheap to expensive:
 
 1. **Unit (Vitest):** `core` and `protocol`. Fast, deterministic, no I/O. Table-driven for scoring, shuffle and state transitions.
-2. **Integration:** the real Worker and Durable Object running locally with several simulated WebSocket clients. Covers join, start, answer, timeout, reconnect, player and host leaving.
+2. **Integration:** the real server running locally on a free port with several real WebSocket clients, inside `npm run check`. Covers join, start, answer, timeout, reconnect, player and host leaving.
 3. **End to end (Playwright):** three browsers play a full game against the local stack.
 4. **Contract and parity:** mock quiz data passes the same validation rules as the real app's validator. Shuffle and key logic is compared against fixtures copied from the real app (with the source commit recorded), never read from outside this repo.
 
@@ -68,5 +68,5 @@ Major changes are reviewed against [review-checklist.md](review-checklist.md) by
 - Every third-party package is vetted before use and on every CI run: see [dependency-vetting.md](dependency-vetting.md) (release-age cooldown, audit, signatures, install scripts).
 - Lockfile committed; installs in CI use `npm ci --ignore-scripts`. Node version pinned in `.nvmrc` and `engines`.
 - Add a dependency only with a reason; prefer the platform. Record notable choices in an ADR.
-- No secrets in the repo. Local secrets go in `.dev.vars` (git-ignored).
+- No secrets in the repo. Local secrets go in a git-ignored file or the environment (`.env` and `.dev.vars` are ignored by the QA guard and must never be committed).
 - Known audit findings are tracked in `docs/known-issues.md` until fixed.
