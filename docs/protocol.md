@@ -123,7 +123,7 @@ A dropped connection is not a `leave`. The seat stays, shown as not connected, u
 | `ALREADY_JOINED`       | A second `join` on the same connection                                                                                                         |
 | `INVALID_RESUME_TOKEN` | The token matches no seat in this room                                                                                                         |
 | `ROOM_NOT_FOUND`       | No such room                                                                                                                                   |
-| `ROOM_FULL`            | The room has `MAX_PLAYERS_PER_ROOM` players                                                                                                    |
+| `ROOM_FULL`            | The room has `MAX_PLAYERS_PER_ROOM` players, or its sockets are all in use (twice that)                                                        |
 | `GAME_OVER`            | A new join after the results were shown (a resume token still restores its seat)                                                               |
 | `NOT_IN_TIEBREAK`      | `answer` from a player who is watching a tie-break                                                                                             |
 | `NOT_HOST`             | `start` or `next` from a player who is not the host                                                                                            |
