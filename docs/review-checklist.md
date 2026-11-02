@@ -86,15 +86,16 @@ Severity: **blocker** (fix before merge), **major** (fix before merge unless the
 
 ## G. Security, privacy and abuse
 
-| ID  | Rule                                                                                                                                                     | Default severity |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| G1  | No real course content, real questions, images or personal notes; no secrets, tokens, emails or private paths. The repo is public.                       | blocker          |
-| G2  | New or upgraded dependencies follow `dependency-vetting.md` (14-day age, audit, signatures, install scripts) and the result is recorded.                 | blocker          |
-| G3  | User-supplied text (player names, typed answers) is never inserted as HTML. Use `textContent` or an escaping layer.                                      | blocker          |
-| G4  | Inputs have limits: message size, name length, players per room, rooms per client, message rate.                                                         | major            |
-| G5  | Room IDs and tokens come from a cryptographic random source with enough entropy. They are never sequential or guessable.                                 | blocker          |
-| G6  | The WebSocket upgrade checks the origin where relevant. Players can act only as themselves; the server never trusts a client-supplied identity or score. | blocker          |
-| G7  | Logs contain no secrets or personal data.                                                                                                                | major            |
+| ID  | Rule                                                                                                                                                                                                                                                         | Default severity |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------- |
+| G1  | No real course content, real questions, images or personal notes; no secrets, tokens, emails or private paths. The repo is public.                                                                                                                           | blocker          |
+| G2  | New or upgraded dependencies follow `dependency-vetting.md` (14-day age, audit, signatures, install scripts) and the result is recorded.                                                                                                                     | blocker          |
+| G3  | User-supplied text (player names, typed answers) is never inserted as HTML. Use `textContent` or an escaping layer.                                                                                                                                          | blocker          |
+| G4  | Inputs have limits: message size, name length, players per room, rooms per client, message rate.                                                                                                                                                             | major            |
+| G5  | Room IDs and tokens come from a cryptographic random source with enough entropy. They are never sequential or guessable.                                                                                                                                     | blocker          |
+| G6  | The WebSocket upgrade checks the origin where relevant. Players can act only as themselves; the server never trusts a client-supplied identity or score.                                                                                                     | blocker          |
+| G7  | Logs contain no secrets or personal data.                                                                                                                                                                                                                    | major            |
+| G8  | A guard, filter or permission list (for example the qa-tester guard) is an allowlist of exact commands, flags, values and paths, fails closed, and has a test for each way it should refuse, with the reason checked. A denylist of bad flags is not enough. | major            |
 
 ## H. Reliability and operations
 
@@ -115,11 +116,11 @@ Severity: **blocker** (fix before merge), **major** (fix before merge unless the
 
 ## J. Frontend (web package)
 
-| ID  | Rule                                                                                                              | Default severity |
-| --- | ----------------------------------------------------------------------------------------------------------------- | ---------------- |
-| J1  | Keyboard operable (the real app uses 1 to 4 and Enter), visible focus, labelled controls, no colour-only meaning. | major            |
-| J2  | Works at phone width; respects reduced motion and the system colour scheme.                                       | minor            |
-| J3  | UI state is kept apart from rendering and from the network client. No game rules in view code.                    | major            |
+| ID  | Rule                                                                                                                                                                                                                                                                              | Default severity |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| J1  | Meets WCAG 2.2 AA (docs/qa-scenarios.md): keyboard operable (the real app uses 1 to 4 and Enter; a single-key shortcut needs an off switch or a focus rule), visible focus that is not hidden, labelled controls, no colour-only meaning, contrast, announcements, 24 px targets. | major            |
+| J2  | Works at phone width and at 320 px reflow; respects reduced motion (best practice) and the system colour scheme and forced colors.                                                                                                                                                | minor            |
+| J3  | UI state is kept apart from rendering and from the network client. No game rules in view code.                                                                                                                                                                                    | major            |
 
 ## K. Git hygiene
 

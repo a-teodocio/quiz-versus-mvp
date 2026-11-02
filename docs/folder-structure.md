@@ -20,19 +20,20 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── architecture.md        Packages, layers, state machine
 │   ├── engineering-practices.md
 │   ├── review-checklist.md
-│   ├── qa-scenarios.md        What the qa-tester plays through as a player
+│   ├── qa-scenarios.md        What the qa-tester writes tests for and walks as personas
+│   ├── parked-product-questions.md  Questions outside the core game, ranked P1 to P3
 │   ├── dependency-vetting.md
 │   ├── fidelity.md            Where the mock differs from the real app
 │   ├── known-issues.md
 │   ├── folder-structure.md    This file
 │   └── protocol.md            Every client/server message
-├── e2e/                       Playwright end-to-end tests (planned)
+├── e2e/                       Playwright end-to-end tests (planned). e2e/qa/ is written by the qa-tester from docs/qa-scenarios.md; the helpers and configuration around it are the author's
 ├── packages/
 │   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic
 │   ├── worker/                Cloudflare Worker and Durable Object (planned)
 │   └── web/                   Browser app (planned)
-├── scripts/                   Repo tooling run from npm scripts
+├── scripts/                   Repo tooling run from npm scripts, and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md
@@ -56,6 +57,7 @@ packages/<name>/
 └── test/               tests that need fixtures or cross several modules
 ```
 
+- Tests the qa-tester writes for a package live in `test/qa/` (today `packages/worker/test/qa/`, planned); the author owns the rest of `test/`.
 - Unit tests sit next to the code as `thing.test.ts`. Larger tests and fixtures go in `test/`.
 - Group by feature (`room/`, `scoring/`, `quiz/`), not by kind (`utils/`, `helpers/`, `types/`). There is no `utils` or `common` folder.
 - Fixtures copied from the real app live in `packages/core/test/fixtures/real-app/` with a `SOURCE.md` recording the source commit and what was copied.
