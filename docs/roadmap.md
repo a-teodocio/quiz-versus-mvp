@@ -2,7 +2,7 @@
 
 The continuity file. A new session reads this after `CLAUDE.md` to learn where the project is and what comes next. It is updated at the end of every branch (see "How to keep this current").
 
-Last updated: 2026-11-01 (after `feat/core`, with the qa-tester guard in review)
+Last updated: 2026-11-02 (after `feat/core` and the qa-tester guard messages, at the start of `feat/content`)
 
 ## Goal
 
@@ -42,7 +42,7 @@ The real app (a local Python server plus one large `index.html`) lives in the us
 | `standards-reviewer` subagent                                             | Done, run on `feat/core` (see its pull request)                |
 | Dependabot                                                                | Weekly, 14-day cooldown, TypeScript major bumps ignored        |
 | `packages/protocol`: schemas, codec, tests, `docs/protocol.md`            | Done and merged (protocol version 3)                           |
-| `packages/core`: ports, shuffle, typed answers, scoring, state machine    | Built on `feat/core` (merged once its pull request lands)      |
+| `packages/core`: ports, shuffle, typed answers, scoring, state machine    | Done and merged                                                |
 | Application code (`worker`, `web`)                                        | **Not started**                                                |
 
 ## Next steps, in order
