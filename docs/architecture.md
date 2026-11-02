@@ -35,15 +35,15 @@ How packages are loaded: tests and the type checker read each package's TypeScri
 
 ## Ports and adapters
 
-`core` owns small interfaces; adapters implement them. The server adds one of its own, `Scheduler`, because a timer is not something `core` may touch.
+`core` owns small interfaces; adapters implement them. The server adds three of its own: `Scheduler` (a timer is not something `core` may touch), `IdSource` and `ServerLogger`.
 
-| Port                    | Purpose                    | Production adapter                         | Test adapter     |
-| ----------------------- | -------------------------- | ------------------------------------------ | ---------------- |
-| `Clock` (core)          | current time               | system clock                               | manual clock     |
-| `Scheduler` (worker)    | one timer per room         | `setTimeout`, cleared when the room closes | manual scheduler |
-| `Random` (core)         | randomness                 | `crypto.getRandomValues`                   | fixed sequence   |
-| `QuizRepository` (core) | load quizzes and their key | quiz files read from disk and checked      | in-memory        |
-| `Logger` (core)         | structured logs            | line-per-event JSON on standard output     | collecting array |
+| Port                    | Purpose                          | Production adapter                         | Test adapter     |
+| ----------------------- | -------------------------------- | ------------------------------------------ | ---------------- |
+| `Clock` (core)          | current time                     | system clock                               | manual clock     |
+| `Scheduler` (worker)    | game, idle, join and ping timers | `setTimeout`, cleared when the room closes | manual scheduler |
+| `Random` (core)         | randomness                       | `crypto.getRandomValues`                   | fixed sequence   |
+| `QuizRepository` (core) | load quizzes and their key       | quiz files read from disk and checked      | in-memory        |
+| `Logger` (core)         | structured logs                  | line-per-event JSON on standard output     | collecting array |
 
 ## Game room
 

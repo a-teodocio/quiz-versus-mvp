@@ -1,6 +1,6 @@
 # 4. zod for validating messages at the boundary
 
-Status: accepted (2026-11-01)
+Status: accepted (2026-11-01). Extended by [ADR 12](0012-zod-for-quiz-files-in-the-server.md), which lets the server use zod for quiz files.
 
 ## Context
 

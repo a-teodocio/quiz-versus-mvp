@@ -25,7 +25,7 @@ Every third-party package is checked before it is added and again on every CI ru
 - All installed packages have verified registry signatures.
 - The only package with an install script is `fsevents`, an optional macOS file watcher, which does not run on Windows or Linux.
 - Direct dev dependencies were installed with a cutoff of 2026-10-17 (a 14-day cooldown).
-- Two runtime dependencies: `zod` 4.6.7, used by `packages/protocol` only (see [ADR 4](adr/0004-zod-for-boundary-validation.md)), and `ws` 8.22.0, the WebSocket server in `packages/worker`. `ws` has no dependencies of its own and no install script; its two optional peers (`bufferutil`, `utf-8-validate`) are not installed.
+- Two runtime dependencies: `zod` 4.6.7, used by `packages/protocol` for messages and by `packages/worker` for quiz files only (see [ADR 4](adr/0004-zod-for-boundary-validation.md) and [ADR 12](adr/0012-zod-for-quiz-files-in-the-server.md)), and `ws` 8.22.0, the WebSocket server in `packages/worker`. `ws` has no dependencies of its own and no install script; its two optional peers (`bufferutil`, `utf-8-validate`) are not installed.
 - Two dev dependencies are types only: `@types/node` 24.19.2 (with its `undici-types` 7.24.6), used by `packages/quiz-validator` ([ADR 10](adr/0010-quiz-validator-package.md)) and `packages/worker`, and `@types/ws` 8.18.2, used by `packages/worker`.
 - Open moderate findings: see [known-issues.md](known-issues.md).
 - Actions: `actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0, both from the official `actions` organisation, released more than 14 days ago, pinned by SHA.

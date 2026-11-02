@@ -46,7 +46,7 @@ Why the server is a Node process and not Cloudflare is in [ADR 11](adr/0011-node
 | Tooling: TypeScript, ESLint layer rules, Prettier, hooks, Vitest           | Done                                                                      |
 | CI: lint, structure, format, typecheck, test, build, audit, signatures     | Done, `check` is a required status                                        |
 | Branch protection on `main`                                                | Done: PR required, `check` required, no force push or deletion            |
-| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 10 | Done                                                                      |
+| Docs: practices, architecture, checklist, vetting, structure, ADRs 1 to 12 | Done                                                                      |
 | `standards-reviewer` subagent                                              | Done, run on `feat/core` (see its pull request)                           |
 | Dependabot                                                                 | Weekly, 14-day cooldown, TypeScript major bumps ignored                   |
 | `packages/protocol`: schemas, codec, tests, `docs/protocol.md`             | Done and merged (protocol version 3)                                      |

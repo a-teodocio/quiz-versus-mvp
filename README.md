@@ -17,17 +17,18 @@ npm ci
 npm run check
 ```
 
-| Command                    | What it does                                        |
-| -------------------------- | --------------------------------------------------- |
-| `npm run check`            | lint, format check, typecheck and tests             |
-| `npm run lint`             | ESLint, including the layer rules                   |
-| `npm run format`           | Prettier, writes files                              |
-| `npm run typecheck`        | TypeScript across all packages                      |
-| `npm run test`             | tests across all packages                           |
-| `npm run build`            | build all packages                                  |
-| `npm run validate:content` | check `content/` against the real validator's rules |
-| `npm run qa:start`         | build and start the game server in the background   |
-| `npm run qa:stop`          | stop it                                             |
+| Command                    | What it does                                         |
+| -------------------------- | ---------------------------------------------------- |
+| `npm run check`            | lint, format check, typecheck and tests              |
+| `npm run lint`             | ESLint, including the layer rules                    |
+| `npm run format`           | Prettier, writes files                               |
+| `npm run typecheck`        | TypeScript across all packages                       |
+| `npm run test`             | tests across all packages                            |
+| `npm run build`            | build all packages                                   |
+| `npm run validate:content` | check `content/` against the real validator's rules  |
+| `npm run qa:start`         | build and start the game server in the background    |
+| `npm run qa:stop`          | stop it                                              |
+| `npm run qa:ws`            | run the QA tester's server tests against that server |
 
 ## Documentation
 
