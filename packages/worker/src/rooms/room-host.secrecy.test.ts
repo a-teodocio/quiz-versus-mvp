@@ -93,7 +93,7 @@ describe('nothing about correctness is sent while a question is open', () => {
 });
 
 describe('nothing changes while a tie-break question is open', () => {
-  it('keeps the tie-break group and the scores as the last reveal left them', async () => {
+  it('keeps the tie-break group and the scores as the last reveal left them, even after an answer', async () => {
     const { fixture, players } = threePlayers();
     const [host, second] = players;
     if (host === undefined || second === undefined) throw new Error('setup');
@@ -104,6 +104,12 @@ describe('nothing changes while a tie-break question is open', () => {
     }
     const tiebreak = host.connection.last('question');
     expect(tiebreak.progress.kind).toBe('tiebreak');
+    say(fixture.room, host.connection, {
+      type: 'answer',
+      itemKey: tiebreak.itemKey,
+      answer: { kind: 'pick', index: 0 },
+    });
+    expect(host.connection.ofType('answerAck').at(-1)?.itemKey).toBe(tiebreak.itemKey);
     const atReveal = host.connection
       .ofType('room')
       .filter((message) => message.room.phase === 'reveal')
