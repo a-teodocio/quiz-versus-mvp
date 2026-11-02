@@ -29,6 +29,7 @@ export { rankPlayers } from './scoring/ranking.js';
 export { GameSetupError } from './game/game-plan.js';
 export type { GamePlan, GameSetupFailure } from './game/game-plan.js';
 export { prepareGame } from './game/prepare-game.js';
+export { askableProblem } from './game/validate-question.js';
 
 export { createRoom } from './room/state.js';
 export type {

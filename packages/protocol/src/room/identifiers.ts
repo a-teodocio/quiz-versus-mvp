@@ -26,6 +26,9 @@ export const QuizIdSchema = z
   .max(MAX_QUIZ_ID_LENGTH)
   .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 
+/** True when the text is a valid quiz id, so a quiz file's name can be checked without zod. */
+export const isQuizId = (text: string): boolean => QuizIdSchema.safeParse(text).success;
+
 /** Control, format and unassigned characters are rejected so names cannot spoof or hide text. */
 const NO_CONTROL_CHARACTERS = /^[^\p{C}]+$/u;
 
