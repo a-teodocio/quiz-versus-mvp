@@ -1,3 +1,5 @@
+import { MAX_PLAYERS_PER_ROOM } from '@quiz-versus/protocol';
+
 /** Server limits and defaults, named in one place (review-checklist D4). */
 
 export const DEFAULT_PORT = 8787;
@@ -26,3 +28,8 @@ export const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 
 /** How many times a game is prepared again when a picture name collides with another room's. */
 export const MAX_PREPARE_ATTEMPTS = 3;
+
+/** A socket that has not sent `join` by then is closed, so idle sockets cannot pile up. */
+export const JOIN_TIMEOUT_MS = 10 * 1000;
+/** Sockets one room accepts, joined or not: twice the seats, which leaves room for resumes. */
+export const MAX_CONNECTIONS_PER_ROOM = 2 * MAX_PLAYERS_PER_ROOM;
