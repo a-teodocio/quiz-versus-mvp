@@ -19,21 +19,23 @@ Every third-party package is checked before it is added and again on every CI ru
 - GitHub Actions are pinned to a full commit SHA with the version in a trailing comment (a tag can be moved; a SHA cannot). Dependabot updates the SHA and the comment together. Review each upgrade's release notes.
 - `package-lock.json` is written by npm only and keeps npm's 2-space format (it follows the indentation of `package.json`). Never reformat it by hand or with Prettier, or Dependabot PRs rewrite the whole file.
 
-## Current state (2026-11-01)
+## Current state (2026-11-02)
 
 - No high or critical advisories.
 - All installed packages have verified registry signatures.
 - The only package with an install script is `fsevents`, an optional macOS file watcher, which does not run on Windows or Linux.
 - Direct dev dependencies were installed with a cutoff of 2026-10-17 (a 14-day cooldown).
 - The one runtime dependency is `zod` 4.6.7, used by `packages/protocol` only (see [ADR 4](adr/0004-zod-for-boundary-validation.md)).
+- One dev dependency is types only: `@types/node` 24.19.2 (with its `undici-types` 7.24.6), used by `packages/quiz-validator` ([ADR 10](adr/0010-quiz-validator-package.md)).
 - Open moderate findings: see [known-issues.md](known-issues.md).
 - Actions: `actions/checkout` v7.0.1 and `actions/setup-node` v7.1.0, both from the official `actions` organisation, released more than 14 days ago, pinned by SHA.
 
 ## Log of vetted updates
 
-| Date       | Update                                                         | Result                                                                                                                                                                                |
-| ---------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 2026-11-01 | `zod` 4.6.7 added to `packages/protocol`                       | Accepted: published 2026-10-12 (more than 14 days), maintained by a known author with a public repository, no dependencies, no install script, `npm audit` clean, signatures verified |
-| 2026-11-01 | `@commitlint/cli` and `config-conventional` 21.2.3 to 21.2.4   | Accepted: 14 days old, signed, patch release                                                                                                                                          |
-| 2026-11-01 | `actions/checkout` 4 to 7.0.1, `actions/setup-node` 4 to 7.1.0 | Accepted and pinned by SHA: official org, months old, release notes show security hardening and an ESM/`NODE_AUTH_TOKEN` change that does not affect this workflow                    |
-| 2026-11-01 | `typescript` 6.0.3 to 7.0.2                                    | Rejected: `typescript-eslint` declares support for `<6.1.0`, so `npm ci` fails. Major updates for `typescript` are ignored in Dependabot until that changes                           |
+| Date       | Update                                                         | Result                                                                                                                                                                                                                   |
+| ---------- | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-11-01 | `zod` 4.6.7 added to `packages/protocol`                       | Accepted: published 2026-10-12 (more than 14 days), maintained by a known author with a public repository, no dependencies, no install script, `npm audit` clean, signatures verified                                    |
+| 2026-11-02 | `@types/node` 24.19.2 added (dev), with `undici-types` 7.24.6  | Accepted: the Node 24 line to match `.nvmrc`; published 2026-10-09 (more than 14 days), types only, maintained through DefinitelyTyped, no install script; `npm audit --audit-level=high` clean, 228 signatures verified |
+| 2026-11-01 | `@commitlint/cli` and `config-conventional` 21.2.3 to 21.2.4   | Accepted: 14 days old, signed, patch release                                                                                                                                                                             |
+| 2026-11-01 | `actions/checkout` 4 to 7.0.1, `actions/setup-node` 4 to 7.1.0 | Accepted and pinned by SHA: official org, months old, release notes show security hardening and an ESM/`NODE_AUTH_TOKEN` change that does not affect this workflow                                                       |
+| 2026-11-01 | `typescript` 6.0.3 to 7.0.2                                    | Rejected: `typescript-eslint` declares support for `<6.1.0`, so `npm ci` fails. Major updates for `typescript` are ignored in Dependabot until that changes                                                              |

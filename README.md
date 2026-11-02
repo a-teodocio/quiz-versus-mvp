@@ -6,7 +6,7 @@ The quiz content is entirely fake. The code is written to production standards s
 
 ## Status
 
-Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built; `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
+Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
 
 ## Quickstart
 
@@ -17,14 +17,15 @@ npm ci
 npm run check
 ```
 
-| Command             | What it does                            |
-| ------------------- | --------------------------------------- |
-| `npm run check`     | lint, format check, typecheck and tests |
-| `npm run lint`      | ESLint, including the layer rules       |
-| `npm run format`    | Prettier, writes files                  |
-| `npm run typecheck` | TypeScript across all packages          |
-| `npm run test`      | tests across all packages               |
-| `npm run build`     | build all packages                      |
+| Command                    | What it does                                        |
+| -------------------------- | --------------------------------------------------- |
+| `npm run check`            | lint, format check, typecheck and tests             |
+| `npm run lint`             | ESLint, including the layer rules                   |
+| `npm run format`           | Prettier, writes files                              |
+| `npm run typecheck`        | TypeScript across all packages                      |
+| `npm run test`             | tests across all packages                           |
+| `npm run build`            | build all packages                                  |
+| `npm run validate:content` | check `content/` against the real validator's rules |
 
 ## Documentation
 
@@ -37,6 +38,7 @@ npm run check
 - [Protocol](docs/protocol.md): every client and server message
 - [Architecture decisions](docs/adr/): why things are the way they are
 - [Fidelity log](docs/fidelity.md): where the mock differs from the real app
+- [Fake content](content/README.md): the quizzes and pictures the mock plays
 - [Known issues](docs/known-issues.md)
 
 ## Contributing
