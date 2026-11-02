@@ -53,6 +53,7 @@ A scenario that cannot run yet is reported as "could not run", not as failed.
 
 - `npm run qa:start` builds the packages, starts the server in the background on `http://localhost:8787` (loopback only, the fake content in `content/`) and prints its address. If one is already running it says so. `npm run qa:stop` stops it. Both can be run again safely.
 - A room is made with `POST /rooms` (from test code with `fetch`; the tester's `curl` is limited to read-only options) and answers `{ "roomId": "..." }`; players connect with a WebSocket to `ws://localhost:8787/rooms/<roomId>`. The routes are in [protocol.md](protocol.md).
+- Tests the tester writes for the server are named `*.test.ts` (any other name is never found, and `qa:ws` would pass having run nothing). Run them with `--workers 1`: the tests in one run share the five-rooms-per-address limit.
 - `npm run qa:ws` runs the tests in `packages/worker/test/qa/` against that server, with `--grep`, `--workers`, `--retries` and `--reporter list|line|dot` after `--` (`--project` and `--repeat-each` are for the browser level and are refused). The ordinary `npm run test` leaves those tests out.
 - Time and randomness are real here (the tests of `packages/worker` use manual ones). A question lasts as long as the settings say, at least 5 seconds, so the tests choose the shortest. Questions and options are shuffled differently every game, so a test reads the question it is given and never assumes an order.
 - The server forgets every room when it stops. The `.pid` and log files are in `node_modules/.cache/quiz-versus/`, which the tester cannot read.
@@ -115,6 +116,13 @@ A browser-level run (`npm run qa:browser`) comes with `feat/web-versus`.
 | X3  | A connection from a page on another origin                                                                 | Refused                                                                                          | W     |
 | X4  | A client that sends `answer` for a question that is not open, or as a watcher, or the wrong kind of answer | The matching error (`STALE_QUESTION`, `NOT_IN_TIEBREAK`, `INVALID_ANSWER`), and the game goes on | W     |
 | X5  | A guest sends `start` or `next`                                                                            | `NOT_HOST`, and nothing else happens                                                             | W     |
+| X6  | A second `start` while a game runs, or `next` while a question is open                                     | Refused with a sentence; the game is not disturbed                                               | W     |
+| X7  | Two starts sent back to back                                                                               | One game starts; the other is refused with a sentence                                            | W     |
+| X8  | Settings the server cannot honour (too few questions, a quiz that does not exist)                          | A sentence that says which setting to change                                                     | W     |
+| X9  | The host leaves in the middle of a question                                                                | The question carries on, another player becomes host                                             | W     |
+| X10 | One address opens many rooms                                                                               | A limit with a clear answer; a closed room frees a place                                         | W     |
+| X11 | A link to a room that never existed, or has closed, or is cut short                                        | The player is told the room does not exist (a short link needs the client to check its shape)    | W, B  |
+| X12 | Every refusal a person can cause (bad name, settings, answer; late answer; watcher)                        | A readable sentence that says what happened and what to do, with no code or internal word        | W, B  |
 
 ## Accessibility (WCAG 2.2 AA)
 
