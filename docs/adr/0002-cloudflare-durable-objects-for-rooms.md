@@ -1,6 +1,6 @@
 # 2. Cloudflare Workers and Durable Objects for game rooms
 
-Status: accepted (2026-11-01)
+Status: accepted (2026-11-01). Superseded by [ADR 11](0011-node-websocket-server.md).
 
 ## Context
 
