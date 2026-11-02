@@ -3,6 +3,10 @@ name: Auto-merge
 # Asks GitHub to merge a pull request as soon as every required check has passed and the branch
 # has no conflicts. GitHub does the waiting and the merging; branch protection still decides what
 # counts as "passed". Open a pull request as a draft to hold it back, and mark it ready to release it.
+#
+# The call uses the owner's fine-grained token (secret AUTO_MERGE_TOKEN), not the workflow token:
+# a merge made as the workflow token starts no further workflows (no CI run on main) and left the
+# branch undeleted. See docs/adr/0005-auto-merge-owner-pull-requests.md.
 
 on:
   pull_request:
@@ -21,6 +25,6 @@ jobs:
     steps:
       - name: Enable auto-merge
         env:
-          GH_TOKEN: ${{ github.token }}
+          GH_TOKEN: ${{ secrets.AUTO_MERGE_TOKEN }}
           PULL_REQUEST_URL: ${{ github.event.pull_request.html_url }}
         run: gh pr merge --auto --merge "$PULL_REQUEST_URL"

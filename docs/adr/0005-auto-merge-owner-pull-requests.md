@@ -13,10 +13,12 @@ A workflow (`.github/workflows/auto-merge.yml`) turns on GitHub's auto-merge for
 - A draft pull request is not auto-merged. Opening one as a draft holds it back; marking it ready releases it.
 - Dependabot and fork pull requests are skipped and stay manual.
 - The repository setting "Allow auto-merge" must be on. Only the owner can change it.
+- The workflow turns auto-merge on with a fine-grained personal access token, the repository secret `AUTO_MERGE_TOKEN` (2026-11-02). Scope: this repository only, Contents and Pull requests read and write. GitHub attributes the later merge to whoever enabled auto-merge. Under the workflow token (`github.token`) the merge started no workflows, so CI did not run on `main`, and the head branch was not deleted although "Automatically delete head branches" was on (seen on pull request 18).
 
 ## Consequences
 
 - A pull request merges itself when CI is green, so anything that must be read first goes up as a draft.
 - Branch protection stays the gate: if `check` is not required, auto-merge would not wait for it.
-- The workflow token is write-scoped, so the workflow must never run code from the pull request. It only calls `gh`.
-- A merge made with the workflow token may not start the `push` run of CI on `main`. This is unverified; check after the first auto-merge.
+- The token can merge into this repository, so the workflow must never run code from the pull request. It only calls `gh`, and only for the owner's non-draft pull requests (fork pull requests get no secrets).
+- The token expires (set a reminder, at most one year). When it does, auto-merge stops enabling and pull requests wait for a manual merge. Renew it and update the secret.
+- To verify after the first merge that uses the token: CI runs on `main` for the merge commit, and the head branch is deleted. If the branch is still there, record it here and add a scheduled cleanup workflow.
