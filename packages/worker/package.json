@@ -17,6 +17,10 @@
   },
   "dependencies": {
     "@quiz-versus/core": "*",
-    "@quiz-versus/protocol": "*"
+    "@quiz-versus/protocol": "*",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "@types/ws": "^8.18.2"
   }
 }
