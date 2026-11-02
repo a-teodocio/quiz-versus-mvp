@@ -31,6 +31,8 @@ worker ───┘                    ^
 
 ESLint (`eslint.config.js`) fails the build when a package imports something it should not.
 
+How packages are loaded: tests and the type checker read each package's TypeScript source; a plain Node process (the server, once it exists) runs the JavaScript that `npm run build` emits into `dist/`. See [folder-structure.md](folder-structure.md).
+
 ## Ports and adapters
 
 `core` owns small interfaces; adapters implement them.
