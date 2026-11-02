@@ -45,3 +45,11 @@ export const MAX_ACCEPTED_FORMS = 4;
 /** Room IDs, player IDs and resume tokens: URL-safe characters only, long enough to be unguessable. */
 export const OPAQUE_ID_MIN_LENGTH = 16;
 export const OPAQUE_ID_MAX_LENGTH = 64;
+
+/**
+ * How fast one connection may send, counted by the server per connection. A player sends a few
+ * messages per question, so this is generous for play and stops a flood. Over the limit the
+ * server answers `RATE_LIMITED`.
+ */
+export const MESSAGE_RATE_WINDOW_MS = 10_000;
+export const MAX_MESSAGES_PER_WINDOW = 30;

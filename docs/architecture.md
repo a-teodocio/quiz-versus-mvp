@@ -1,6 +1,6 @@
 # Architecture
 
-Status: `protocol`, `core` and `quiz-validator` are built; `worker` and `web` are planned. This document is the contract they are built to.
+Status: `protocol`, `core`, `quiz-validator` and `worker` are built; `web` is planned. This document is the contract they are built to.
 
 ## Packages
 
@@ -8,7 +8,7 @@ Status: `protocol`, `core` and `quiz-validator` are built; `worker` and `web` ar
 packages/
   protocol/   message types + zod schemas shared by server and client
   core/       pure game logic: room state machine, scoring, seeded shuffle, quiz model
-  worker/     Cloudflare Worker + Durable Object: WebSocket adapter, quiz loading, clock/random
+  worker/     Node server: HTTP routes, WebSocket adapter, rooms in memory, quiz files and pictures from disk, clock, timers and secure random (ADR 11)
   web/        browser app: quiz UI (forked from the real app) + versus client
   quiz-validator/  authoring tool: checks content/ against the real app's validator rules
 ```
@@ -22,7 +22,7 @@ worker ───┘                    ^
    └───────────────────────────┘
 ```
 
-- `core` imports only from `protocol` (types and constants such as limits). No `node:*`, no Cloudflare APIs, no other package.
+- `core` imports only from `protocol` (types and constants such as limits). No `node:*`, no platform APIs, no other package.
 - `protocol` imports nothing from the repo.
 - `worker` and `web` may import `core` and `protocol`, never each other.
 - `web` talks to the server only through `protocol` messages over a WebSocket.
@@ -31,22 +31,23 @@ worker ───┘                    ^
 
 ESLint (`eslint.config.js`) fails the build when a package imports something it should not.
 
-How packages are loaded: tests and the type checker read each package's TypeScript source; a plain Node process (the server, once it exists) runs the JavaScript that `npm run build` emits into `dist/`. See [folder-structure.md](folder-structure.md).
+How packages are loaded: tests and the type checker read each package's TypeScript source; a plain Node process (the server) runs the JavaScript that `npm run build` emits into `dist/`. See [folder-structure.md](folder-structure.md).
 
 ## Ports and adapters
 
-`core` owns small interfaces; adapters implement them.
+`core` owns small interfaces; adapters implement them. The server adds three of its own: `Scheduler` (a timer is not something `core` may touch), `IdSource` and `ServerLogger`.
 
-| Port (in `core`) | Purpose                    | Production adapter    | Test adapter     |
-| ---------------- | -------------------------- | --------------------- | ---------------- |
-| `Clock`          | current time, timers       | Durable Object alarms | manual clock     |
-| `Random`         | randomness                 | crypto-backed source  | fixed sequence   |
-| `QuizRepository` | load quizzes and their key | static JSON assets    | in-memory        |
-| `Logger`         | structured logs            | console wrapper       | collecting array |
+| Port                    | Purpose                          | Production adapter                         | Test adapter     |
+| ----------------------- | -------------------------------- | ------------------------------------------ | ---------------- |
+| `Clock` (core)          | current time                     | system clock                               | manual clock     |
+| `Scheduler` (worker)    | game, idle, join and ping timers | `setTimeout`, cleared when the room closes | manual scheduler |
+| `Random` (core)         | randomness                       | `crypto.getRandomValues`                   | fixed sequence   |
+| `QuizRepository` (core) | load quizzes and their key       | quiz files read from disk and checked      | in-memory        |
+| `Logger` (core)         | structured logs                  | line-per-event JSON on standard output     | collecting array |
 
 ## Game room
 
-One room is one Durable Object instance holding one `core` room state. The state machine:
+One room is one `RoomSession` from `core` held in the server's memory, so one process holds every room ([ADR 11](adr/0011-node-websocket-server.md)). The state machine:
 
 ```
 LOBBY ──start──> QUESTION ──all answered or timeout──> REVEAL ──next──> QUESTION
@@ -59,6 +60,23 @@ The wire phases stay these four; the tie-break is a question phase for the tied 
 
 - The server holds the correct answers. Clients receive them only in `REVEAL`.
 - All inputs (join, leave, answer, start, next, disconnect, timer fired) are events applied to the pure `step` function, which returns the new state and effects (messages to send, a timer to set or clear). This makes every behaviour testable without a network. `RoomSession` adds the clock and logging around it.
+
+## Server
+
+`packages/worker` is a plain Node process ([ADR 11](adr/0011-node-websocket-server.md)). A request is handled in these steps; each is a module you can read on its own.
+
+```
+HTTP  POST /rooms ──> RoomRegistry.create ──> RoomHost (one per room, holds a core RoomSession)
+HTTP  GET /images/<alias> ──> ImageIndex (alias to file) ──> ImageStore (contained in content/images)
+WS    /rooms/<id> ──> origin check ──> bindSocket (rate limit, text only) ──> RoomHost.receive
+                                                                     │
+                  decodeClientMessage ──> core step ──> effects ──> sockets, timer, close
+```
+
+- A `RoomHost` owns the sockets of one room and nothing about its rules. It decodes a frame, turns it into a core event, and carries out the effects: sends to a caller, a player or everyone, the one question timer, and closing. It starts a game by first asking core (a dry run of `step`) whether the host may start at all, so a player who may not start cannot make the server read a file; only then does it prepare the game, one at a time.
+- Seats outlive sockets. A dropped socket is a `disconnect`; a resume closes the older socket on the same seat and ignores its later close.
+- Closing a room (last player left, or idle with nobody connected) clears its timers, forgets its picture names and closes its sockets. The registry holds no closed room.
+- Limits: players per room (core), rooms in memory and per address, idle time, sockets per room, a join deadline, message size (frames a little over `MAX_CLIENT_MESSAGE_BYTES` get `MESSAGE_TOO_LARGE`, larger ones close the socket), message rate, and a ping that drops a dead socket.
 
 ## Data
 

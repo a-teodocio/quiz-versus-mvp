@@ -23,7 +23,7 @@ Mock of a local MLS quiz app, used to trial a live multiplayer (versus) mode bef
 
 ## Review before major updates
 
-Before opening a pull request for a major change (a new package, the state machine, the Durable Object, the web client, any protocol change), run the `standards-reviewer` subagent (`.claude/agents/standards-reviewer.md`). Its rules are in `docs/review-checklist.md`.
+Before opening a pull request for a major change (a new package, the state machine, the room server, the web client, any protocol change), run the `standards-reviewer` subagent (`.claude/agents/standards-reviewer.md`). Its rules are in `docs/review-checklist.md`.
 
 1. Finish the branch and run `npm run check`.
 2. Save the branch diff to the scratchpad. Give the reviewer the branch name, the changed files and the diff path.

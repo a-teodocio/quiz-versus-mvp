@@ -6,7 +6,7 @@ The quiz content is entirely fake. The code is written to production standards s
 
 ## Status
 
-Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `worker` and `web` come next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
+Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `packages/worker` (the Node game server) is built; `web` comes next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
 
 ## Quickstart
 
@@ -17,15 +17,18 @@ npm ci
 npm run check
 ```
 
-| Command                    | What it does                                        |
-| -------------------------- | --------------------------------------------------- |
-| `npm run check`            | lint, format check, typecheck and tests             |
-| `npm run lint`             | ESLint, including the layer rules                   |
-| `npm run format`           | Prettier, writes files                              |
-| `npm run typecheck`        | TypeScript across all packages                      |
-| `npm run test`             | tests across all packages                           |
-| `npm run build`            | build all packages                                  |
-| `npm run validate:content` | check `content/` against the real validator's rules |
+| Command                    | What it does                                         |
+| -------------------------- | ---------------------------------------------------- |
+| `npm run check`            | lint, format check, typecheck and tests              |
+| `npm run lint`             | ESLint, including the layer rules                    |
+| `npm run format`           | Prettier, writes files                               |
+| `npm run typecheck`        | TypeScript across all packages                       |
+| `npm run test`             | tests across all packages                            |
+| `npm run build`            | build all packages                                   |
+| `npm run validate:content` | check `content/` against the real validator's rules  |
+| `npm run qa:start`         | build and start the game server in the background    |
+| `npm run qa:stop`          | stop it                                              |
+| `npm run qa:ws`            | run the QA tester's server tests against that server |
 
 ## Documentation
 

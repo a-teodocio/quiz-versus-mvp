@@ -33,9 +33,9 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── protocol/              Message schemas and types
 │   ├── core/                  Pure game logic
 │   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
-│   ├── worker/                Cloudflare Worker and Durable Object (planned)
+│   ├── worker/                The game server: HTTP routes, WebSocket adapter, rooms in memory
 │   └── web/                   Browser app (planned)
-├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share), and the qa-tester guard (qa-guard.mjs) with its tests
+├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share, the QA server and test runners qa-server.mjs and qa-ws.mjs), and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md
@@ -59,7 +59,7 @@ packages/<name>/
 └── test/               tests that need fixtures or cross several modules
 ```
 
-- Tests the qa-tester writes for a package live in `test/qa/` (today `packages/worker/test/qa/`, planned); the author owns the rest of `test/`.
+- Tests the qa-tester writes for a package live in `test/qa/` (today `packages/worker/test/qa/`, created by the first tester run); the author owns the rest of `test/`.
 - Unit tests sit next to the code as `thing.test.ts`. Larger tests and fixtures go in `test/`.
 - Group by feature (`room/`, `scoring/`, `quiz/`), not by kind (`utils/`, `helpers/`, `types/`). There is no `utils` or `common` folder.
 - Fixtures copied from the real app live in `packages/<name>/test/fixtures/real-app/` (today `core` and `quiz-validator`) with a `SOURCE.md` recording the source commit and what was copied.
@@ -75,7 +75,7 @@ packages/<name>/
 ## What never goes in the repo
 
 - Real course content, questions, images or notes (public repo).
-- Build output (`dist/`), caches (`*.tsbuildinfo`, `.wrangler/`), coverage, logs, or local secrets (`.dev.vars`). The `.gitignore` covers these.
+- Build output (`dist/`), caches (`*.tsbuildinfo`), coverage, logs, the QA server pid file, or local secrets (`.env`, `.dev.vars`). The `.gitignore` covers these.
 - Scratch files, notes to self, or commented-out code. Use the branch, a PR description or `known-issues.md`. (The one exception is the owner's personal checklist, `docs/owner-checklist.md`: it is git-ignored, so it stays on one machine and is never committed.)
 
 ## Keeping it clean
