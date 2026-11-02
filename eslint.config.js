@@ -6,6 +6,7 @@ import prettier from 'eslint-config-prettier';
 /**
  * Layer rules (see docs/architecture.md). Dependencies point inward only:
  *   web, worker -> protocol, core;  protocol -> (nothing in the repo);  core -> protocol only (types and constants).
+ *   quiz-validator -> protocol, core (an authoring tool that nothing else imports).
  * `core` is pure logic: no I/O, no platform APIs, no other workspace package except `protocol`.
  */
 const forbid = (patterns, message) => ({
@@ -45,7 +46,14 @@ export default tseslint.config(
     files: ['packages/core/**/*.ts'],
     rules: {
       ...forbid(
-        ['@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*', '@cloudflare/*'],
+        [
+          '@quiz-versus/worker',
+          '@quiz-versus/web',
+          '@quiz-versus/quiz-validator',
+          'node:*',
+          'cloudflare:*',
+          '@cloudflare/*',
+        ],
         'core must stay pure: it may import only from @quiz-versus/protocol.',
       ),
       // Time and randomness come in through the Clock and Random ports (review-checklist A4).
@@ -68,20 +76,52 @@ export default tseslint.config(
   {
     files: ['packages/protocol/**/*.ts'],
     rules: forbid(
-      ['@quiz-versus/core', '@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*'],
+      [
+        '@quiz-versus/core',
+        '@quiz-versus/worker',
+        '@quiz-versus/web',
+        '@quiz-versus/quiz-validator',
+        'node:*',
+        'cloudflare:*',
+      ],
       'protocol defines message shapes only and depends on no other workspace package.',
     ),
   },
   {
     files: ['packages/web/**/*.ts'],
     rules: forbid(
-      ['@quiz-versus/worker', 'node:*', 'cloudflare:*', '@cloudflare/*'],
+      [
+        '@quiz-versus/worker',
+        '@quiz-versus/quiz-validator',
+        'node:*',
+        'cloudflare:*',
+        '@cloudflare/*',
+      ],
       'web talks to the worker only through the protocol, never by importing it.',
     ),
   },
   {
     files: ['packages/worker/**/*.ts'],
-    rules: forbid(['@quiz-versus/web'], 'worker must not depend on the browser app.'),
+    rules: forbid(
+      ['@quiz-versus/web', '@quiz-versus/quiz-validator'],
+      'worker must not depend on the browser app or the authoring tool.',
+    ),
+  },
+  {
+    files: ['packages/quiz-validator/**/*.ts'],
+    rules: forbid(
+      ['@quiz-versus/worker', '@quiz-versus/web', 'cloudflare:*', '@cloudflare/*'],
+      'quiz-validator may use only protocol and core.',
+    ),
+  },
+  {
+    // The checks stay pure: the file system is reached only through src/disk (and the tests).
+    files: ['packages/quiz-validator/src/**/*.ts'],
+    ignores: ['packages/quiz-validator/src/disk/**'],
+    rules: forbid(
+      ['@quiz-versus/worker', '@quiz-versus/web', 'node:*', 'cloudflare:*', '@cloudflare/*'],
+      'only src/disk may touch the file system; the checks take a ContentTree.',
+    ),
   },
   prettier,
 );
