@@ -1,0 +1,65 @@
+{
+  "title": "Imaginary Birds: Field Notes",
+  "course": "demo-1001 Imaginary Birds",
+  "unit": "Chapter 2: Field notes",
+  "questions": [
+    {
+      "type": "text",
+      "id": "birds_40",
+      "question": "What should a field note record first?",
+      "options": ["The date", "The weather forecast", "The bird's name", "A guess at its age"],
+      "correct": 0,
+      "explanation": "The date comes first, so later notes can be put in order. The bird's name may only be known afterwards."
+    },
+    {
+      "type": "text",
+      "id": "birds_41",
+      "question": "How far from a nest should an observer stand?",
+      "options": ["Ten metres", "One metre", "Touching distance", "Under the nest"],
+      "correct": 0,
+      "explanation": "Ten metres lets the birds feed their young without alarm. Closer than that and the parents may leave."
+    },
+    {
+      "type": "text",
+      "id": "birds_42",
+      "question": "Why is a sketch added to a written note?",
+      "options": [
+        "It records what words leave out",
+        "It makes the page look fuller",
+        "It replaces the date",
+        "It keeps the pen from drying"
+      ],
+      "correct": 0,
+      "explanation": "A sketch records shape and proportion that words leave out. It does not replace the date."
+    },
+    {
+      "type": "text",
+      "id": "birds_43",
+      "question": "Which colour of ink is used for a doubtful sighting?",
+      "options": ["Green", "Red", "Blue", "Grey"],
+      "correct": 3,
+      "explanation": "Grey ink marks a doubtful sighting, so it is not counted in the totals. Red ink is for a confirmed rare bird."
+    },
+    {
+      "type": "image-group",
+      "id": "birds_group_02",
+      "image_path": "images/demo-1001/nest-eggs.png",
+      "parts": [
+        {
+          "id": "birds_group_02_p1",
+          "question": "What colour is the nest in the picture?",
+          "options": ["Brown", "Blue", "Pink", "Black"],
+          "correct": 0,
+          "explanation": "The nest is brown, the colour of dried reeds. The eggs on top are pale."
+        },
+        {
+          "id": "birds_group_02_p2",
+          "question": "What do Tumblewings line their nests with?",
+          "options": ["Pebbles", "Reed fluff", "River mud", "Sand"],
+          "correct": 1,
+          "explanation": "They line the nest with reed fluff, which holds the heat. Mud is used only on the outside."
+        }
+      ]
+    }
+  ]
+}

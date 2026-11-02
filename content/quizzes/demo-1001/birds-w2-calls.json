@@ -1,0 +1,69 @@
+{
+  "title": "Imaginary Birds: Calls and Songs",
+  "course": "demo-1001 Imaginary Birds",
+  "unit": "Week 2: Calls",
+  "questions": [
+    {
+      "type": "text",
+      "id": "birds_20",
+      "question": "  What do the  Quillfinch chicks  eat first? ",
+      "options": ["Seeds ", "  Soft  larvae", "Dry moss", "Pebbles"],
+      "correct": 1,
+      "explanation": "Chicks eat soft larvae brought by both parents.\nSeeds come later, when the beak has hardened."
+    },
+    {
+      "type": "text",
+      "id": "birds_21",
+      "question": "How does the Ember\u00a0wren announce a nearby snake?",
+      "options": ["A rising whistle", "A drum of the wings", "Silence", "A low hum"],
+      "correct": 0,
+      "explanation": "\tThe wren gives a rising whistle that the whole flock repeats. The drum of the wings is a courtship display."
+    },
+    {
+      "type": "text",
+      "id": "birds_22",
+      "question": "At what time of day does the Marsh trumpeter sing its longest song?",
+      "options": ["At dawn", "At noon", "At dusk", "At midnight"],
+      "correct": 0,
+      "explanation": "The longest song comes at dawn, when the air over the marsh is still. Dusk songs are short."
+    },
+    {
+      "type": "text",
+      "id": "birds_23",
+      "question": "Why does the Tumblewing call while it rolls through the air?",
+      "options": [
+        "To keep the pair together",
+        "To scare off fish",
+        "To warm its wings",
+        "To dry its tail"
+      ],
+      "correct": 0,
+      "explanation": "The calls keep a pair together over open ground. Fish do not react to the sound."
+    },
+    {
+      "type": "text",
+      "id": "birds_24",
+      "question": "How many notes are in the Quillfinch alarm call?",
+      "options": ["One", "Two", "Three", "Four"],
+      "correct": 2,
+      "explanation": "The alarm call has three notes, falling in pitch. A single note is the contact call."
+    },
+    {
+      "type": "text",
+      "id": "birds_25",
+      "question": "Which bird sings in a lower register than the Marsh trumpeter?",
+      "options": ["The Tumblewing", "The Ember wren", "The Quillfinch", "The Dusk heron"],
+      "correct": 3,
+      "explanation": "The Dusk heron has the deepest voice of the five. The Ember wren has the highest."
+    },
+    {
+      "type": "image",
+      "id": "birds_26",
+      "image_path": "images/demo-1001/nest-eggs.png",
+      "question": "How many eggs rest in the nest?",
+      "options": ["Two", "Three", "Four", "Five"],
+      "correct": 1,
+      "explanation": "Three pale eggs rest in the brown nest. A fourth egg is laid only in a warm year."
+    }
+  ]
+}
