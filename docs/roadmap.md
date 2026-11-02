@@ -77,7 +77,7 @@ Check these against the real app before declaring a step done. Anything not repr
 
 ## What only the user can do
 
-- Turn on "Allow auto-merge" in the repository settings (needed once for the auto-merge workflow). Merge Dependabot pull requests by hand.
+- Turn on "Allow auto-merge" in the repository settings (needed once for the auto-merge workflow). Renew the `AUTO_MERGE_TOKEN` secret before it expires (see ADR 5). Merge Dependabot pull requests by hand.
 - Create the Cloudflare account and run login and deploy.
 - Change repository settings (branch rules, Actions).
 
