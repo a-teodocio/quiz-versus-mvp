@@ -56,6 +56,10 @@ const NPM_SCRIPTS = {
 
 const LOCAL_URL = /^http:\/\/(localhost|127\.0\.0\.1):\d{2,5}(\/[A-Za-z0-9._~/?=%-]*)?$/;
 
+/** Said after a refusal for an unknown command, so the tester is told what it can do. */
+const ALLOWED_SUMMARY =
+  'allowed: npm run <listed script>, curl to localhost, three read-only git commands';
+
 const allow = (reason) => ({ allow: true, reason });
 const deny = (reason) => ({ allow: false, reason: `qa-guard: ${reason}` });
 
@@ -77,7 +81,9 @@ function refuseArguments(words, flags) {
 
 /** `npm run <script>`, from the list, with only the flags that script accepts. */
 function checkNpm(words) {
-  if (words[0] !== 'npm' || words[1] !== 'run') return null;
+  if (words[0] !== 'npm') return null;
+  if (words[1] !== 'run')
+    return deny('of npm, only "npm run <script>" is allowed, for a script on the list');
   const script = words[2] ?? '';
   const flags = Object.hasOwn(NPM_SCRIPTS, script) ? NPM_SCRIPTS[script] : undefined;
   if (flags === undefined) return deny(`npm script "${script}" is not one the tester may run`);
@@ -125,7 +131,9 @@ export function decideCommand(command) {
   }
   const words = command.trim().split(/ +/);
   const verdict = checkNpm(words) ?? checkCurl(words) ?? checkGit(words);
-  return verdict ?? deny(`"${words[0] ?? ''}" is not a command the tester may run`);
+  return (
+    verdict ?? deny(`"${words[0] ?? ''}" is not a command the tester may run (${ALLOWED_SUMMARY})`)
+  );
 }
 
 /** True if the text holds a control character (code below 32), such as a null byte. */
