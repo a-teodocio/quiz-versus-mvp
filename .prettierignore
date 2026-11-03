@@ -3,5 +3,8 @@ dist
 coverage
 .wrangler
 package-lock.json
-# The fork of the real quiz page: byte-for-byte what scripts/make-web-fork.mjs writes (packages/web/SOURCE.md)
+# The fork of the real quiz page: byte-for-byte what scripts/make-web-fork.mjs writes, cut into
+# these files (packages/web/SOURCE.md). Reformatting any of them breaks the hash test.
 packages/web/public/index.html
+packages/web/public/css
+packages/web/public/js

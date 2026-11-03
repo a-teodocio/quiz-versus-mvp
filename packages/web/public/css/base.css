@@ -1,0 +1,105 @@
+/* --- Reset & base --------------------------------------------------------- */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: background 0.2s, color 0.2s;
+}
+/* --- Header --------------------------------------------------------------- */
+.header {
+  width: 100%;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 25;  /* above the scroll-to-top button (20) so the theme menu is never covered by it */
+  box-shadow: var(--shadow);
+}
+.header-inner {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.header-title {
+  font-size: 0.95rem; font-weight: 700; color: var(--accent); letter-spacing: 0.03em;
+  background: none; border: none; padding: 0; font-family: inherit; cursor: pointer;
+}
+@media (hover: hover) { .header-title:hover { opacity: 0.75; } }
+.header-right { display: flex; align-items: center; gap: 10px; }
+.timer-display {
+  font-variant-numeric: tabular-nums;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.05em;
+  padding: 4px 12px;
+  border-radius: 20px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  transition: color 0.4s, border-color 0.4s, background 0.4s;
+}
+.timer-display.warning { color: var(--danger); border-color: var(--danger); background: var(--danger-bg); }
+.btn-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  font-family: inherit;
+}
+@media (hover: hover) { .btn-icon:hover { background: var(--accent-bg); color: var(--accent); } }
+.btn-icon svg { width: 20px; height: 20px; }
+/* --- Floating scroll-to-top button ---------------------------------------- */
+/* Only shown while the results view is on screen (the quiz view barely scrolls). On wide windows it
+   sits in the margin 16px right of the 760px column; on narrow ones it falls back to 16px from the edge. */
+.fab-top {
+  display: none;
+  position: fixed;
+  bottom: 24px;
+  right: max(16px, calc(50vw - 436px));
+  width: 40px; height: 40px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--accent);
+  font-size: 1.1rem; font-family: inherit; line-height: 1;
+  cursor: pointer;
+  align-items: center; justify-content: center;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+  z-index: 20;
+  transition: background 0.15s, color 0.15s;
+}
+@media (hover: hover) { .fab-top:hover { background: var(--accent-bg); } }
+body:has(#resultsView:not(.hidden)) .fab-top { display: flex; }
+/* --- Main layout ---------------------------------------------------------- */
+.main { width: 100%; max-width: 760px; padding: 28px 20px 72px; flex: 1; }
+/* --- Card ----------------------------------------------------------------- */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+.sec-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  margin-bottom: 16px;
+}

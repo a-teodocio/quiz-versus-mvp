@@ -1,0 +1,196 @@
+/* --- Token system --------------------------------------------------------- */
+:root {
+  --bg: #f5f4f0;
+  --surface: #ffffff;
+  --surface-2: #f0efe9;
+  --border: #e2e0d8;
+  --text: #1a1916;
+  --muted: #6b6960;
+  --accent: #3d6cf7;
+  --accent-bg: #eef1fd;
+  --success: #2a7a4a;
+  --success-bg: #eaf4ee;
+  --danger: #c0392b;
+  --danger-bg: #fdf0ee;
+  --warning: #8a6500;
+  --warning-bg: #fdf6e3;
+  --on-fill: #fff;  /* text on a solid accent, success or danger fill (dark on the light fills of the dark palettes) */
+  --radius: 10px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.07);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f111a; --surface: #1a1d2e; --surface-2: #222538; --border: #2d3047;
+    --text: #e8eaf0; --muted: #8b90a8; --accent: #6c8ef7; --accent-bg: rgba(108,142,247,0.12);
+    --success: #4caf8a; --success-bg: rgba(76,175,138,0.12);
+    --danger: #e05c6d; --danger-bg: rgba(224,92,109,0.12);
+    --warning: #f0c040; --warning-bg: rgba(240,192,64,0.12);
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0f111a; --surface: #1a1d2e; --surface-2: #222538; --border: #2d3047;
+  --text: #e8eaf0; --muted: #8b90a8; --accent: #6c8ef7; --accent-bg: rgba(108,142,247,0.12);
+  --success: #4caf8a; --success-bg: rgba(76,175,138,0.12);
+  --danger: #e05c6d; --danger-bg: rgba(224,92,109,0.12);
+  --warning: #f0c040; --warning-bg: rgba(240,192,64,0.12);
+}
+/* --- Palettes (since v1.54.0) ---------------------------------------------- */
+/* Classic is the :root and dark rules above (no data-palette). Every other palette is picked by
+   <html data-palette="name"> and overrides the same tokens, in light, in OS dark (no saved theme)
+   and in explicit dark. Generated from OKLCH recipes; the contrast checks are in claude/frontend-design.md. */
+/* Sage */
+:root[data-palette="sage"] {
+  --bg: #eaf3e9; --surface: #f6fcf6; --surface-2: #e1ebdf;
+  --border: #c9d8c7; --text: #1d261c; --muted: #525f50;
+  --accent: #1f6c82; --accent-bg: #d4ebf3; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+/* Lavender */
+:root[data-palette="lavender"] {
+  --bg: #f2eefa; --surface: #fbf9ff; --surface-2: #eae5f4;
+  --border: #d5cfe3; --text: #24212c; --muted: #5d576a;
+  --accent: #625699; --accent-bg: #e5e3fd; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+/* Blush */
+:root[data-palette="blush"] {
+  --bg: #fbeced; --surface: #fef8f9; --surface-2: #f5e3e5;
+  --border: #e4cbce; --text: #2c1e20; --muted: #6a5457;
+  --accent: #7f4b82; --accent-bg: #f3dff4; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+/* Sky */
+:root[data-palette="sky"] {
+  --bg: #e6f2fa; --surface: #f5fbff; --surface-2: #dceaf4;
+  --border: #c2d6e3; --text: #18252c; --muted: #4b5e69;
+  --accent: #2d659b; --accent-bg: #d5e9fe; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+/* Peach */
+:root[data-palette="peach"] {
+  --bg: #faede6; --surface: #fff9f5; --surface-2: #f3e5dc;
+  --border: #e2cec2; --text: #2b2019; --muted: #69574b;
+  --accent: #2e688d; --accent-bg: #d6e9f8; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+/* Sand */
+:root[data-palette="sand"] {
+  --bg: #f5f0e4; --surface: #fdfaf3; --surface-2: #eee7d9;
+  --border: #dbd2be; --text: #282217; --muted: #635a48;
+  --accent: #296b82; --accent-bg: #d5eaf3; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+/* Mauve */
+:root[data-palette="mauve"] {
+  --bg: #f8ecf5; --surface: #fff8fd; --surface-2: #f1e3ed;
+  --border: #dfccda; --text: #2a1f27; --muted: #665562;
+  --accent: #745189; --accent-bg: #eee0f6; --success: #2f6942;
+  --success-bg: #daf3e0; --danger: #a74543; --danger-bg: #ffe4e1;
+  --warning: #7a5b18; --warning-bg: #ffeccb; --on-fill: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-palette="sage"]:not([data-theme="light"]) {
+    --bg: #161e15; --surface: #1f281d; --surface-2: #283326;
+    --border: #384537; --text: #dee5dd; --muted: #b9c7b8;
+    --accent: #8fcfe6; --accent-bg: rgba(143,207,230,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #111810;
+  }
+  :root[data-palette="lavender"]:not([data-theme="light"]) {
+    --bg: #1d1925; --surface: #27232f; --surface-2: #312c3a;
+    --border: #433e4f; --text: #e4e1eb; --muted: #c5bfd1;
+    --accent: #c3bafe; --accent-bg: rgba(195,186,254,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #17141e;
+  }
+  :root[data-palette="blush"]:not([data-theme="light"]) {
+    --bg: #251819; --surface: #302022; --surface-2: #3b2a2c;
+    --border: #503b3d; --text: #ecdfe1; --muted: #d3bcbf;
+    --accent: #e4afe6; --accent-bg: rgba(228,175,230,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1e1214;
+  }
+  :root[data-palette="sky"]:not([data-theme="light"]) {
+    --bg: #111d25; --surface: #1a272f; --surface-2: #22313a;
+    --border: #32444f; --text: #dae5eb; --muted: #b3c6d1;
+    --accent: #96c9fe; --accent-bg: rgba(150,201,254,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #0d181e;
+  }
+  :root[data-palette="peach"]:not([data-theme="light"]) {
+    --bg: #241912; --surface: #2f221a; --surface-2: #3a2c23;
+    --border: #4e3d32; --text: #ebe1da; --muted: #d1bfb3;
+    --accent: #97cbf1; --accent-bg: rgba(151,203,241,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1d140d;
+  }
+  :root[data-palette="sand"]:not([data-theme="light"]) {
+    --bg: #201b10; --surface: #2b2418; --surface-2: #352e20;
+    --border: #48402f; --text: #e7e2d9; --muted: #cac2b0;
+    --accent: #94cee5; --accent-bg: rgba(148,206,229,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1a150b;
+  }
+  :root[data-palette="mauve"]:not([data-theme="light"]) {
+    --bg: #221820; --surface: #2d212a; --surface-2: #382a34;
+    --border: #4b3b47; --text: #e9e0e7; --muted: #cebdc9;
+    --accent: #d7b5ed; --accent-bg: rgba(215,181,237,0.2); --success: #89d19c;
+    --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+    --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1c131a;
+  }
+}
+:root[data-palette="sage"][data-theme="dark"] {
+  --bg: #161e15; --surface: #1f281d; --surface-2: #283326;
+  --border: #384537; --text: #dee5dd; --muted: #b9c7b8;
+  --accent: #8fcfe6; --accent-bg: rgba(143,207,230,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #111810;
+}
+:root[data-palette="lavender"][data-theme="dark"] {
+  --bg: #1d1925; --surface: #27232f; --surface-2: #312c3a;
+  --border: #433e4f; --text: #e4e1eb; --muted: #c5bfd1;
+  --accent: #c3bafe; --accent-bg: rgba(195,186,254,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #17141e;
+}
+:root[data-palette="blush"][data-theme="dark"] {
+  --bg: #251819; --surface: #302022; --surface-2: #3b2a2c;
+  --border: #503b3d; --text: #ecdfe1; --muted: #d3bcbf;
+  --accent: #e4afe6; --accent-bg: rgba(228,175,230,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1e1214;
+}
+:root[data-palette="sky"][data-theme="dark"] {
+  --bg: #111d25; --surface: #1a272f; --surface-2: #22313a;
+  --border: #32444f; --text: #dae5eb; --muted: #b3c6d1;
+  --accent: #96c9fe; --accent-bg: rgba(150,201,254,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #0d181e;
+}
+:root[data-palette="peach"][data-theme="dark"] {
+  --bg: #241912; --surface: #2f221a; --surface-2: #3a2c23;
+  --border: #4e3d32; --text: #ebe1da; --muted: #d1bfb3;
+  --accent: #97cbf1; --accent-bg: rgba(151,203,241,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1d140d;
+}
+:root[data-palette="sand"][data-theme="dark"] {
+  --bg: #201b10; --surface: #2b2418; --surface-2: #352e20;
+  --border: #48402f; --text: #e7e2d9; --muted: #cac2b0;
+  --accent: #94cee5; --accent-bg: rgba(148,206,229,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1a150b;
+}
+:root[data-palette="mauve"][data-theme="dark"] {
+  --bg: #221820; --surface: #2d212a; --surface-2: #382a34;
+  --border: #4b3b47; --text: #e9e0e7; --muted: #cebdc9;
+  --accent: #d7b5ed; --accent-bg: rgba(215,181,237,0.2); --success: #89d19c;
+  --success-bg: rgba(137,209,156,0.2); --danger: #feada7; --danger-bg: rgba(254,173,167,0.2);
+  --warning: #edc478; --warning-bg: rgba(237,196,120,0.2); --on-fill: #1c131a;
+}

@@ -1,5 +1,5 @@
-// Makes packages/web/public/index.html: a copy of the REAL quiz app's page with the few edits
-// this public repo needs, nothing else.
+// Makes packages/web/public/index.html and the stylesheets and scripts it loads: a copy of the REAL
+// quiz app's page with the few edits this public repo needs, cut into files and nothing else.
 //
 //   node scripts/make-web-fork.mjs <path to the real app's index.html>
 //
@@ -8,8 +8,10 @@
 // packages/web/SOURCE.md). Every edit must match exactly the number of times listed, so a
 // moved line fails loudly instead of being skipped. The edits are the only difference between
 // the real page and the fork; SOURCE.md lists them and `npm run test` checks the fork's hash.
+// The fork is then cut into files at fixed section headers (see SPLIT below). Putting the files
+// back where they were cut gives the fork again, byte for byte: that is what the hash covers.
 import { createHash } from 'node:crypto';
-import { readFileSync, writeFileSync } from 'node:fs';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { argv, exit, stdout } from 'node:process';
 
@@ -98,6 +100,101 @@ export function makeFork(realHtml) {
   return applyEdits(lf, EDITS);
 }
 
+/**
+ * Where the fork's one stylesheet and one script are cut into files. Each entry starts a file at
+ * the first line that begins with `starts` (which must be a single line of its section; a file
+ * runs to the next entry). The files load in this order as plain scripts and stylesheets, so
+ * the page behaves exactly as when they were one block. Every cut is at a section header or a
+ * top-level declaration, so no file ends inside a statement.
+ */
+export const SPLIT = {
+  css: [
+    ['tokens.css', '/* --- Token system'],
+    ['base.css', '/* --- Reset & base'],
+    ['home.css', '/* --- Settings groups'],
+    ['quiz.css', '/* --- Toast'],
+    ['results.css', '/* --- Modals'],
+  ],
+  js: [
+    ['state.js', '// ─── State '],
+    ['home.js', '// ─── UI init '],
+    ['theme.js', '// ─── Theme menu'],
+    ['settings.js', 'function selectTimerOption('],
+    ['quiz-list.js', '// ─── Quiz list loader '],
+    ['courses.js', '// ─── Courses '],
+    ['progress.js', '// ─── Progress card'],
+    ['typed.js', '// ─── Shuffle helper '],
+    ['perf.js', '// ─── Progress: what has been answered'],
+    ['session.js', '// ─── Start quiz '],
+    ['timer.js', '// ─── Start confirmation '],
+    ['question.js', '// ─── Image error handler '],
+    ['results.js', '// ─── Results '],
+    ['utilities.js', '// ─── Utilities '],
+    ['boot.js', "document.addEventListener('click', e => {"],
+  ],
+};
+
+const LINK_RUN = /(?:<link rel="stylesheet" href="css\/[a-z-]+\.css">\n)+/;
+const SCRIPT_RUN = /(?:<script src="js\/[a-z-]+\.js"><\/script>\n)+/;
+
+/** Cuts a block of whole lines into the files `entries` name; every start must match once. */
+function cutBlock(block, entries, dir) {
+  const lines = block.slice(0, -1).split('\n');
+  const starts = entries.map(([name, prefix]) => {
+    const hits = lines.flatMap((line, i) => (line.startsWith(prefix) ? [i] : []));
+    if (hits.length !== 1) {
+      throw new Error(`The cut for ${dir}/${name} matched ${hits.length} lines, expected 1.`);
+    }
+    return hits[0];
+  });
+  if (starts[0] !== 0 || starts.some((at, i) => i > 0 && at <= starts[i - 1])) {
+    throw new Error(`The cuts for ${dir}/ are not in order from the first line.`);
+  }
+  return entries.map(([name], i) => [
+    `${dir}/${name}`,
+    `${lines.slice(starts[i], starts[i + 1] ?? lines.length).join('\n')}\n`,
+  ]);
+}
+
+/**
+ * The forked page cut into files: `index` is the page with its stylesheet and script replaced
+ * by tags, `files` maps `css/...` and `js/...` to their text (each ends with a newline).
+ */
+export function splitPage(fork) {
+  const style = /<style>\n([\s\S]*?)<\/style>\n/.exec(fork);
+  const scriptOpen = '<script>\n';
+  const scriptClose = '</script>\n';
+  const scriptAt = fork.lastIndexOf(scriptOpen);
+  const scriptEnd = fork.indexOf(scriptClose, scriptAt);
+  if (style === null || scriptAt < 0 || scriptEnd < 0) {
+    throw new Error('The page has no <style> block and closing <script> block to cut.');
+  }
+  const css = cutBlock(style[1], SPLIT.css, 'css');
+  const js = cutBlock(fork.slice(scriptAt + scriptOpen.length, scriptEnd), SPLIT.js, 'js');
+  const links = css.map(([path]) => `<link rel="stylesheet" href="${path}">\n`).join('');
+  const scripts = js.map(([path]) => `<script src="${path}"></script>\n`).join('');
+  const index =
+    fork.slice(0, style.index) +
+    links +
+    fork.slice(style.index + style[0].length, scriptAt) +
+    scripts +
+    fork.slice(scriptEnd + scriptClose.length);
+  return { index, files: new Map([...css, ...js]) };
+}
+
+/** The inverse of `splitPage`: the one-file page for an index and the text of its files. */
+export function assemblePage(index, files) {
+  const inline = (tag) => (tags) => {
+    const body = [...tags.matchAll(/(?:href|src)="([^"]+)"/g)].map(([, path]) => {
+      const text = files.get(path);
+      if (text === undefined) throw new Error(`The page loads ${path}, which is missing.`);
+      return text;
+    });
+    return `<${tag}>\n${body.join('')}</${tag}>\n`;
+  };
+  return index.replace(LINK_RUN, inline('style')).replace(SCRIPT_RUN, inline('script'));
+}
+
 if (argv[1] !== undefined && resolve(argv[1]) === import.meta.filename) {
   const htmlPath = argv[2];
   if (htmlPath === undefined) {
@@ -105,7 +202,10 @@ if (argv[1] !== undefined && resolve(argv[1]) === import.meta.filename) {
     exit(1);
   }
   const fork = makeFork(readFileSync(htmlPath, 'utf8'));
-  const target = join(import.meta.dirname, '..', 'packages', 'web', 'public', 'index.html');
-  writeFileSync(target, fork);
-  stdout.write(`Wrote ${target}\nSHA-256 of the fork: ${sha256(fork)}\n`);
+  const { index, files } = splitPage(fork);
+  const publicDir = join(import.meta.dirname, '..', 'packages', 'web', 'public');
+  for (const dir of ['css', 'js']) mkdirSync(join(publicDir, dir), { recursive: true });
+  for (const [path, text] of files) writeFileSync(join(publicDir, path), text);
+  writeFileSync(join(publicDir, 'index.html'), index);
+  stdout.write(`Wrote ${publicDir}\nSHA-256 of the fork: ${sha256(fork)}\n`);
 }
