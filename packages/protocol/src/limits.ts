@@ -42,6 +42,14 @@ export const MAX_IMAGE_URL_LENGTH = 512;
 export const MAX_ERROR_MESSAGE_LENGTH = 200;
 export const MAX_ACCEPTED_FORMS = 4;
 
+/** The quiz list (`GET /quizzes`): how many quizzes, how long a title and a course code, how big a quiz. */
+export const MAX_QUIZ_LISTINGS = 200;
+export const MAX_QUIZ_TITLE_LENGTH = 200;
+export const MAX_COURSE_CODE_LENGTH = 64;
+export const MAX_SCORED_PARTS_PER_QUIZ = 10_000;
+/** The most bytes an HTTP body the server sends may have (the quiz list is the largest). */
+export const MAX_HTTP_BODY_BYTES = 262_144;
+
 /** Room IDs, player IDs and resume tokens: URL-safe characters only, long enough to be unguessable. */
 export const OPAQUE_ID_MIN_LENGTH = 16;
 export const OPAQUE_ID_MAX_LENGTH = 64;

@@ -2,9 +2,13 @@ import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import type { Clock, Random } from '@quiz-versus/core';
+import type { QuizListing } from '@quiz-versus/protocol';
 import { MAX_CLIENT_FRAME_BYTES } from '../config/defaults.js';
 import type { ServerConfig } from '../config/server-config.js';
-import { createDiskQuizRepository } from '../content/disk-quiz-repository.js';
+import {
+  createDiskQuizRepository,
+  type DiskQuizRepository,
+} from '../content/disk-quiz-repository.js';
 import { ImageIndex } from '../content/image-index.js';
 import { createImageStore } from '../content/image-store.js';
 import { Heartbeat } from '../net/heartbeat.js';
@@ -44,16 +48,30 @@ function listeningPort(http: Server): number {
   return address.port;
 }
 
+/** The quizzes a host can pick. A file left out is logged by id and reason, so a typo is found. */
+async function readQuizList(
+  repository: DiskQuizRepository,
+  logger: ServerLogger,
+): Promise<readonly QuizListing[]> {
+  const catalog = await repository.catalog();
+  for (const { id, reason } of catalog.skipped) {
+    logger.error('content.quiz-skipped', { quiz: id, reason });
+  }
+  return catalog.quizzes;
+}
+
 /**
  * Builds the server from its parts and starts listening. Throws a `ContentError` if the content
  * folder cannot be listed, so a bad folder stops the server at start and not mid-game.
  */
 export async function startServer(config: ServerConfig, deps: ServerDeps): Promise<RunningServer> {
   const images = new ImageIndex();
+  const repository = createDiskQuizRepository(config.contentRoot);
+  const quizzes = await readQuizList(repository, deps.logger);
   const registry = new RoomRegistry(
     {
       ...deps,
-      repository: createDiskQuizRepository(config.contentRoot),
+      repository,
       images,
       idleRoomMs: config.idleRoomMs,
     },
@@ -66,6 +84,7 @@ export async function startServer(config: ServerConfig, deps: ServerDeps): Promi
       allowedOrigins: config.allowedOrigins,
       registry,
       images,
+      quizzes,
       imageStore: createImageStore(config.contentRoot),
       logger: deps.logger,
     }),

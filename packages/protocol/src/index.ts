@@ -16,10 +16,28 @@ export type { ResultsMessage } from './game/results.js';
 export type { ClientMessage } from './client/client-message.js';
 export type { ServerMessage } from './server/server-message.js';
 
-export { decodeClientMessage, decodeServerMessage } from './codec/decode.js';
+export {
+  decodeClientMessage,
+  decodeCreateRoomResponse,
+  decodeHttpErrorBody,
+  decodeQuizListResponse,
+  decodeServerMessage,
+} from './codec/decode.js';
 export type { DecodeResult } from './codec/decode.js';
 export {
   encodeClientMessage,
+  encodeCreateRoomResponse,
+  encodeHttpErrorBody,
+  encodeQuizListResponse,
   encodeServerMessage,
   InvalidOutgoingMessageError,
 } from './codec/encode.js';
+
+export { HTTP_ERROR_CODES, isQuizListing } from './http/http-bodies.js';
+export type {
+  CreateRoomResponse,
+  HttpErrorBody,
+  HttpErrorCode,
+  QuizListResponse,
+  QuizListing,
+} from './http/http-bodies.js';

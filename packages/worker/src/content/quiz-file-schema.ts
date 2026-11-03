@@ -28,10 +28,12 @@ const ImageGroupEntry = z.object({
 });
 
 /**
- * The real app's quiz file, as far as the server needs it. Fields it does not read (title,
- * course, unit, notes) are dropped on the way in, so they can never reach a client.
+ * The real app's quiz file, as far as the server needs it. Fields it does not read (course, unit,
+ * group, notes) are dropped on the way in, so they can never reach a client. The title is read
+ * for the quiz list only; it is not part of core's `Quiz`.
  */
 const QuizFile = z.object({
+  title: text.optional(),
   questions: z
     .array(z.discriminatedUnion('type', [TextEntry, ImageEntry, ImageGroupEntry]))
     .max(MAX_ENTRIES_PER_FILE),
@@ -62,11 +64,17 @@ function toEntry(entry: z.infer<typeof QuizFile>['questions'][number]): QuizEntr
   }
 }
 
+/** A quiz file read and checked: core's `Quiz`, and the title the file gives it (if it has one). */
+export interface ReadQuizFile {
+  readonly quiz: Quiz;
+  readonly title: string | undefined;
+}
+
 /**
- * Checks the shape of a quiz file's text and returns it as core's `Quiz`. Throws a
+ * Checks the shape of a quiz file's text and returns it as core's `Quiz` with its title. Throws a
  * `ContentError` (naming `file`, never quoting it) when the text is not JSON or not that shape.
  */
-export function parseQuizFile(quizId: string, file: string, source: string): Quiz {
+export function readQuizFile(quizId: string, file: string, source: string): ReadQuizFile {
   let json: unknown;
   try {
     json = JSON.parse(source);
@@ -78,5 +86,13 @@ export function parseQuizFile(quizId: string, file: string, source: string): Qui
     const where = parsed.error.issues[0]?.path.join('.') ?? '';
     throw new ContentError(file, `the file does not have the quiz shape (at "${where}")`);
   }
-  return { id: quizId, entries: parsed.data.questions.map(toEntry) };
+  return {
+    quiz: { id: quizId, entries: parsed.data.questions.map(toEntry) },
+    title: parsed.data.title,
+  };
+}
+
+/** Like `readQuizFile`, for a caller that wants the quiz alone. */
+export function parseQuizFile(quizId: string, file: string, source: string): Quiz {
+  return readQuizFile(quizId, file, source).quiz;
 }
