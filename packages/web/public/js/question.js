@@ -5,7 +5,23 @@ function handleImgError(img, path) {
   ph.style.cssText = 'padding:24px;text-align:center;color:var(--muted)';
   ph.innerHTML = '<div style="font-size:1.1rem;margin-bottom:4px">Image not available</div>' +
     '<div style="font-size:0.78rem">' + fname + '</div>';
+  if (img.id === 'questionImage') {
+    // The question screen reuses this one element for every picture, so it must stay: it is hidden
+    // and the notice sits beside it. clearImgNotice() puts it back when the next question is drawn.
+    clearImgNotice();
+    ph.id = 'imgNotice';
+    img.classList.add('hidden');
+    img.parentNode.insertBefore(ph, img);
+    return;
+  }
   img.parentNode.replaceChild(ph, img);
+}
+
+// Takes the "Image not available" notice off the question screen and shows the picture element again.
+function clearImgNotice() {
+  const notice = document.getElementById('imgNotice');
+  if (notice) notice.remove();
+  document.getElementById('questionImage').classList.remove('hidden');
 }
 
 // ─── Render question ────────────────────────────────────────────────────────
@@ -56,6 +72,7 @@ function renderQuestion() {
 
     const imgWrap = document.getElementById('imageWrap');
     const img = document.getElementById('questionImage');
+    clearImgNotice();
     img.src = '/image?path=' + encodeURIComponent(q.image_path);
     img.onclick = () => openZoom(img.src);
     img.onerror = () => handleImgError(img, q.image_path);
@@ -63,7 +80,7 @@ function renderQuestion() {
 
     const mode = answerMode(part);
     document.getElementById('questionLabel').textContent =
-      answerLabel(mode, 'Part ' + partNum + ' of ' + partTotal);
+      answerLabel(mode, 'Part ' + partNum + ' of ' + partTotal, part);
     document.getElementById('questionText').textContent = part.question;
 
     setAnswerUI(mode);
@@ -125,10 +142,11 @@ function renderQuestion() {
 
   renderProgress();
   const mode = answerMode(q);
-  document.getElementById('questionLabel').textContent = answerLabel(mode, null);
+  document.getElementById('questionLabel').textContent = answerLabel(mode, null, q);
 
   const imgWrap = document.getElementById('imageWrap');
   const img = document.getElementById('questionImage');
+  clearImgNotice();
   if (q.image_path) {
     img.src = '/image?path=' + encodeURIComponent(q.image_path);
     img.onclick = () => openZoom(img.src);

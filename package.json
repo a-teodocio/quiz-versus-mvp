@@ -29,7 +29,6 @@
     "build": "tsc -b",
     "check": "npm run lint && npm run check:structure && npm run format:check && npm run typecheck && npm run test",
     "web:dev": "node scripts/web-dev-server.mjs",
-    "fork:web": "node scripts/make-web-fork.mjs",
     "test:web": "npm run test:browser -w packages/web"
   },
   "lint-staged": {

@@ -3,8 +3,8 @@ dist
 coverage
 .wrangler
 package-lock.json
-# The fork of the real quiz page: byte-for-byte what scripts/make-web-fork.mjs writes, cut into
-# these files (packages/web/SOURCE.md). Reformatting any of them breaks the hash test.
+# The forked quiz page: the real app's code, kept as it is so a change to it is a change of text only
+# (packages/web/SOURCE.md). Reformatting it would bury the real changes in noise.
 packages/web/public/index.html
 packages/web/public/css
 packages/web/public/js

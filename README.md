@@ -31,7 +31,6 @@ npm run check
 | `npm run qa:ws`            | run the QA tester's server tests against that server |
 | `npm run web:dev`          | serve the forked quiz page over the fake content     |
 | `npm run test:web`         | the Playwright tests that pin the forked page        |
-| `npm run fork:web`         | remake the forked page from the real one             |
 
 ## Documentation
 

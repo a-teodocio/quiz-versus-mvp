@@ -1,20 +1,16 @@
-// Guards the forked page (packages/web/public/) against drift: the files are the ones SOURCE.md
-// records, they hold nothing the public repo bans, and the storage keys the code lists are the
-// ones the page uses.
+// Guards the forked page (packages/web/public/) against drift: its files are the ones the page
+// loads and nothing else, they hold nothing the public repo bans, and the storage keys the code
+// lists are the ones the page uses.
 //
-// The page is cut into index.html plus the stylesheets in css/ and the scripts in js/. The cut is
-// only a cut: putting each file back in place of its tag gives the one-file fork, and that text
-// is what the hash covers. The assembly below is written here on purpose, apart from the script
-// that made the cut, so that one does not vouch for the other.
-import { createHash } from 'node:crypto';
+// The page is index.html plus the stylesheets in css/ and the scripts in js/ (ADR 14). Until 5b a
+// hash of the one-file page was checked here; the files are now edited by hand (ADR 15), so the
+// behaviour is pinned by the Playwright tests and the text by the checks below.
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { PROGRESS_EXPORT_PREFIX, RESUME_KEY_PREFIX, STORAGE_KEYS } from '../src/index.js';
 
-const packageDir = join(import.meta.dirname, '..');
-const publicDir = join(packageDir, 'public');
-const sourceNotes = readFileSync(join(packageDir, 'SOURCE.md'), 'utf8');
+const publicDir = join(import.meta.dirname, '..', 'public');
 const index = readFileSync(join(publicDir, 'index.html'), 'utf8');
 
 const STYLE_TAGS = /<link rel="stylesheet" href="(css\/[a-z-]+\.css)">\n/g;
@@ -24,7 +20,7 @@ const read = (path: string): string => readFileSync(join(publicDir, path), 'utf8
 const referenced = (tags: RegExp): string[] =>
   [...index.matchAll(tags)].map(([, path]) => path ?? '');
 
-/** The one-file page: each run of tags becomes one block holding the files in the order listed. */
+/** The page as one text: each run of tags becomes one block holding the files in the order listed. */
 function assemble(): string {
   const block = (tag: string, tags: RegExp) => (run: string) =>
     `<${tag}>\n${[...run.matchAll(tags)].map(([, path]) => read(path ?? '')).join('')}</${tag}>\n`;
@@ -36,12 +32,6 @@ function assemble(): string {
 const page = assemble();
 
 describe('the forked page', () => {
-  it('is the file SOURCE.md records, once its files are put back in place', () => {
-    const recorded = /\*\*Fork SHA-256:\*\* `([0-9a-f]{64})`/.exec(sourceNotes)?.[1];
-    expect(recorded).toBeDefined();
-    expect(createHash('sha256').update(page).digest('hex')).toBe(recorded);
-  });
-
   it('loads every stylesheet and script in the folders once, and nothing else', () => {
     for (const [folder, tags] of [
       ['css', STYLE_TAGS],
