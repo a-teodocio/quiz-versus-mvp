@@ -86,6 +86,11 @@ describe('the quiz list made by GET /quizzes', () => {
     ['a course over the maximum length', { course: 'c'.repeat(MAX_COURSE_CODE_LENGTH + 1) }],
     ['an empty title', { title: '' }],
     ['a title with a control character', { title: 'Birds\u0007' }],
+    ['a title with a right-to-left override', { title: 'Birds ‮slanoitaler' }],
+    ['a title with a line separator', { title: 'Birds Plumage' }],
+    ['a title of white space only', { title: '   ' }],
+    ['a title with white space around it', { title: ' Birds ' }],
+    ['a course with white space around it', { course: 'demo-1001 ' }],
     ['a title over the maximum length', { title: 't'.repeat(MAX_QUIZ_TITLE_LENGTH + 1) }],
     ['no scored parts', { scoredParts: 0 }],
     ['a fractional count', { scoredParts: 1.5 }],
@@ -105,6 +110,11 @@ describe('the quiz list made by GET /quizzes', () => {
     expect(isQuizListing(extra)).toBe(false);
     expect(decodeQuizListResponse(JSON.stringify({ quizzes: [extra] })).ok).toBe(false);
     expect(decodeQuizListResponse(JSON.stringify({ quizzes: [], note: 'x' })).ok).toBe(false);
+  });
+
+  it('allows a joined emoji sequence and spaces inside a title', () => {
+    const joined = '\u{1F469}‍\u{1F52C} Field notes';
+    expect(isQuizListing({ ...listing, title: joined })).toBe(true);
   });
 
   it('counts a title in characters, so a title of the maximum length in wide characters passes', () => {

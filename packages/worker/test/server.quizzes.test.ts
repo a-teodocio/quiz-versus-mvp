@@ -200,7 +200,7 @@ describe('a fault', () => {
         allowedOrigins: [],
         registry,
         images: new ImageIndex(),
-        quizzes: [],
+        quizListBody: '{"quizzes":[]}',
         imageStore: createImageStore(fakeContentRoot),
         logger: {
           info: () => undefined,

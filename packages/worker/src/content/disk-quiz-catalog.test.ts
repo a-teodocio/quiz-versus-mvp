@@ -2,10 +2,15 @@ import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { afterEach, describe, expect, it } from 'vitest';
-import { MAX_QUIZ_LISTINGS, MAX_QUIZ_TITLE_LENGTH } from '@quiz-versus/protocol';
+import {
+  MAX_COURSE_CODE_LENGTH,
+  MAX_QUIZ_LISTINGS,
+  MAX_QUIZ_TITLE_LENGTH,
+} from '@quiz-versus/protocol';
 import { fakeContentRoot } from '../../test/support/content-root.js';
 import { MAX_QUIZ_FILE_BYTES } from '../config/defaults.js';
 import { createDiskQuizRepository } from './disk-quiz-repository.js';
+import { REST_OF_THE_FILES } from './quiz-catalog.js';
 
 const QUESTION = {
   type: 'text',
@@ -99,42 +104,121 @@ describe('the quiz catalog of good files', () => {
   });
 });
 
-describe('the quiz catalog and files it cannot list', () => {
-  it('names the files it leaves out, with a reason that does not quote them', async () => {
+describe('the quiz catalog and the order of the list', () => {
+  it('orders by code unit, the same on every machine: capitals first, a hyphen before a letter', async () => {
+    const root = contentWith({
+      'alpha/ab.json': GOOD,
+      'alpha/a-b.json': GOOD,
+      'Zeta/one.json': GOOD,
+    });
+    const { quizzes } = await createDiskQuizRepository(root).catalog();
+    expect(quizzes.map(({ course, id }) => `${course}/${id}`)).toEqual([
+      'Zeta/one',
+      'alpha/a-b',
+      'alpha/ab',
+    ]);
+  });
+});
+
+describe('the quiz catalog and titles', () => {
+  it('falls back to the id for a title that is not text, blank or not allowed, and trims the rest', async () => {
     const bell = String.fromCharCode(7);
+    const root = contentWith({
+      'c1/bell.json': quiz({ title: `Bell${bell}` }),
+      'c1/blank.json': quiz({ title: '   ' }),
+      'c1/empty.json': quiz({ title: '' }),
+      'c1/long.json': quiz({ title: 't'.repeat(MAX_QUIZ_TITLE_LENGTH + 1) }),
+      'c1/null.json': quiz({ title: null }),
+      'c1/number.json': quiz({ title: 7 }),
+      'c1/padded.json': quiz({ title: '  Padded  ' }),
+    });
+    const { quizzes, skipped } = await createDiskQuizRepository(root).catalog();
+    expect(skipped).toEqual([]);
+    expect(Object.fromEntries(quizzes.map(({ id, title }) => [id, title]))).toEqual({
+      bell: 'bell',
+      blank: 'blank',
+      empty: 'empty',
+      long: 'long',
+      null: 'null',
+      number: 'number',
+      padded: 'Padded',
+    });
+  });
+
+  it('still loads a quiz whose title is not text, so the title never stops a game', async () => {
+    const root = contentWith({ 'c1/odd.json': quiz({ title: { not: 'text' } }) });
+    expect((await createDiskQuizRepository(root).load('odd'))?.entries).toHaveLength(1);
+  });
+});
+
+describe('the quiz catalog and files it cannot list', () => {
+  const noOptions = { ...QUESTION, options: ['a', 'b', 'c'] };
+  const pointsNowhere = { ...QUESTION, correct: 9 };
+  const group = { type: 'image-group', id: 'g', image_path: 'images/x.png' };
+
+  it('names the files it leaves out, with a reason that does not quote them', async () => {
     const root = contentWith({
       'c1/fine.json': GOOD,
       'c1/broken.json': '{ SECRET-TEXT',
       'c1/huge.json': `${GOOD}${' '.repeat(MAX_QUIZ_FILE_BYTES)}`,
       'c1/empty.json': quiz({}, []),
-      'c1/odd-title.json': quiz({ title: `Bell${bell}` }),
-      'c1/long-title.json': quiz({ title: 't'.repeat(MAX_QUIZ_TITLE_LENGTH + 1) }),
+      'c1/three-options.json': quiz({}, [QUESTION, noOptions]),
+      'c1/bad-index.json': quiz({}, [pointsNowhere]),
+      'c1/bad-part.json': quiz({}, [{ ...group, parts: [QUESTION, noOptions] }]),
+      'c1/no-parts.json': quiz({}, [{ ...group, parts: [] }]),
     });
     const { quizzes, skipped } = await createDiskQuizRepository(root).catalog();
     expect(quizzes.map(({ id }) => id)).toEqual(['fine']);
-    const notAllowed = 'its course or title is not one the quiz list allows';
     expect(new Map(skipped.map(({ id, reason }) => [id, reason]))).toEqual(
       new Map([
         ['broken', 'the file is not valid JSON'],
         ['huge', 'the file is too large'],
         ['empty', 'it has no questions'],
-        ['odd-title', notAllowed],
-        ['long-title', notAllowed],
+        ['three-options', 'a question needs exactly 4 options'],
+        ['bad-index', 'a question has a correct index that points at no option'],
+        ['bad-part', 'a question needs exactly 4 options'],
+        ['no-parts', 'it has no questions'],
       ]),
     );
     expect(JSON.stringify(skipped)).not.toContain('SECRET-TEXT');
   });
 
-  it('stops at the most quizzes the list allows and says which were left out', async () => {
+  it('lists only quizzes that start a game: every listing passes the check a game makes', async () => {
+    const root = contentWith({
+      'c1/fine.json': GOOD,
+      'c1/three-options.json': quiz({}, [noOptions]),
+    });
+    const repository = createDiskQuizRepository(root);
+    const { quizzes } = await repository.catalog();
+    expect(quizzes.map(({ id }) => id)).toEqual(['fine']);
+    expect(repository.listQuizIds()).toEqual(['fine', 'three-options']);
+  });
+
+  it('leaves out a quiz whose course folder has a name the list does not allow', async () => {
+    const longName = 'c'.repeat(MAX_COURSE_CODE_LENGTH + 1);
+    const root = contentWith({ [`${longName}/fine.json`]: GOOD, 'c1/other.json': GOOD });
+    const { quizzes, skipped } = await createDiskQuizRepository(root).catalog();
+    expect(quizzes.map(({ id }) => id)).toEqual(['other']);
+    expect(skipped).toEqual([
+      { id: 'fine', reason: 'its course is not a name the quiz list allows' },
+    ]);
+  });
+});
+
+describe('the quiz catalog and a full list', () => {
+  it('stops reading at the most quizzes the list allows and counts the rest in one entry', async () => {
     const files: Record<string, string> = {};
-    for (let n = 0; n < MAX_QUIZ_LISTINGS + 2; n += 1) {
-      files[`c1/quiz-${String(n).padStart(4, '0')}.json`] = GOOD;
+    for (let n = 0; n < MAX_QUIZ_LISTINGS + 3; n += 1) {
+      const broken = n >= MAX_QUIZ_LISTINGS;
+      files[`c1/quiz-${String(n).padStart(4, '0')}.json`] = broken ? '{ not read' : GOOD;
     }
     const { quizzes, skipped } = await createDiskQuizRepository(contentWith(files)).catalog();
     expect(quizzes).toHaveLength(MAX_QUIZ_LISTINGS);
-    expect(skipped.map(({ reason }) => reason)).toEqual([
-      'the quiz list is full',
-      'the quiz list is full',
+    expect(skipped).toEqual([
+      {
+        id: REST_OF_THE_FILES,
+        reason: '3 more files, left unread because the list holds 200',
+      },
     ]);
   });
 });

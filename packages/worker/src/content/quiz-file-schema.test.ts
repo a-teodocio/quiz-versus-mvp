@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { ContentError } from './content-error.js';
-import { parseQuizFile } from './quiz-file-schema.js';
+import { readQuizFile } from './quiz-file-schema.js';
+
+/** The quiz of a file, for the tests that look at nothing else. */
+const parseQuizFile = (id: string, file: string, source: string) =>
+  readQuizFile(id, file, source).quiz;
 
 const question = (id: string) => ({
   id,

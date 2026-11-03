@@ -2,9 +2,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http';
 import {
   encodeCreateRoomResponse,
   encodeHttpErrorBody,
-  encodeQuizListResponse,
   type HttpErrorCode,
-  type QuizListing,
 } from '@quiz-versus/protocol';
 import type { ImageIndex } from '../content/image-index.js';
 import type { ImageStore } from '../content/image-store.js';
@@ -16,8 +14,8 @@ export interface HttpDeps {
   readonly allowedOrigins: readonly string[];
   readonly registry: RoomRegistry;
   readonly images: ImageIndex;
-  /** The quizzes a host can pick, read once at start (`GET /quizzes`). */
-  readonly quizzes: readonly QuizListing[];
+  /** The body of `GET /quizzes`, encoded and checked once at start: the list never changes. */
+  readonly quizListBody: string;
   readonly imageStore: ImageStore;
   readonly logger: ServerLogger;
 }
@@ -97,7 +95,7 @@ function makeRoom(request: IncomingMessage, response: ServerResponse, deps: Http
 function sendQuizzes(request: IncomingMessage, response: ServerResponse, deps: HttpDeps): void {
   const cors = checkOrigin(request, response, deps);
   if (cors === undefined) return;
-  sendJson(response, 200, encodeQuizListResponse({ quizzes: [...deps.quizzes] }), {
+  sendJson(response, 200, deps.quizListBody, {
     ...cors,
     'Cache-Control': 'no-cache',
   });

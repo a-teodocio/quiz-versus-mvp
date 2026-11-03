@@ -36,20 +36,34 @@ export type HttpErrorCode = HttpErrorBody['error'];
 export const CreateRoomResponseSchema = z.strictObject({ roomId: RoomIdSchema });
 export type CreateRoomResponse = z.infer<typeof CreateRoomResponseSchema>;
 
-/** A course folder's name as the real app writes it. No control characters. */
-const CourseCodeSchema = z
-  .string()
-  .min(1)
-  .max(MAX_COURSE_CODE_LENGTH)
-  .regex(/^[^\p{C}]+$/u);
+/**
+ * Characters that can hide or reorder text: controls, surrogates, private use, unassigned, the
+ * line and paragraph separators, and the bidirectional overrides and isolates. Joiners (so an
+ * emoji sequence) and other format characters are allowed.
+ */
+const SPOOFING_CHARACTERS = /[\p{Cc}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}؜‎‏‪-‮⁦-⁩]/u;
 
-/** A quiz's title, shown to the player picking it. Characters, not bytes; no control characters. */
-const QuizTitleSchema = z
-  .string()
-  .min(1)
-  .refine((title) => !/\p{C}/u.test(title) && Array.from(title).length <= MAX_QUIZ_TITLE_LENGTH, {
-    error: `1 to ${String(MAX_QUIZ_TITLE_LENGTH)} characters, no control characters`,
-  });
+/**
+ * Text a host reads in a list: 1 to `max` characters (code points), not padded with white space,
+ * with something visible in it, and none of the characters above.
+ */
+const displayText = (max: number) =>
+  z
+    .string()
+    .refine(
+      (text) =>
+        Array.from(text).length >= 1 &&
+        Array.from(text).length <= max &&
+        text === text.trim() &&
+        !SPOOFING_CHARACTERS.test(text),
+      { error: `1 to ${String(max)} characters, no hidden or reordering characters, not padded` },
+    );
+
+/** A course folder's name as the real app writes it. */
+const CourseCodeSchema = displayText(MAX_COURSE_CODE_LENGTH);
+
+/** A quiz's title, shown to the player picking it. Characters, not bytes. */
+const QuizTitleSchema = displayText(MAX_QUIZ_TITLE_LENGTH);
 
 /**
  * One quiz a host can pick. `scoredParts` counts what a game scores, as the real page does: a

@@ -2,7 +2,7 @@ import { createServer } from 'node:http';
 import type { Server } from 'node:http';
 import { WebSocketServer } from 'ws';
 import type { Clock, Random } from '@quiz-versus/core';
-import type { QuizListing } from '@quiz-versus/protocol';
+import { encodeQuizListResponse } from '@quiz-versus/protocol';
 import { MAX_CLIENT_FRAME_BYTES } from '../config/defaults.js';
 import type { ServerConfig } from '../config/server-config.js';
 import {
@@ -48,16 +48,13 @@ function listeningPort(http: Server): number {
   return address.port;
 }
 
-/** The quizzes a host can pick. A file left out is logged by id and reason, so a typo is found. */
-async function readQuizList(
-  repository: DiskQuizRepository,
-  logger: ServerLogger,
-): Promise<readonly QuizListing[]> {
+/** The body of `GET /quizzes`. A file left out is logged by id and reason, so a typo is found. */
+async function readQuizList(repository: DiskQuizRepository, logger: ServerLogger): Promise<string> {
   const catalog = await repository.catalog();
   for (const { id, reason } of catalog.skipped) {
     logger.error('content.quiz-skipped', { quiz: id, reason });
   }
-  return catalog.quizzes;
+  return encodeQuizListResponse({ quizzes: [...catalog.quizzes] });
 }
 
 /**
@@ -67,7 +64,7 @@ async function readQuizList(
 export async function startServer(config: ServerConfig, deps: ServerDeps): Promise<RunningServer> {
   const images = new ImageIndex();
   const repository = createDiskQuizRepository(config.contentRoot);
-  const quizzes = await readQuizList(repository, deps.logger);
+  const quizListBody = await readQuizList(repository, deps.logger);
   const registry = new RoomRegistry(
     {
       ...deps,
@@ -84,7 +81,7 @@ export async function startServer(config: ServerConfig, deps: ServerDeps): Promi
       allowedOrigins: config.allowedOrigins,
       registry,
       images,
-      quizzes,
+      quizListBody,
       imageStore: createImageStore(config.contentRoot),
       logger: deps.logger,
     }),
