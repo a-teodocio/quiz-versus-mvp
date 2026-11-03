@@ -64,6 +64,9 @@ npm run format
 npm run typecheck
 npm run test
 npm run build
+npm run web:dev    # the forked quiz page over the fake content, on http://127.0.0.1:3101
+npm run test:web   # the Playwright tests that pin the forked page; `npm run check` does not run them, CI does (needs `npx playwright install chromium` once)
+npm run fork:web -- <path to the real index.html>   # remake the forked page (see packages/web/SOURCE.md)
 ```
 
 Node is pinned in `.nvmrc`. Commit hooks run lint-staged and commitlint; never skip them.

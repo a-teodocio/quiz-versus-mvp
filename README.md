@@ -6,7 +6,7 @@ The quiz content is entirely fake. The code is written to production standards s
 
 ## Status
 
-Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `packages/worker` (the Node game server) is built; `web` comes next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
+Early. Tooling, CI, docs and the message protocol (`packages/protocol`) are in place; `packages/core` (the game logic) is built, as is `packages/quiz-validator` with the fake content it checks (`content/`); `packages/worker` (the Node game server) is built; `packages/web` holds the forked quiz page with browser tests that pin it, and the versus client comes next. See [docs/roadmap.md](docs/roadmap.md) for the plan.
 
 ## Quickstart
 
@@ -29,6 +29,9 @@ npm run check
 | `npm run qa:start`         | build and start the game server in the background    |
 | `npm run qa:stop`          | stop it                                              |
 | `npm run qa:ws`            | run the QA tester's server tests against that server |
+| `npm run web:dev`          | serve the forked quiz page over the fake content     |
+| `npm run test:web`         | the Playwright tests that pin the forked page        |
+| `npm run fork:web`         | remake the forked page from the real one             |
 
 ## Documentation
 
