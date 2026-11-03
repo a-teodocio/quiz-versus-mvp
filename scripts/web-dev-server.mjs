@@ -11,7 +11,7 @@
 import { Buffer } from 'node:buffer';
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { basename, extname, join, resolve, sep } from 'node:path';
+import { basename, dirname, extname, join, resolve, sep } from 'node:path';
 import { argv, env, stderr, stdout } from 'node:process';
 import { URL } from 'node:url';
 
@@ -255,7 +255,7 @@ function sendJson(res, data) {
 }
 
 /**
- * The request handler: `GET /` (the page), `/api/list`, `/api/courses`, `/api/quiz?file=&course=`,
+ * The request handler: `GET /` (the page) and its `/css/*.css` and `/js/*.js` files, `/api/list`, `/api/courses`, `/api/quiz?file=&course=`,
  * `/image?path=` and `/favicon.ico`. Anything else is 404.
  */
 export function createHandler({
@@ -304,9 +304,32 @@ export function createHandler({
         res.end();
         return;
       default:
-        sendError(res, 404, 'Not Found');
+        if (!servePageFile(res, pagePath, url.pathname)) sendError(res, 404, 'Not Found');
     }
   };
+}
+
+const PAGE_FILE = /^\/(css|js)\/([a-z0-9-]+)\.(css|js)$/;
+const PAGE_FILE_TYPES = new Map([
+  ['css', 'text/css; charset=utf-8'],
+  ['js', 'text/javascript; charset=utf-8'],
+]);
+
+/**
+ * The stylesheets and scripts the page loads, next to `index.html` in `css/` and `js/`. The name
+ * pattern allows no dot or slash, so a request cannot leave those two folders. The real app has
+ * one file and no such route (docs/fidelity.md, "The forked page is cut into files").
+ */
+function servePageFile(res, pagePath, pathname) {
+  const match = PAGE_FILE.exec(pathname);
+  if (match === null || match[1] !== match[3]) return false;
+  try {
+    const body = readFileSync(join(dirname(pagePath), match[1], `${match[2]}.${match[3]}`), 'utf8');
+    send(res, 200, { 'Content-Type': PAGE_FILE_TYPES.get(match[3]) }, body);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 function serveQuiz(res, contentDir, file, course) {

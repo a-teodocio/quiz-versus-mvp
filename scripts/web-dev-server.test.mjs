@@ -259,4 +259,29 @@ describe('the server', () => {
     expect((await fetch(`${base}/nothing`)).status).toBe(404);
     expect((await fetch(`${base}/api/list`, { method: 'POST' })).status).toBe(501);
   });
+
+  it('serves the stylesheets and scripts of the page from css/ and js/ only', async () => {
+    const page = await (await fetch(`${base}/`)).text();
+    const css = /href="(css\/[a-z-]+\.css)"/.exec(page)?.[1];
+    const js = /src="(js\/[a-z-]+\.js)"/.exec(page)?.[1];
+    expect(css).toBeDefined();
+    expect(js).toBeDefined();
+    const style = await fetch(`${base}/${css}`);
+    expect(style.status).toBe(200);
+    expect(style.headers.get('content-type')).toBe('text/css; charset=utf-8');
+    const script = await fetch(`${base}/${js}`);
+    expect(script.status).toBe(200);
+    expect(script.headers.get('content-type')).toBe('text/javascript; charset=utf-8');
+    // Not a file there, the wrong folder for the extension, a way out of the folder, a dot file.
+    for (const path of [
+      '/js/missing.js',
+      '/css/state.js',
+      '/js/..%2Findex.html',
+      '/js/../index.html',
+      '/js/.hidden.js',
+      '/js/state.js.map',
+    ]) {
+      expect((await fetch(`${base}${path}`)).status, path).toBe(404);
+    }
+  });
 });
