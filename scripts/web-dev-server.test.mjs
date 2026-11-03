@@ -262,16 +262,20 @@ describe('the server', () => {
 
   it('serves the stylesheets and scripts of the page from css/ and js/ only', async () => {
     const page = await (await fetch(`${base}/`)).text();
-    const css = /href="(css\/[a-z-]+\.css)"/.exec(page)?.[1];
-    const js = /src="(js\/[a-z-]+\.js)"/.exec(page)?.[1];
-    expect(css).toBeDefined();
-    expect(js).toBeDefined();
-    const style = await fetch(`${base}/${css}`);
-    expect(style.status).toBe(200);
-    expect(style.headers.get('content-type')).toBe('text/css; charset=utf-8');
-    const script = await fetch(`${base}/${js}`);
-    expect(script.status).toBe(200);
-    expect(script.headers.get('content-type')).toBe('text/javascript; charset=utf-8');
+    const css = [...page.matchAll(/href="(css\/[a-z-]+\.css)"/g)].map(([, path]) => path);
+    const js = [...page.matchAll(/src="(js\/[a-z-]+\.js)"/g)].map(([, path]) => path);
+    expect(css.length).toBeGreaterThan(0);
+    expect(js.length).toBeGreaterThan(0);
+    for (const path of css) {
+      const style = await fetch(`${base}/${path}`);
+      expect(style.status, path).toBe(200);
+      expect(style.headers.get('content-type')).toBe('text/css; charset=utf-8');
+    }
+    for (const path of js) {
+      const script = await fetch(`${base}/${path}`);
+      expect(script.status, path).toBe(200);
+      expect(script.headers.get('content-type')).toBe('text/javascript; charset=utf-8');
+    }
     // Not a file there, the wrong folder for the extension, a way out of the folder, a dot file.
     for (const path of [
       '/js/missing.js',
@@ -282,6 +286,25 @@ describe('the server', () => {
       '/js/state.js.map',
     ]) {
       expect((await fetch(`${base}${path}`)).status, path).toBe(404);
+    }
+  });
+
+  it('says so when a page file exists but cannot be read, instead of answering 404', async () => {
+    const pageDir = mkdtempSync(join(tmpdir(), 'quiz-versus-page-'));
+    try {
+      writeFileSync(join(pageDir, 'index.html'), '<html></html>');
+      mkdirSync(join(pageDir, 'js', 'broken.js'), { recursive: true });
+      const odd = await listen(createHandler({ pagePath: join(pageDir, 'index.html') }));
+      try {
+        const broken = await fetch(`${odd.url}/js/broken.js`);
+        expect(broken.status).toBe(500);
+        expect(await broken.text()).toContain('js/broken.js could not be read');
+        expect((await fetch(`${odd.url}/js/absent.js`)).status).toBe(404);
+      } finally {
+        odd.stop();
+      }
+    } finally {
+      rmSync(pageDir, { recursive: true, force: true });
     }
   });
 });

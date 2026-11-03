@@ -54,6 +54,10 @@ describe('the forked page', () => {
     }
   });
 
+  it('keeps nothing else in public/, so nothing the lint and format ignores cover goes unnoticed', () => {
+    expect(readdirSync(publicDir).sort()).toEqual(['css', 'index.html', 'js']);
+  });
+
   it('loads its scripts as plain scripts: the inline handlers and the tests need their names global', () => {
     expect(index).not.toMatch(/<script[^>]*(?:type="module"|defer|async)/);
   });

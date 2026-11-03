@@ -309,7 +309,8 @@ export function createHandler({
   };
 }
 
-const PAGE_FILE = /^\/(css|js)\/([a-z0-9-]+)\.(css|js)$/;
+/** `/css/<name>.css` or `/js/<name>.js`: the folder and the extension are the same word. */
+const PAGE_FILE = /^\/(css|js)\/([a-z-]+)\.\1$/;
 const PAGE_FILE_TYPES = new Map([
   ['css', 'text/css; charset=utf-8'],
   ['js', 'text/javascript; charset=utf-8'],
@@ -322,14 +323,22 @@ const PAGE_FILE_TYPES = new Map([
  */
 function servePageFile(res, pagePath, pathname) {
   const match = PAGE_FILE.exec(pathname);
-  if (match === null || match[1] !== match[3]) return false;
+  if (match === null) return false;
+  const [, kind, name] = match;
   try {
-    const body = readFileSync(join(dirname(pagePath), match[1], `${match[2]}.${match[3]}`), 'utf8');
-    send(res, 200, { 'Content-Type': PAGE_FILE_TYPES.get(match[3]) }, body);
-    return true;
-  } catch {
-    return false;
+    const body = readFileSync(join(dirname(pagePath), kind, `${name}.${kind}`), 'utf8');
+    send(res, 200, { 'Content-Type': PAGE_FILE_TYPES.get(kind) }, body);
+  } catch (error) {
+    // A file that is not there is a 404 like any other path; any other failure is said aloud.
+    if (error.code === 'ENOENT') return false;
+    send(
+      res,
+      500,
+      { 'Content-Type': 'text/plain; charset=utf-8' },
+      `${kind}/${name}.${kind} could not be read: ${String(error)}`,
+    );
   }
+  return true;
 }
 
 function serveQuiz(res, contentDir, file, course) {

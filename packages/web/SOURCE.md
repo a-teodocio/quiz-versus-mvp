@@ -33,4 +33,4 @@ The em dash edits change what a player reads, so each is a row in [fidelity.md](
 
 ## Refreshing
 
-If the real page changes: run the script on the new file (it will refuse), read the real diff, update the hash and the edits in `scripts/make-web-fork.mjs`, run it, then update the commit and both hashes here and run `npm run check` and `npm run test:web`. A pinned test that fails is a behaviour the real app changed.
+If the real page changes: run the script on the new file (it will refuse), read the real diff, update the hash, the edits and, if the script refuses a cut, the `SPLIT` cuts in `scripts/make-web-fork.mjs`, run it, then update the commit and both hashes here and run `npm run check` and `npm run test:web`. A pinned test that fails is a behaviour the real app changed.

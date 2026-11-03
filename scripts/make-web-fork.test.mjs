@@ -94,8 +94,20 @@ describe('splitPage and assemblePage', () => {
     ).toThrow(/home\.js matched 2/);
   });
 
-  it('refuse a page without a style block', () => {
+  it('refuse a page without a style block or a closing script block', () => {
     expect(() => splitPage('<html></html>')).toThrow(/no <style> block/);
+    expect(() => splitPage('<html><style>\nx\n</style>\n</html>')).toThrow(/closing <script>/);
+  });
+
+  it('refuse cuts that are out of order or leave lines before the first file', () => {
+    const fork = madeUpFork();
+    const first = `${SPLIT.js[0][1]}state.js\n`;
+    expect(() => splitPage(fork.replace(first, `stray line\n${first}`))).toThrow(/not in order/);
+    const [second, third] = [SPLIT.js[1], SPLIT.js[2]].map(
+      ([name, prefix]) => `${prefix}${name}\n`,
+    );
+    const swapped = fork.replace(second, '@@\n').replace(third, second).replace('@@\n', third);
+    expect(() => splitPage(swapped)).toThrow(/not in order/);
   });
 
   it('refuse to assemble a page whose tag names a missing file', () => {

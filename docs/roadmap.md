@@ -2,7 +2,7 @@
 
 The continuity file. A new session reads this after `CLAUDE.md` to learn where the project is and what comes next. It is updated at the end of every branch (see "How to keep this current").
 
-Last updated: 2026-11-02 (`feat/web-fork` merged; the web-versus work split into five pull requests, 5a to 5e)
+Last updated: 2026-11-02 (`feat/web-modules`: the forked page cut into plain files, ADR 14; the rest of the web-versus series is 5b to 5e)
 
 ## Goal
 
