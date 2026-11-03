@@ -3,3 +3,5 @@ dist
 coverage
 .wrangler
 package-lock.json
+# The fork of the real quiz page: byte-for-byte what scripts/make-web-fork.mjs writes (packages/web/SOURCE.md)
+packages/web/public/index.html
