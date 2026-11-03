@@ -20,7 +20,7 @@ const forbid = (patterns, message) => ({
 export default tseslint.config(
   { ignores: ['**/dist/**', '**/coverage/**', '**/.wrangler/**', '**/node_modules/**'] },
   // The forked quiz page's scripts are the real app's code as it is (packages/web/SOURCE.md): they are
-  // pinned by the browser tests and the hash test, not linted. Code written for the versus client is.
+  // pinned by the browser tests and by test/fork-source.test.ts, not linted. Code written for the versus client is.
   { ignores: ['packages/web/public/js/**'] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked.map((config) => ({

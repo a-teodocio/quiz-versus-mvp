@@ -89,14 +89,38 @@ test('picture group: parts follow in order over one picture and count one by one
 test('picture: one that will not load is replaced by a notice with its file name', async ({
   page,
 }) => {
-  // Only this picture is refused. The page replaces the failed <img> element, and its next
-  // picture question then throws (docs/known-issues.md, "The forked page"), so the test stops here.
+  // Only this picture is refused.
   await page.route('**/image?path=images%2Fdemo-1001%2Ffeather-bands.png', (route) =>
     route.fulfill({ status: 404 }),
   );
   await reach(page, 'birds_05');
   await expect(page.locator('#imageWrap')).toContainText('Image not available');
   await expect(page.locator('#imageWrap')).toContainText('feather-bands.png');
+});
+
+test('picture: after one that will not load, the next picture is drawn as usual', async ({
+  page,
+}) => {
+  // The real page swaps the failed <img> for the notice, so its next picture question throws
+  // (docs/known-issues.md). Here the element stays, hidden, and the notice goes with the question.
+  await page.route('**/image?path=images%2Fdemo-1001%2Ffeather-bands.png', (route) =>
+    route.fulfill({ status: 404 }),
+  );
+  await reach(page, 'birds_05');
+  await expect(page.locator('#imageWrap')).toContainText('Image not available');
+  const image = page.locator('#questionImage');
+  await expect(image).toBeHidden();
+  let drawn = false;
+  for (let step = 0; step < 8 && !drawn; step += 1) {
+    await page.locator('#optionsEl .option').first().click();
+    await page.locator('#nextBtn').click();
+    drawn = await image.isVisible();
+  }
+  expect(drawn).toBe(true);
+  await expect(page.locator('#imageWrap')).not.toContainText('Image not available');
+  await expect
+    .poll(() => image.evaluate((img: HTMLImageElement) => img.complete && img.naturalWidth > 0))
+    .toBe(true);
 });
 
 test('results: pictures are shown again with a zoom', async ({ page }) => {

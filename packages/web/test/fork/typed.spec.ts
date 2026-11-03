@@ -159,4 +159,8 @@ test('typed: in exam mode an answer that needs marking by hand is asked as multi
   expect(await questionOnScreen(page)).toBe(target);
   await expect(page.locator('#optionsEl .option')).toHaveCount(4);
   await expect(page.locator('#typeWrap')).toBeHidden();
+  // The real page says "answer too long to type" here, which is not why (docs/known-issues.md).
+  await expect(page.locator('#questionLabel')).toHaveText(
+    'Multiple choice · cannot be typed in exam mode',
+  );
 });

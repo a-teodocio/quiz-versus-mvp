@@ -193,10 +193,16 @@ function setAnswerUI(mode) {
   if (typing) el('optionsEl').innerHTML = '';
 }
 
-// Label above the question; a multiple-choice question in a typing session says why it is one.
-function answerLabel(mode, base) {
+// Label above the question; a multiple-choice question in a typing session says why it is one:
+// the answer is too long to type, or (exam mode only) it would have to be marked by hand.
+function answerLabel(mode, base, item) {
   if (mode !== 'pick') return base === null ? 'Type your answer' : base + ' · type your answer';
-  const why = state.settings.answerBy === 'type' ? ' · answer too long to type' : '';
+  let why = '';
+  if (state.settings.answerBy === 'type') {
+    why = answerTooLong(item.options[item.shuffledCorrect])
+      ? ' · answer too long to type'
+      : ' · cannot be typed in exam mode';
+  }
   return (base === null ? 'Multiple choice' : base) + why;
 }
 
