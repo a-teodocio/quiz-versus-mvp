@@ -32,4 +32,8 @@ jobs:
       - run: npm run format:check
       - run: npm run typecheck
       - run: npm run test
+      - name: Install the browser for the web tests
+        run: npx playwright install --with-deps chromium
+      - name: Web tests (Playwright, the forked page)
+        run: npm run test:web
       - run: npm run build

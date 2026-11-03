@@ -1,0 +1,22 @@
+{
+  "name": "@quiz-versus/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Browser app: the quiz page forked from the real app, then the versus client",
+  "license": "MIT",
+  "exports": {
+    ".": {
+      "development": "./src/index.ts",
+      "default": "./dist/src/index.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "tsc -b",
+    "test": "vitest run --root ../.. packages/web",
+    "test:browser": "playwright test --config playwright.config.ts"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.1"
+  }
+}

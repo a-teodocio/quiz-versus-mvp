@@ -34,8 +34,8 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── core/                  Pure game logic
 │   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
 │   ├── worker/                The game server: HTTP routes, WebSocket adapter, rooms in memory
-│   └── web/                   Browser app (planned)
-├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share, the QA server and test runners qa-server.mjs and qa-ws.mjs), and the qa-tester guard (qa-guard.mjs) with its tests
+│   └── web/                   Browser app: the forked quiz page (public/, SOURCE.md) and the Playwright tests that pin it; the versus client comes next
+├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share, the QA server and test runners qa-server.mjs and qa-ws.mjs), the forked page's tooling (make-web-fork.mjs makes the fork, web-dev-server.mjs serves it over the fake content), and the qa-tester guard (qa-guard.mjs) with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md

@@ -94,16 +94,40 @@ export default tseslint.config(
     ),
   },
   {
+    // Any TypeScript file in the web package (a build config, say) is held to the browser rules
+    // unless a block below says otherwise.
     files: ['packages/web/**/*.ts'],
     rules: forbid(
       [
         '@quiz-versus/worker',
         '@quiz-versus/quiz-validator',
         'node:*',
+        ...builtinModules,
         'cloudflare:*',
         '@cloudflare/*',
       ],
       'web talks to the worker only through the protocol, never by importing it.',
+    ),
+  },
+  {
+    // Browser code also has no Node globals.
+    files: ['packages/web/src/**/*.ts'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        ...['process', 'Buffer'].map((name) => ({
+          name,
+          message: `browser code has no ${name}; only test/ and the Playwright configuration run in Node.`,
+        })),
+      ],
+    },
+  },
+  {
+    // The web package's tests and Playwright configuration run in Node, so they may read files.
+    files: ['packages/web/test/**/*.ts', 'packages/web/playwright.config.ts'],
+    rules: forbid(
+      ['@quiz-versus/worker', '@quiz-versus/quiz-validator', 'cloudflare:*', '@cloudflare/*'],
+      'web tests reach the server over HTTP, never by importing it.',
     ),
   },
   {

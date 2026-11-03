@@ -1,6 +1,6 @@
 # Architecture
 
-Status: `protocol`, `core`, `quiz-validator` and `worker` are built; `web` is planned. This document is the contract they are built to.
+Status: `protocol`, `core`, `quiz-validator` and `worker` are built; `web` holds the forked quiz page and its tests (the versus client comes next). This document is the contract they are built to.
 
 ## Packages
 
@@ -25,7 +25,7 @@ worker ───┘                    ^
 - `core` imports only from `protocol` (types and constants such as limits). No `node:*`, no platform APIs, no other package.
 - `protocol` imports nothing from the repo.
 - `worker` and `web` may import `core` and `protocol`, never each other.
-- `web` talks to the server only through `protocol` messages over a WebSocket.
+- `web` talks to the server only through `protocol` messages over a WebSocket. The one exception is the forked quiz page, which still reads the real app's HTTP quiz API (`/api/list`, `/api/courses`, `/api/quiz`, `/image`) from the dev server until the client is rebuilt in `feat/web-versus`.
 
 `quiz-validator` may import `core` and `protocol`, and nothing imports it (it is run by the tests and by `npm run validate:content`). Its checks take a `ContentTree` as data; only `src/disk/` uses `node:*` ([ADR 10](adr/0010-quiz-validator-package.md)).
 
