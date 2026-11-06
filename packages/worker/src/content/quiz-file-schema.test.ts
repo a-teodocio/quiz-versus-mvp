@@ -3,8 +3,7 @@ import { ContentError } from './content-error.js';
 import { readQuizFile } from './quiz-file-schema.js';
 
 /** The quiz of a file, for the tests that look at nothing else. */
-const parseQuizFile = (id: string, file: string, source: string) =>
-  readQuizFile(id, file, source).quiz;
+const quizOf = (id: string, file: string, source: string) => readQuizFile(id, file, source).quiz;
 
 const question = (id: string) => ({
   id,
@@ -17,9 +16,9 @@ const question = (id: string) => ({
 const file = (questions: unknown[], extra: Record<string, unknown> = {}): string =>
   JSON.stringify({ title: 'T', course: 'C', unit: 'U', questions, ...extra });
 
-describe('parseQuizFile', () => {
+describe('readQuizFile', () => {
   it('reads text, image and image-group entries into core quiz entries', () => {
-    const quiz = parseQuizFile(
+    const quiz = quizOf(
       'fake-quiz',
       'fake-quiz.json',
       file([
@@ -40,7 +39,7 @@ describe('parseQuizFile', () => {
   });
 
   it('drops fields it does not read, so they can never reach a client', () => {
-    const quiz = parseQuizFile(
+    const quiz = quizOf(
       'fake-quiz',
       'fake-quiz.json',
       file([{ type: 'text', ...question('q1'), private_note: 'do not send' }]),
@@ -49,7 +48,7 @@ describe('parseQuizFile', () => {
   });
 });
 
-describe('parseQuizFile refusals', () => {
+describe('readQuizFile refusals', () => {
   it.each([
     ['text that is not JSON', '{ not json'],
     ['a file with no questions list', JSON.stringify({ title: 'T' })],
@@ -70,14 +69,14 @@ describe('parseQuizFile refusals', () => {
       ]),
     ],
   ])('refuses %s', (_name, source) => {
-    expect(() => parseQuizFile('fake-quiz', 'fake-quiz.json', source)).toThrow(ContentError);
+    expect(() => quizOf('fake-quiz', 'fake-quiz.json', source)).toThrow(ContentError);
   });
 
   it('names the file in the error and never repeats what the file says', () => {
     const secret = 'SECRET-TEXT-IN-THE-FILE';
     const source = file([{ type: 'text', ...question(secret), correct: 'one' }]);
     try {
-      parseQuizFile('fake-quiz', 'fake-quiz.json', source);
+      quizOf('fake-quiz', 'fake-quiz.json', source);
       expect.unreachable('the file should have been refused');
     } catch (error) {
       expect(error).toBeInstanceOf(ContentError);

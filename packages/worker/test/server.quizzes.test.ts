@@ -19,10 +19,11 @@ import type { RoomRegistry } from '../src/rooms/room-registry.js';
 import { fakeContentRoot } from './support/content-root.js';
 import { TestServer } from './support/test-server.js';
 
-let server: TestServer;
+let server: TestServer | undefined;
 
 afterEach(async () => {
-  await server.stop();
+  await server?.stop();
+  server = undefined;
 });
 
 const QUIZ_FOLDER = join(fakeContentRoot, 'quizzes');
