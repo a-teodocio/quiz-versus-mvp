@@ -2,8 +2,9 @@
  * Every bound the schemas enforce, in one place (review-checklist D4 and G4). The worker and the
  * web client read these constants instead of repeating the numbers.
  *
- * Units: message sizes are UTF-8 bytes, the player name is counted in characters (code points, so
- * an emoji is 1), and every other text limit is counted in UTF-16 units (an emoji is 2).
+ * Units: message sizes are UTF-8 bytes, and every text limit a schema enforces is counted in
+ * characters (code points, so an emoji is 1; zod counts that way). The check `core` makes when a
+ * game is set up (`askableProblem`) counts UTF-16 units (an emoji is 2), so it is the stricter.
  */
 
 /** Answer options per multiple-choice question; the real app's validator requires exactly 4. */
@@ -41,6 +42,14 @@ export const MAX_EXPLANATION_LENGTH = 2_000;
 export const MAX_IMAGE_URL_LENGTH = 512;
 export const MAX_ERROR_MESSAGE_LENGTH = 200;
 export const MAX_ACCEPTED_FORMS = 4;
+
+/** The quiz list (`GET /quizzes`): how many quizzes, how long a title and a course code, how big a quiz. */
+export const MAX_QUIZ_LISTINGS = 200;
+export const MAX_QUIZ_TITLE_LENGTH = 200;
+export const MAX_COURSE_CODE_LENGTH = 64;
+export const MAX_SCORED_PARTS_PER_QUIZ = 10_000;
+/** The most bytes an HTTP body the server sends may have (the quiz list is the largest). */
+export const MAX_HTTP_BODY_BYTES = 262_144;
 
 /** Room IDs, player IDs and resume tokens: URL-safe characters only, long enough to be unguessable. */
 export const OPAQUE_ID_MIN_LENGTH = 16;

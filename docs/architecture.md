@@ -67,6 +67,7 @@ The wire phases stay these four; the tie-break is a question phase for the tied 
 
 ```
 HTTP  POST /rooms ──> RoomRegistry.create ──> RoomHost (one per room, holds a core RoomSession)
+HTTP  GET /quizzes ──> the quiz list, read from disk once at start (quiz-catalog) and sent as one encoded body
 HTTP  GET /images/<alias> ──> ImageIndex (alias to file) ──> ImageStore (contained in content/images)
 WS    /rooms/<id> ──> origin check ──> bindSocket (rate limit, text only) ──> RoomHost.receive
                                                                      │

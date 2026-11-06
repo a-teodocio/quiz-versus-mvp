@@ -30,7 +30,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   └── protocol.md            Every client/server message
 ├── e2e/                       Playwright end-to-end tests (planned). e2e/qa/ is written by the qa-tester from docs/qa-scenarios.md; the helpers and configuration around it are the author's
 ├── packages/
-│   ├── protocol/              Message schemas and types
+│   ├── protocol/              Message schemas and types, and the bodies of the HTTP routes
 │   ├── core/                  Pure game logic
 │   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
 │   ├── worker/                The game server: HTTP routes, WebSocket adapter, rooms in memory

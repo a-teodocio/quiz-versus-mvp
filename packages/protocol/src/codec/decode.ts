@@ -1,7 +1,19 @@
 import type { z } from 'zod';
 import { ClientMessageSchema, type ClientMessage } from '../client/client-message.js';
 import type { ErrorCode } from '../errors/error-code.js';
-import { MAX_CLIENT_MESSAGE_BYTES, MAX_SERVER_MESSAGE_BYTES } from '../limits.js';
+import {
+  CreateRoomResponseSchema,
+  HttpErrorBodySchema,
+  QuizListResponseSchema,
+  type CreateRoomResponse,
+  type HttpErrorBody,
+  type QuizListResponse,
+} from '../http/http-bodies.js';
+import {
+  MAX_CLIENT_MESSAGE_BYTES,
+  MAX_HTTP_BODY_BYTES,
+  MAX_SERVER_MESSAGE_BYTES,
+} from '../limits.js';
 import { ServerMessageSchema, type ServerMessage } from '../server/server-message.js';
 import { PROTOCOL_VERSION } from '../version.js';
 import { describeIssue } from './describe-issue.js';
@@ -72,4 +84,22 @@ export function decodeServerMessage(raw: string): DecodeResult<ServerMessage> {
     return failure('UNSUPPORTED_VERSION', `client speaks version ${String(PROTOCOL_VERSION)}`);
   }
   return validate(ServerMessageSchema, json.message);
+}
+
+/** Turns the text of a `POST /rooms` answer into a typed body, or says why it cannot be one. */
+export function decodeCreateRoomResponse(raw: string): DecodeResult<CreateRoomResponse> {
+  const json = parseJson(raw, MAX_HTTP_BODY_BYTES);
+  return json.ok ? validate(CreateRoomResponseSchema, json.message) : json;
+}
+
+/** Turns the text of a `GET /quizzes` answer into a typed body, or says why it cannot be one. */
+export function decodeQuizListResponse(raw: string): DecodeResult<QuizListResponse> {
+  const json = parseJson(raw, MAX_HTTP_BODY_BYTES);
+  return json.ok ? validate(QuizListResponseSchema, json.message) : json;
+}
+
+/** Turns the text of an HTTP refusal into a typed body, or says why it cannot be one. */
+export function decodeHttpErrorBody(raw: string): DecodeResult<HttpErrorBody> {
+  const json = parseJson(raw, MAX_HTTP_BODY_BYTES);
+  return json.ok ? validate(HttpErrorBodySchema, json.message) : json;
 }
