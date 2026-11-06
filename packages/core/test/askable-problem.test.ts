@@ -42,4 +42,14 @@ describe('askableProblem', () => {
   ])('names the problem with %s', (_name, change, expected) => {
     expect(askableProblem({ ...fine, ...change })).toContain(expected);
   });
+
+  it('counts UTF-16 units, so text that is short in code points can still be refused', () => {
+    const emoji = '🙂';
+    expect(emoji).toHaveLength(2);
+    // Half the limit in emoji is the whole limit in UTF-16 units, and one more is over it.
+    const atLimit = emoji.repeat(MAX_OPTION_LENGTH / 2);
+    const overLimit = emoji.repeat(MAX_OPTION_LENGTH / 2 + 1);
+    expect(askableProblem({ ...fine, options: ['a', 'b', 'c', atLimit] })).toBeNull();
+    expect(askableProblem({ ...fine, options: ['a', 'b', 'c', overLimit] })).toContain('option');
+  });
 });

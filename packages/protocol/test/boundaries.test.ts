@@ -26,7 +26,7 @@ describe('player names', () => {
     ['an emoji counted as one character', '🙂'.repeat(PLAYER_NAME_MAX_LENGTH), true],
     ['too many emoji', '🙂'.repeat(PLAYER_NAME_MAX_LENGTH + 1), false],
     ['a newline', 'Ada\nLovelace', false],
-    ['a right-to-left override', 'Ada‮evil', false],
+    ['a right-to-left override', 'Ada\u202Eevil', false],
     ['a zero-width space', 'A​da', false],
     ['HTML, which is data and not markup', '<b>Ada</b>', true],
   ])('%s', (_label, name, expected) => {

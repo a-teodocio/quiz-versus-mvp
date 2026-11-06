@@ -58,8 +58,9 @@ async function readQuizList(repository: DiskQuizRepository, logger: ServerLogger
 }
 
 /**
- * Builds the server from its parts and starts listening. Throws a `ContentError` if the content
- * folder cannot be listed, so a bad folder stops the server at start and not mid-game.
+ * Builds the server from its parts and starts listening. Rejects if the content folder
+ * cannot be listed or holds two quiz files with one id (a `ContentError` for the second), so a bad
+ * folder stops the server at start and not mid-game.
  */
 export async function startServer(config: ServerConfig, deps: ServerDeps): Promise<RunningServer> {
   const images = new ImageIndex();

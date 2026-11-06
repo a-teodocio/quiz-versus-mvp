@@ -41,7 +41,8 @@ export type CreateRoomResponse = z.infer<typeof CreateRoomResponseSchema>;
  * line and paragraph separators, and the bidirectional overrides and isolates. Joiners (so an
  * emoji sequence) and other format characters are allowed.
  */
-const SPOOFING_CHARACTERS = /[\p{Cc}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}؜‎‏‪-‮⁦-⁩]/u;
+const SPOOFING_CHARACTERS =
+  /[\p{Cc}\p{Cs}\p{Co}\p{Cn}\p{Zl}\p{Zp}\u061C\u200E\u200F\u202A-\u202E\u2066-\u2069]/u;
 
 /**
  * Text a host reads in a list: 1 to `max` characters (code points), not padded with white space,

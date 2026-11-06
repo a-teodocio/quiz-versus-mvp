@@ -86,8 +86,8 @@ describe('the quiz list made by GET /quizzes', () => {
     ['a course over the maximum length', { course: 'c'.repeat(MAX_COURSE_CODE_LENGTH + 1) }],
     ['an empty title', { title: '' }],
     ['a title with a control character', { title: 'Birds\u0007' }],
-    ['a title with a right-to-left override', { title: 'Birds ‮slanoitaler' }],
-    ['a title with a line separator', { title: 'Birds Plumage' }],
+    ['a title with a right-to-left override', { title: 'Birds \u202Eslanoitaler' }],
+    ['a title with a line separator', { title: 'Birds\u2028Plumage' }],
     ['a title of white space only', { title: '   ' }],
     ['a title with white space around it', { title: ' Birds ' }],
     ['a course with white space around it', { course: 'demo-1001 ' }],

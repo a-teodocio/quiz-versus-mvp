@@ -27,6 +27,9 @@ afterEach(async () => {
 
 const QUIZ_FOLDER = join(fakeContentRoot, 'quizzes');
 
+/** Code-unit order, the order the list promises (not the locale's). */
+const compare = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0);
+
 interface FakeFile {
   title: string;
   questions: { type: string; parts?: unknown[] }[];
@@ -76,7 +79,7 @@ describe('the quiz list', () => {
           0,
         ),
       }))
-      .sort((a, b) => a.course.localeCompare(b.course) || a.id.localeCompare(b.id));
+      .sort((a, b) => compare(a.course, b.course) || compare(a.id, b.id));
     expect(decoded.message.quizzes).toEqual(expected);
     expect(expected.length).toBeGreaterThan(1);
   });
@@ -125,6 +128,22 @@ describe('the quiz list and what is wrong around it', () => {
     }
   });
 
+  it('does not start when two quiz files share an id, or the content folder has no quizzes', async () => {
+    const root = mkdtempSync(join(tmpdir(), 'quiz-versus-start-'));
+    try {
+      await expect(new TestServer().start({ contentRoot: root })).rejects.toThrow();
+      for (const course of ['c1', 'c2']) {
+        mkdirSync(join(root, 'quizzes', course), { recursive: true });
+        writeFileSync(join(root, 'quizzes', course, 'same.json'), GOOD_QUIZ);
+      }
+      await expect(new TestServer().start({ contentRoot: root })).rejects.toThrow(
+        /two quiz files share the id "same"/,
+      );
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
   it('refuses another website, and lets a listed origin read the answer', async () => {
     server = await new TestServer().start({ allowedOrigins: ['http://localhost:5173'] });
     const stranger = await server.request('/quizzes', {
@@ -149,12 +168,15 @@ describe('a request with the wrong method', () => {
     ['GET', '/rooms', 'POST'],
     ['PUT', '/rooms', 'POST'],
     ['POST', '/images/some-alias', 'GET'],
+    ['HEAD', '/quizzes', 'GET'],
+    ['HEAD', '/rooms', 'POST'],
   ])('%s %s answers 405 and names the method the route takes', async (method, path, allow) => {
     server = await new TestServer().start();
     const response = await server.request(path, { method });
     expect(response.status).toBe(405);
     expect(response.headers.get('allow')).toBe(allow);
-    expect(await response.json()).toEqual({ error: 'METHOD_NOT_ALLOWED' });
+    // A response to HEAD has no body by definition, so only the other methods can be read.
+    if (method !== 'HEAD') expect(await response.json()).toEqual({ error: 'METHOD_NOT_ALLOWED' });
   });
 });
 

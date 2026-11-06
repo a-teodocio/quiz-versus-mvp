@@ -1,4 +1,4 @@
-import { askableProblem, type Quiz } from '@quiz-versus/core';
+import { askableProblem, type Quiz, type QuizQuestionFields } from '@quiz-versus/core';
 import {
   MAX_QUIZ_LISTINGS,
   MAX_SCORED_PARTS_PER_QUIZ,
@@ -15,7 +15,7 @@ export interface QuizFileRef {
 }
 
 /** A quiz file that is on disk but not offered to hosts, and why (never quoting the file). */
-export interface SkippedQuiz {
+interface SkippedQuiz {
   readonly id: string;
   readonly reason: string;
 }
@@ -27,12 +27,10 @@ export interface QuizCatalog {
 }
 
 /** Reads and checks one quiz file; throws a `ContentError` when it cannot be used. */
-export type ReadQuizFileAt = (id: string, path: string) => Promise<QuizFileContents>;
+type ReadQuizFileAt = (id: string, path: string) => Promise<QuizFileContents>;
 
 /** The name under which the files past the end of the list are reported, once. */
 export const REST_OF_THE_FILES = '(the rest)';
-
-type Question = Parameters<typeof askableProblem>[0];
 
 /** Code-unit order, so the list is in the same order on every machine and locale. */
 const compare = (a: string, b: string): number => {
@@ -41,7 +39,7 @@ const compare = (a: string, b: string): number => {
 };
 
 /** Every question a game would ask from this quiz: a picture group is its parts. */
-const questionsOf = (quiz: Quiz): readonly Question[] =>
+const questionsOf = (quiz: Quiz): readonly QuizQuestionFields[] =>
   quiz.entries.flatMap((entry) => (entry.type === 'image-group' ? entry.parts : [entry]));
 
 /**
@@ -49,7 +47,7 @@ const questionsOf = (quiz: Quiz): readonly Question[] =>
  * question core would refuse at set-up (`askableProblem`, the check `prepareGame` makes), so the
  * list never offers a quiz that would end in `INTERNAL_ERROR` at `start`.
  */
-function unplayableReason(questions: readonly Question[]): string | null {
+function unplayableReason(questions: readonly QuizQuestionFields[]): string | null {
   if (questions.length === 0) return 'it has no questions';
   if (questions.length > MAX_SCORED_PARTS_PER_QUIZ) {
     return 'it has more questions than the list can show';
@@ -96,21 +94,23 @@ export async function buildQuizCatalog(
       unread += 1;
       continue;
     }
+    let contents: QuizFileContents;
     try {
-      const { quiz, title } = await read(id, path);
-      const questions = questionsOf(quiz);
-      const reason = unplayableReason(questions);
-      const listing = listingFor(id, course, title, questions.length);
-      if (reason !== null) skipped.push({ id, reason });
-      else if (listing === undefined) {
-        skipped.push({ id, reason: 'its course is not a name the quiz list allows' });
-      } else quizzes.push(listing);
+      contents = await read(id, path);
     } catch (error) {
       skipped.push({
         id,
         reason: error instanceof ContentError ? error.message : 'the file could not be read',
       });
+      continue;
     }
+    const questions = questionsOf(contents.quiz);
+    const reason = unplayableReason(questions);
+    const listing = listingFor(id, course, contents.title, questions.length);
+    if (reason !== null) skipped.push({ id, reason });
+    else if (listing === undefined) {
+      skipped.push({ id, reason: 'its course is not a name the quiz list allows' });
+    } else quizzes.push(listing);
   }
   if (unread > 0) {
     skipped.push({

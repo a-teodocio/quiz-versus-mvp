@@ -6,11 +6,12 @@ import {
   MAX_COURSE_CODE_LENGTH,
   MAX_QUIZ_LISTINGS,
   MAX_QUIZ_TITLE_LENGTH,
+  MAX_SCORED_PARTS_PER_QUIZ,
 } from '@quiz-versus/protocol';
 import { fakeContentRoot } from '../../test/support/content-root.js';
 import { MAX_QUIZ_FILE_BYTES } from '../config/defaults.js';
 import { createDiskQuizRepository } from './disk-quiz-repository.js';
-import { REST_OF_THE_FILES } from './quiz-catalog.js';
+import { buildQuizCatalog, REST_OF_THE_FILES } from './quiz-catalog.js';
 
 const QUESTION = {
   type: 'text',
@@ -219,6 +220,35 @@ describe('the quiz catalog and a full list', () => {
         id: REST_OF_THE_FILES,
         reason: '3 more files, left unread because the list holds 200',
       },
+    ]);
+  });
+});
+
+describe('the quiz catalog and a quiz with too many questions', () => {
+  const entry = (n: number) => ({ ...QUESTION, type: 'text' as const, id: `q${String(n)}` });
+  const quizOf = (count: number) => ({
+    quiz: { id: 'big', entries: Array.from({ length: count }, (_, n) => entry(n)) },
+    title: undefined,
+  });
+  const files = new Map([['big', { path: 'unused', course: 'c1' }]]);
+
+  it('leaves out a quiz with more scored parts than the list can show, and says why', async () => {
+    const { quizzes, skipped } = await buildQuizCatalog(files, () =>
+      Promise.resolve(quizOf(MAX_SCORED_PARTS_PER_QUIZ + 1)),
+    );
+    expect(quizzes).toEqual([]);
+    expect(skipped).toEqual([
+      { id: 'big', reason: 'it has more questions than the list can show' },
+    ]);
+  });
+
+  it('lists a quiz with exactly the most scored parts the list allows', async () => {
+    const { quizzes, skipped } = await buildQuizCatalog(files, () =>
+      Promise.resolve(quizOf(MAX_SCORED_PARTS_PER_QUIZ)),
+    );
+    expect(skipped).toEqual([]);
+    expect(quizzes).toEqual([
+      { id: 'big', course: 'c1', title: 'big', scoredParts: MAX_SCORED_PARTS_PER_QUIZ },
     ]);
   });
 });

@@ -10,8 +10,8 @@ import { GameSetupError } from './game-plan.js';
 const outOfRange = (text: string, max: number): boolean => text.length < 1 || text.length > max;
 
 /**
- * What is wrong with a question for the wire, or null. Lengths are UTF-16 units, as in the
- * schemas. Public so a content checker can ask the same question `prepareGame` will ask.
+ * What is wrong with a question for the wire, or null. Lengths are UTF-16 units, so this is
+ * stricter than the wire schemas, which count code points. Public so a content checker can ask the same question `prepareGame` will ask.
  */
 export function askableProblem(fields: QuizQuestionFields): string | null {
   const { options, correct } = fields;
