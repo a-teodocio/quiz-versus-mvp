@@ -1,6 +1,6 @@
 # 13. Playwright for browser tests, and a dev server for the forked page
 
-Status: accepted (2026-11-02).
+Status: accepted (2026-11-02). Partly superseded by [ADR 15](0015-the-forked-page-is-edited-by-hand.md): the fork is no longer generated, and the hash test is gone.
 
 ## Context
 

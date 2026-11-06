@@ -32,14 +32,25 @@ The author's (Claude's): it granted itself an exemption, put a question in a pul
 
 | Step                                                           | State                                                                                                                               |
 | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `standards-reviewer` on the merged change (`aea30d5..8996ab8`) | Started 2026-11-06. Result is added below when it arrives                                                                           |
+| `standards-reviewer` on the merged change (`aea30d5..8996ab8`) | Done 2026-11-06: CHANGES NEEDED, minor only (below). Findings 1 and 2 fixed on this branch                                          |
 | `qa-tester`                                                    | Open question for the owner. The browser run starts at 5d, and the 61 Playwright tests already pin the page. See "Decisions needed" |
 | The exam-mode wording                                          | Needs the owner's ruling. Not changed here                                                                                          |
 | Tell the owner of the real app about the three page defects    | Still open ([known-issues.md](known-issues.md))                                                                                     |
 
 ### Reviewer result
 
-_Pending._
+Run 2026-11-06 on the merged change (`aea30d5..8996ab8`): **CHANGES NEEDED**, no blockers and no majors. The page fixes are correct and the new tests fail on the old code. The review did not run `npm run check` or the Playwright suite.
+
+| #   | Severity | Finding                                                                                                                                                                                                                                                             | State                                                      |
+| --- | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| 1   | minor    | ADR 13 and ADR 14 do not say ADR 15 partly supersedes them, and still describe `SPLIT`, the hash test and "the fork is generated"                                                                                                                                   | Fixed here (status lines only; the bodies stay as history) |
+| 2   | minor    | Claims false after 5b: `SOURCE.md` "these 13 lines differ. Nothing else does"; the `fidelity.md` "Thirteen lines differ" and "60 pin tests, a hash test" rows; the roadmap's "fork is made by a script" and its 5b status "Built in"                                | Fixed here                                                 |
+| 3   | minor    | `answerLabel` in `typed.js` works out the label reason a second time and assumes the only other reason `answerMode` gives 'pick' is exam mode with a hand-marked answer                                                                                             | Open: a code change, left for the owner                    |
+| 4   | minor    | Not pinned by a test: the image-group path (`clearImgNotice`, `answerLabel(..., part)`), a failed picture followed by a text question, Back or resume re-rendering a failed picture                                                                                 | Open: tests to add, left for the owner                     |
+| 5   | nit      | The new picture test passes `toBeHidden()` on a missing element and takes a one-shot `isVisible()` after the click                                                                                                                                                  | Open                                                       |
+| W   | wording  | "Multiple choice · cannot be typed in exam mode" is passive, does not say why, and can read as a fault. The home hint says "the longer ones", while the older label says "too long" for a different case. The owner could prefer "marked by hand, not in exam mode" | **Owner's decision.** Not changed                          |
+
+Also noted by the reviewer: nothing now guards the page text against a private name added by hand (the hash test could not have caught that either); ADR 15 is an ADR that merged without the owner's review; and the claim that the old generator still reproduces the fork at `aea30d5` was not verified.
 
 ## Proposed controls
 
