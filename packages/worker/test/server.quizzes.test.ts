@@ -172,17 +172,39 @@ describe('refusals', () => {
     expect(full.status).toBe(503);
     expect(full.headers.get('access-control-allow-origin')).toBe('http://localhost:5173');
     const refusals = [
-      full,
-      await server.request('/rooms', {
-        method: 'POST',
-        headers: { Origin: 'https://evil.example' },
-      }),
-      await server.request('/nowhere'),
-      await server.request('/quizzes', { method: 'POST' }),
+      { response: full, status: 503, code: 'SERVER_FULL' },
+      {
+        response: await server.request('/rooms', {
+          method: 'POST',
+          headers: { Origin: 'https://evil.example' },
+        }),
+        status: 403,
+        code: 'ORIGIN_NOT_ALLOWED',
+      },
+      { response: await server.request('/nowhere'), status: 404, code: 'NOT_FOUND' },
+      {
+        response: await server.request('/quizzes', { method: 'POST' }),
+        status: 405,
+        code: 'METHOD_NOT_ALLOWED',
+      },
     ];
-    for (const response of refusals) {
-      expect(decodeHttpErrorBody(await response.text()).ok, String(response.status)).toBe(true);
+    for (const { response, status, code } of refusals) {
+      expect(response.status, code).toBe(status);
+      expect(decodeHttpErrorBody(await response.text()), code).toEqual({
+        ok: true,
+        message: { error: code },
+      });
     }
+  });
+
+  it('treats a trailing slash as another path, and ignores a query string', async () => {
+    server = await new TestServer().start();
+    const slash = await server.request('/quizzes/');
+    expect(slash.status).toBe(404);
+    expect(await slash.json()).toEqual({ error: 'NOT_FOUND' });
+    const withQuery = await server.request('/quizzes?x=1');
+    expect(withQuery.status).toBe(200);
+    expect(await withQuery.text()).toBe(await (await server.request('/quizzes')).text());
   });
 });
 
@@ -190,6 +212,8 @@ describe('a fault', () => {
   it('answers 500 with INTERNAL_ERROR, and logs the kind of fault and nothing else', async () => {
     server = await new TestServer().start();
     const logged: string[] = [];
+    // Test shortcut: the handler only calls `create` on this route, so a stub with that one
+    // method stands in for the whole registry, and the cast is the price of not building one.
     const registry = {
       create: () => {
         throw new TypeError('secret detail');

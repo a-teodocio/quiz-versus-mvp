@@ -8,6 +8,7 @@ Everything is exported from `src/index.ts`. Nothing else in the package may be i
 
 - `decodeClientMessage(text)` and `decodeServerMessage(text)`: check the size, parse the JSON, validate, and return `{ ok: true, message }` or `{ ok: false, code, detail }`. They never throw.
 - `encodeClientMessage(message)` and `encodeServerMessage(message)`: validate and return the text to send. They throw `InvalidOutgoingMessageError` when the sender built a message the protocol does not allow.
+- The HTTP API, for the server's plain routes (not WebSocket messages; [docs/protocol.md](../../docs/protocol.md), "HTTP routes"): `encodeCreateRoomResponse`, `encodeQuizListResponse` and `encodeHttpErrorBody` throw `InvalidOutgoingMessageError` on a body the protocol does not allow; `decodeCreateRoomResponse`, `decodeQuizListResponse` and `decodeHttpErrorBody` return a `DecodeResult` and never throw. `isQuizListing(value)` is true for a listing the protocol allows, so a server can filter entries without zod. `HTTP_ERROR_CODES` is the list of refusal codes, apart from `ERROR_CODES`. The types `CreateRoomResponse`, `QuizListResponse`, `QuizListing`, `HttpErrorBody` and `HttpErrorCode`. The limits `MAX_QUIZ_LISTINGS`, `MAX_QUIZ_TITLE_LENGTH`, `MAX_COURSE_CODE_LENGTH`, `MAX_SCORED_PARTS_PER_QUIZ` and `MAX_HTTP_BODY_BYTES`.
 - The types `ClientMessage`, `ServerMessage`, `GameSettings`, `RoomSnapshot`, `PlayerSummary`, `RoomPhase`, `Progress`, `Answer`, `QuestionMessage`, `RevealMessage`, `ResultsMessage`, `ErrorCode`, `DecodeResult`.
 - `PROTOCOL_VERSION`, `ERROR_CODES` and the named limits (`MAX_PLAYERS_PER_ROOM`, `PLAYER_NAME_MAX_LENGTH`, and so on).
 
@@ -33,3 +34,4 @@ npm test -- packages/protocol
 - `test/tiebreak.test.ts`: the tie-break fields and the late-joining error codes.
 - `test/sample-coverage.test.ts`: every message type has a sample.
 - `test/codec.test.ts`: round trips, rejections and the size limit.
+- `test/http-bodies.test.ts`: the HTTP bodies: round trips, strictness, the listing rules for titles and course names, and the limits.
