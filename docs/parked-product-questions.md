@@ -28,7 +28,11 @@ The tester cannot edit `docs/`. It proposes each parked question in its report w
 
 ## Core questions waiting for the owner
 
-None.
+| ID   | Question                                                                                                                                                                                                                                                                                                                       | Why it matters                                                                                                      | Raised                      |
+| ---- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- | --------------------------- |
+| CQ-3 | What should happen when the host stays connected but stops playing? A reveal moves on only when the host sends `next`, and the host role passes on only when the host disconnects or leaves.                                                                                                                                   | One absent host stalls everyone, and a room with a connected socket never closes.                                   | 2026-11-10 (general review) |
+| CQ-4 | Should a tie-break be able to lower a late joiner's rank? A late joiner level at the top may not play it, and ADR 7 says they keep rank 1 on the equal score. That holds only if the tie-break ends level: if another player wins it, that player goes a point ahead and the late joiner ranks 2 without being asked anything. | The result can change for a player who was not allowed to answer. The only test covers a tie-break that ends level. | 2026-11-10 (general review) |
+| CQ-5 | Should a last-moment answer get some grace? The client's countdown starts when the question arrives and the server's deadline starts earlier, with no grace, so an answer sent in the final moments on a slow connection is refused with `STALE_QUESTION`.                                                                     | Players on slower connections lose answers they saw themselves give in time.                                        | 2026-11-10 (general review) |
 
 ## Parked questions
 

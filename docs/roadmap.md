@@ -2,7 +2,7 @@
 
 The continuity file. A new session reads this after `CLAUDE.md` to learn where the project is and what comes next. It is updated at the end of every branch (see "How to keep this current").
 
-Last updated: 2026-11-06 (`feat/quizzes-route`: `GET /quizzes` and the HTTP body schemas, reviewed; the rest of the web-versus series is 5d and 5e)
+Last updated: 2026-11-10 (`docs/general-review-findings`: findings of a general review logged; the rest of the web-versus series is 5d and 5e)
 
 ## Goal
 
@@ -94,7 +94,8 @@ Check these against the real app before declaring a step done. Anything not repr
 ## Open questions
 
 - Where the server is hosted (undecided). Rough prices seen on 2026-11-02 from third-party summaries, to be checked on the providers' own pages: Fly.io from about $2 a month, Render Starter $7 (its free tier sleeps, which drops rooms), Railway Hobby $5 plus usage, a small VPS about $4 to $5. Cloudflare's Workers Free plan could also carry the app (Durable Objects on the free plan allow 100,000 requests and 13,000 GB-s of duration a day, about 86 twenty-minute games), kept as a later adapter.
-- No core product questions are waiting. The parked questions, ranked P1 to P3, are in [parked-product-questions.md](parked-product-questions.md).
+- Three core product questions are waiting for the owner (CQ-3 to CQ-5). They and the parked questions, ranked P1 to P3, are in [parked-product-questions.md](parked-product-questions.md).
+- The general review of 2026-11-10 logged R-1 to R-20 in [known-issues.md](known-issues.md). None is scheduled yet. R-1 (a question can stay open forever) must be fixed before real players use the game.
 - The coverage floor on `core` (checklist E8) is not enforced yet (see `known-issues.md`).
 
 ## What only the user can do
