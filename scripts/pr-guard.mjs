@@ -1,7 +1,8 @@
 // PreToolUse hook for the main session and every subagent (wired in .claude/settings.json). Reads
-// the tool call as JSON on stdin and applies scripts/pr-guard-policy.mjs: a `gh` command that would
-// mark a pull request ready, merge it, reopen it or open it as other than a draft is blocked (exit
-// code 2, the reason on stderr). See docs/adr/0016-the-owner-releases-pull-requests.md.
+// the tool call as JSON on stdin and applies scripts/pr-guard-policy.mjs: a command that mentions
+// `gh` is blocked (exit code 2, the reason on stderr) unless `gh` is its program and the command is
+// on the allowlist, so nothing can mark a pull request ready, merge it, reopen it or open it as
+// other than a draft. See docs/adr/0016-the-owner-releases-pull-requests.md.
 //
 // An allowed call exits 0 and prints nothing. Printing an "allow" decision here would approve every
 // Bash and PowerShell call without asking the user, so this hook only ever refuses.

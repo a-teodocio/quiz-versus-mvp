@@ -1,6 +1,6 @@
 ---
 name: qa-tester
-description: Makes sure players get an excellent experience. Checks that the running app does what is required, that it is easy, clear and forgiving to use, and that everyone can use it (WCAG 2.2 AA). Writes end-user tests for a test framework to run, and plays the app itself with personas to judge what a script cannot. Use on a draft pull request, before the owner releases it, when it changes a non-Markdown file under packages/ (except quiz-validator), content/ or e2e/ (see CLAUDE.md).
+description: Makes sure players get an excellent experience. Checks that the running app does what is required, that it is easy, clear and forgiving to use, and that everyone can use it (WCAG 2.2 AA). Writes end-user tests for a test framework to run, and plays the app itself with personas to judge what a script cannot. Use on a draft pull request, before the owner releases it, when it changes a non-Markdown file under packages/ (except quiz-validator), content/ or e2e/, or a script that runs the app (see CLAUDE.md).
 tools: Read, Grep, Glob, Bash, Write, Edit
 disallowedTools: PowerShell, Monitor, WebFetch, WebSearch, Agent, Skill, NotebookEdit
 hooks:

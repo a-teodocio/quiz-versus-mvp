@@ -65,7 +65,7 @@ Why the server is a Node process and not Cloudflare is in [ADR 11](adr/0011-node
 
 ## Next steps, in order
 
-Each step is its own `feat/` branch, merged by pull request. Every pull request follows the review rules in `CLAUDE.md` ([ADR 16](adr/0016-the-owner-releases-pull-requests.md)). From step 4 (`feat/worker`) the `qa-tester` also plays the scenarios in [qa-scenarios.md](qa-scenarios.md) that the step makes runnable (see `CLAUDE.md`).
+Each step is its own `feat/` branch, merged by pull request. Every pull request follows the review rules in `CLAUDE.md` ([ADR 16](adr/0016-the-owner-releases-pull-requests.md)). The tester rule is there too: the `qa-tester` plays the scenarios in [qa-scenarios.md](qa-scenarios.md) that a step makes runnable.
 
 1. ~~**`feat/protocol`**~~: done. zod schemas, error codes, protocol version, decoders and encoders, `docs/protocol.md`, ADR 4. ~~**`feat/protocol-game-rules`**~~: done. Protocol v2 for the game rules in ADR 6 (tie-break, late joining).
 2. ~~**`feat/core`**~~: done. `packages/core`. Ports `Clock`, `Random`, `QuizRepository`, `Logger`. Room state machine (LOBBY, QUESTION, REVEAL, RESULTS, with a tie-break inside it) as a pure function of state and event, returning new state and effects, implementing the rules in ADR 6. Scoring through a `ScoringRule` (1 point times a multiplier that is 1 for now). `prepareGame` loads through `QuizRepository` and sets aside the tie-break reserve (ADR 7). Shuffle that maps `correct` exactly as the real app does, drawing from the injected `Random`. Unit tests, plus parity fixtures copied from the real app into `packages/core/test/fixtures/real-app/` with a `SOURCE.md` recording the source commit.

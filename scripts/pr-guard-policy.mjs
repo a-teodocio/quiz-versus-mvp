@@ -18,9 +18,11 @@ const HIDDEN_COMMAND = /[$`]|<\(|>\(|<</;
 /** Characters that end one command and start the next, outside quotes. */
 const SEPARATORS = new Set([';', '&', '|', '\n', '\r']);
 /**
- * Brackets and braces that open or close a subshell, script block or condition (`(gh ...)`,
- * `{gh ...}`) when they start a word. Inside a word (`repos/{owner}/x`, `if(gh`) they stay part of
- * it, so an endpoint cannot be cut in two, and `gh` next to one is caught as not the program.
+ * Brackets and braces that open a subshell or block (`(gh ...)`, `{ gh ...; }`) when they come
+ * before the first word of a command. Anywhere else they stay part of a word, because bash brace
+ * expansion (`{-X,PUT}`) and PowerShell argument brackets (`(echo -X PUT)`) turn them into
+ * arguments: the word is then judged as one (and refused), not cut off as a command of its own.
+ * `gh` inside such a word (`Start-Job {gh`, `if(gh`) is caught as not the program.
  */
 const GROUPING = new Set(['(', ')', '{', '}']);
 /** Inside a word, the characters that can sit next to a program name (`!gh`, `G=gh`, `'gh`). */
@@ -47,17 +49,21 @@ function mentionsGh(command) {
   return MENTIONS_GH.test(unquoted) || MENTIONS_GH.test(unquoted.replace(/\\/g, ''));
 }
 
-/** The last part of a path, in lower case, with `.exe` removed. */
+/** The last part of a path, in lower case, without a Windows program extension. */
 function programName(word) {
   const base = word.split(/[\\/]/).at(-1) ?? '';
-  return base.toLowerCase().replace(/\.exe$/, '');
+  return base.toLowerCase().replace(/\.(exe|cmd|bat|com)$/, '');
 }
 
+/** Escapes a shell removes from a word: the bash backslash and the cmd caret. */
+const ESCAPES = /[\\^]/g;
+
 /** True if the word names the `gh` program, written plainly, as a path, or with escapes. */
-const isGh = (word) => programName(word) === 'gh' || programName(word.replace(/\\/g, '')) === 'gh';
+const isGh = (word) =>
+  programName(word) === 'gh' || programName(word.replace(ESCAPES, '')) === 'gh';
 
 /** True if `gh` appears anywhere inside the word, for example in `"gh pr merge"` or `!gh`. */
-const containsGh = (word) => word.split(NOT_IN_A_NAME).some(isGh);
+const containsGh = (word) => word.replace(/\^/g, '').split(NOT_IN_A_NAME).some(isGh);
 
 /**
  * Splits a command into commands, each a list of words, honouring single and double quotes.
@@ -78,7 +84,10 @@ export function splitCommands(command) {
     } else if (char === '"' || char === "'") {
       quote = char;
       word ??= '';
-    } else if (SEPARATORS.has(char) || (GROUPING.has(char) && word === null)) {
+    } else if (
+      SEPARATORS.has(char) ||
+      (GROUPING.has(char) && word === null && commands.at(-1)?.length === 0)
+    ) {
       endWord();
       commands.push([]);
     } else if (/\s/.test(char)) {

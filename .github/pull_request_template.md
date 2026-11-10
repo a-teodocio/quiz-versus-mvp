@@ -28,5 +28,5 @@ Exempt: none | "<the owner's words>"
 - [ ] Docs updated (README, architecture, protocol, ADR) where behaviour changed
 - [ ] `docs/roadmap.md` updated (status, next steps, open questions)
 - [ ] The `standards-reviewer` ran (or the change is docs-only, or the owner exempted it), the same reviewer looked again at every fix, and each review is a comment on this pull request
-- [ ] If a non-Markdown file under `packages/` (except `quiz-validator`), `content/` or `e2e/` changed: the `qa-tester` ran, its findings were verified, the same tester looked again at the fixes, and its result is a comment on this pull request
+- [ ] If a non-Markdown file under `packages/` (except `quiz-validator`), `content/` or `e2e/`, or a script that runs the app, changed (ADR 16): the `qa-tester` ran, its findings were verified, the same tester looked again at the fixes, and its result is a comment on this pull request
 - [ ] No real course content, questions, images or notes (this repo is public)

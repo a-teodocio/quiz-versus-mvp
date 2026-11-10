@@ -10,11 +10,10 @@ describe('splitCommands', () => {
     ]);
   });
 
-  it('splits on a bracket or brace that starts a word, and keeps one inside a word', () => {
+  it('splits on a bracket or brace before the first word of a command, and keeps any other', () => {
     expect(splitCommands('(gh pr view 3) && Start-Job {gh pr list}')).toEqual([
       ['gh', 'pr', 'view', '3)'],
-      ['Start-Job'],
-      ['gh', 'pr', 'list}'],
+      ['Start-Job', '{gh', 'pr', 'list}'],
     ]);
     expect(splitCommands('gh api repos/{owner}/{repo}/pulls')).toEqual([
       ['gh', 'api', 'repos/{owner}/{repo}/pulls'],
@@ -108,7 +107,10 @@ const REFUSALS = [
   ['git status; gh pr merge 35', 'the author never merges'],
   ['git status && gh pr ready 35', 'only the owner marks'],
   ['(gh pr merge 35)', 'the author never merges'],
-  ['Start-Job {gh pr merge 35}', 'the author never merges'],
+  ['Start-Job {gh pr merge 35}', 'gh appears where it is not the program'],
+  ['g^h pr merge 35', 'the author never merges'],
+  ['gh.cmd pr merge 35', 'the author never merges'],
+  ['C:\\tools\\gh.bat pr ready 35', 'only the owner marks'],
   ['{ gh pr ready 35; }', 'only the owner marks'],
   // The API may only read.
   ['gh api -X PUT repos/o/r/pulls/35/merge', 'gh api may only use GET'],
@@ -121,6 +123,10 @@ const REFUSALS = [
   ['gh api graphql --jq .data', 'gh api graphql is not allowed'],
   ['gh api -XPUT repos/o/r/pulls/35/merge', 'gh api may only read'],
   ['gh api repos/o/r/a repos/o/r/b', 'exactly one endpoint'],
+  // Brace expansion and PowerShell argument brackets add arguments; they are judged as words.
+  ['gh api repos/o/r/pulls/35/merge {-X,PUT}', 'exactly one endpoint'],
+  ['gh api repos/o/r/pulls/35/merge (echo -X PUT)', 'gh api may only use GET'],
+  ['gh pr ready 35 --undo {--undo=false,--undo=false}', 'takes one pull request'],
   ['gh api --jq', '--jq needs a value'],
   // Other gh commands are on a short list, and never print the token.
   ['gh auth status --show-token', 'the flag "--show-token" is not on the list'],
@@ -159,6 +165,7 @@ const REFUSALS = [
   ],
   ["git -c alias.m='!gh pr merge 35' m", 'gh appears where it is not the program'],
   ['ssh host "gh pr merge 35"', 'gh appears where it is not the program'],
+  ['cmd /c g^h pr merge 35', 'gh appears where it is not the program'],
   ['if(gh pr merge 35){}', 'gh appears where it is not the program'],
   // Harmless, refused on purpose: the reason says what to do instead.
   ['git commit -m "chore(guard): refuse gh commands"', 'git commit -F <file>'],
