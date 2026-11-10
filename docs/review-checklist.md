@@ -124,14 +124,14 @@ Severity: **blocker** (fix before merge), **major** (fix before merge unless the
 
 ## K. Git hygiene
 
-| ID  | Rule                                                                                                                                                                                         | Default severity |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
-| K1  | Branch name is `feat/`, `fix/`, `chore/` or `docs/`. Commits follow Conventional Commits.                                                                                                    | minor            |
-| K2  | One concern per pull request. No unrelated edits, formatting churn or drive-by refactors.                                                                                                    | major            |
-| K3  | No generated or build output, local config, or large binaries committed. Lockfile changes match `package.json` changes.                                                                      | major            |
-| K4  | Hooks and CI checks are not skipped, weakened or disabled to make a change pass.                                                                                                             | blocker          |
-| K5  | The folder layout is clean: no stray, scratch, duplicate or empty files and folders, and each package has the standard shape (`package.json`, `tsconfig.json`, `README.md`, `src/index.ts`). | minor            |
-| K6  | No review or tester exemption is written into the roadmap, an ADR, a description or a comment unless it quotes the owner's words (ADR 16). Review rules live in `CLAUDE.md` only.            | major            |
+| ID  | Rule                                                                                                                                                                                                                                   | Default severity |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------- |
+| K1  | Branch name is `feat/`, `fix/`, `chore/` or `docs/`. Commits follow Conventional Commits.                                                                                                                                              | minor            |
+| K2  | One concern per pull request. No unrelated edits, formatting churn or drive-by refactors.                                                                                                                                              | major            |
+| K3  | No generated or build output, local config, or large binaries committed. Lockfile changes match `package.json` changes.                                                                                                                | major            |
+| K4  | Hooks and CI checks are not skipped, weakened or disabled to make a change pass.                                                                                                                                                       | blocker          |
+| K5  | The folder layout is clean: no stray, scratch, duplicate or empty files and folders, and each package has the standard shape (`package.json`, `tsconfig.json`, `README.md`, `src/index.ts`).                                           | minor            |
+| K6  | No review or tester exemption is written into the roadmap, an ADR, a description or a comment unless it quotes the owner's words (ADR 16). The roadmap sets no review rule per step; where docs differ about review, `CLAUDE.md` wins. | major            |
 
 ## TD. Technical debt
 

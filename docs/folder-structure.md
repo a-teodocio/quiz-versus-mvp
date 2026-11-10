@@ -27,7 +27,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── dependency-vetting.md
 │   ├── fidelity.md            Where the mock differs from the real app
 │   ├── known-issues.md
-│   ├── incident-5b-merged-without-review.md  Draft record and control proposals after PR 31 merged unreviewed
+│   ├── incident-5b-merged-without-review.md  What happened when PR 31 merged unreviewed, and the controls chosen (ADR 16)
 │   ├── folder-structure.md    This file
 │   └── protocol.md            Every client/server message
 ├── e2e/                       Playwright end-to-end tests (planned). e2e/qa/ is written by the qa-tester from docs/qa-scenarios.md; the helpers and configuration around it are the author's

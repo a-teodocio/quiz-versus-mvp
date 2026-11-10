@@ -1,6 +1,6 @@
 # 5. Auto-merge the owner's pull requests once checks pass
 
-Status: accepted (2026-11-01). Amended by [ADR 16](0016-the-owner-releases-pull-requests.md): the author opens every pull request as a draft and the owner marks it ready; the review this ADR relied on is now required and recorded.
+Status: accepted (2026-11-01). Partly superseded by [ADR 16](0016-the-owner-releases-pull-requests.md): the author opens every pull request as a draft and the owner marks it ready; the review this ADR relied on is now required and recorded.
 
 ## Context
 
