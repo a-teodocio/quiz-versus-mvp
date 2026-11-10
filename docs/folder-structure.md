@@ -9,6 +9,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 ```
 .
 ├── .claude/agents/            Subagent definitions (standards-reviewer, qa-tester)
+├── .claude/settings.json      Project hooks: the pull request guard (scripts/pr-guard.mjs, ADR 16)
 ├── .github/                   CI and auto-merge workflows, Dependabot config, PR template
 ├── .husky/                    Git hooks (pre-commit, commit-msg)
 ├── content/                   FAKE quiz data only (see content/README.md)
@@ -36,7 +37,7 @@ Folders marked _planned_ do not exist yet and are created by the feature branch 
 │   ├── quiz-validator/        Checks content/ against the real validator's rules (authoring tool)
 │   ├── worker/                The game server: HTTP routes, WebSocket adapter, rooms in memory
 │   └── web/                   Browser app: the forked quiz page (public/index.html with public/css/ and public/js/, SOURCE.md) and the Playwright tests that pin it; the versus client comes next
-├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share, the QA server and test runners qa-server.mjs and qa-ws.mjs), the forked page's dev server (web-dev-server.mjs serves it over the fake content), and the qa-tester guard (qa-guard.mjs) with its tests
+├── scripts/                   Repo tooling run from npm scripts (fixture and picture generators, the PNG writer they share, the QA server and test runners qa-server.mjs and qa-ws.mjs), the forked page's dev server (web-dev-server.mjs serves it over the fake content), the qa-tester guard (qa-guard.mjs) and the pull request guard (pr-guard.mjs), each with its tests
 ├── CLAUDE.md                  Working rules for Claude
 ├── LESSONS.md                 What the experiment taught us (written at the end)
 ├── README.md
