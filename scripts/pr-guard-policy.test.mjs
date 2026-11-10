@@ -107,7 +107,10 @@ const REFUSALS = [
   ['git status; gh pr merge 35', 'the author never merges'],
   ['git status && gh pr ready 35', 'only the owner marks'],
   ['(gh pr merge 35)', 'the author never merges'],
-  ['Start-Job {gh pr merge 35}', 'an argument may not start with ( or {'],
+  [
+    'Start-Job {gh pr merge 35}',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
   ['g^h pr merge 35', 'the author never merges'],
   ['gh.cmd pr merge 35', 'the author never merges'],
   ['C:\\tools\\gh.bat pr ready 35', 'only the owner marks'],
@@ -124,15 +127,33 @@ const REFUSALS = [
   ['gh api -XPUT repos/o/r/pulls/35/merge', 'gh api may only read'],
   ['gh api repos/o/r/a repos/o/r/b', 'exactly one endpoint'],
   // Brace expansion and PowerShell argument brackets run or expand before gh sees them.
-  ['gh api repos/o/r/pulls/35/merge {-X,PUT}', 'an argument may not start with ( or {'],
-  ['gh api repos/o/r/pulls/35/merge (echo -X PUT)', 'an argument may not start with ( or {'],
-  ['gh pr ready 35 --undo {--undo=false,--undo=false}', 'an argument may not start with ( or {'],
-  ['gh pr view 35 (gh pr merge 35)', 'an argument may not start with ( or {'],
-  ['gh search (gh pr ready 35)', 'an argument may not start with ( or {'],
-  ['gh pr comment 35 --body (gh pr ready 35)', 'an argument may not start with ( or {'],
+  [
+    'gh api repos/o/r/pulls/35/merge {-X,PUT}',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh api repos/o/r/pulls/35/merge (echo -X PUT)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh pr ready 35 --undo {--undo=false,--undo=false}',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh pr view 35 (gh pr merge 35)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh search (gh pr ready 35)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh pr comment 35 --body (gh pr ready 35)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
   [
     'gh pr view 35 ([scriptblock]::Create("gh pr merge 35").Invoke())',
-    'an argument may not start with ( or {',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
   ],
   ['gh api --jq', '--jq needs a value'],
   // Other gh commands are on a short list, and never print the token.
@@ -173,7 +194,22 @@ const REFUSALS = [
   ["git -c alias.m='!gh pr merge 35' m", 'gh appears where it is not the program'],
   ['ssh host "gh pr merge 35"', 'gh appears where it is not the program'],
   ['cmd /c g^h pr merge 35', 'gh appears where it is not the program'],
-  ['if(gh pr merge 35){}', 'gh appears where it is not the program'],
+  [
+    'if(gh pr merge 35){}',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh pr view 35 x(gh pr merge 35)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh pr view 35 ""(gh pr merge 35)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
+  [
+    'gh search code abc(gh pr ready 35)',
+    'an unquoted ( after the start of a command, or { at the start of an argument',
+  ],
   // Harmless, refused on purpose: the reason says what to do instead.
   ['git commit -m "chore(guard): refuse gh commands"', 'git commit -F <file>'],
   ['rg -n gh docs', 'search with the Grep tool'],

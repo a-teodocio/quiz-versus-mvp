@@ -24,11 +24,14 @@ const SEPARATORS = new Set([';', '&', '|', '\n', '\r']);
  */
 const GROUPING = new Set(['(', ')', '{', '}']);
 /**
- * An unquoted `(` or `{` that starts an argument runs or expands before the command sees it:
- * PowerShell evaluates `gh pr view 35 (gh pr merge 35)` inner first, and bash expands `{-X,PUT}`
- * into two arguments. In a command that mentions `gh`, such an argument is refused.
+ * Brackets that run or expand before the command sees them. PowerShell evaluates an unquoted `(`
+ * wherever it sits in an argument (`gh pr view 35 (gh pr merge 35)`, `x(gh ...)`, `""(gh ...)`)
+ * before the outer command; bash expands a `{` that starts an argument (`{-X,PUT}`) into several.
+ * A `{` inside a word is passed on as text by both. In a command that mentions `gh`, any unquoted
+ * `(` other than one that opens a command, and any `{` that starts an argument, is refused.
  */
-const OPENS_AN_EXPRESSION = new Set(['(', '{']);
+const EXPANDS = '{';
+const RUNS = '(';
 /** Inside a word, the characters that can sit next to a program name (`!gh`, `G=gh`, `'gh`). */
 const NOT_IN_A_NAME = /[^A-Za-z0-9_.\\/:-]+/;
 
@@ -71,7 +74,7 @@ const containsGh = (word) => word.replace(/\^/g, '').split(NOT_IN_A_NAME).some(i
 
 /**
  * Splits a command into commands, each a list of words, honouring single and double quotes, and
- * notes whether an unquoted `(` or `{` starts an argument (see OPENS_AN_EXPRESSION). Returns null
+ * notes whether an unquoted bracket would run or expand (see RUNS and EXPANDS). Returns null
  * if a quote is never closed.
  */
 function scanCommands(command) {
@@ -98,7 +101,7 @@ function scanCommands(command) {
     } else if (/\s/.test(char)) {
       endWord();
     } else {
-      if (OPENS_AN_EXPRESSION.has(char) && startsWord) bracketArgument = true;
+      if (char === RUNS || (char === EXPANDS && startsWord)) bracketArgument = true;
       word = (word ?? '') + char;
     }
   }
@@ -301,7 +304,7 @@ export function decideCommand(command) {
   if (scanned === null) return deny('a quote is not closed');
   if (scanned.bracketArgument) {
     return deny(
-      'in a command that mentions gh, an argument may not start with ( or { (PowerShell runs it first, bash expands it); quote it',
+      'in a command that mentions gh, an unquoted ( after the start of a command, or { at the start of an argument is refused (PowerShell runs a bracket first, bash expands a brace); quote it',
     );
   }
   for (const words of scanned.commands) {
