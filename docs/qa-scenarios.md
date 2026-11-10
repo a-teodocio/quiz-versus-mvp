@@ -47,7 +47,7 @@ A scenario that cannot run yet is reported as "could not run", not as failed.
 1. The tester starts the app with `npm run qa:start` and stops it with `npm run qa:stop`. It uses the fake quizzes in `content/`.
 2. The tester writes tests for the scenarios that apply to the branch (in `e2e/qa/` and `packages/worker/test/qa/`, the two folders it owns), has the frameworks run them, and walks the personas with short exploratory tests. It leaves its files in the working tree.
 3. Report in the format of the agent definition (findings with their basis, personas, what works well, product questions, and what needs a human check). The author reads the tester's tests as code, runs `npm run format` and `npm run check` on them (the tester cannot), verifies each finding against the app and the code, fixes the real ones, and the same tester looks again at the fixes (as for the standards-reviewer).
-4. The pull request description gives the verdict and the commit the final run covered.
+4. The verdict, what was fixed and what was rejected go in a comment on the pull request, and the commit the final run covered goes in the description's Review block (ADR 16).
 
 ## Running the server
 

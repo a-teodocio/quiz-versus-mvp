@@ -1,6 +1,6 @@
 # 14. The forked page is cut into plain stylesheets and scripts, not ES modules
 
-Status: accepted (2026-11-02). Extends [ADR 13](0013-playwright-for-browser-tests.md): the fork script it describes now also cuts the page into files, and the dev server serves them.
+Status: accepted (2026-11-02). Partly superseded by [ADR 15](0015-the-forked-page-is-edited-by-hand.md) (the generator, `SPLIT` and the hash test are gone). Extends [ADR 13](0013-playwright-for-browser-tests.md): the fork script it describes now also cuts the page into files, and the dev server serves them.
 
 ## Context
 

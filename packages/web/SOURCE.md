@@ -11,7 +11,7 @@
 
 ## What differs from the real page
 
-The repo is public and bans em dashes, so these 13 lines differ. Nothing else does.
+The repo is public and bans em dashes, so these 13 lines differed at the fork. Nothing else did; the changes made since are listed under "Changes since the fork" below.
 
 | Where (real page)    | Real                                                 | Fork                                      | Why                                 |
 | -------------------- | ---------------------------------------------------- | ----------------------------------------- | ----------------------------------- |

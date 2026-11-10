@@ -1,3 +1,7 @@
+## Waiting on the owner
+
+<!-- Anything the owner must read or decide before releasing this: a question, a new or changed ADR, player-facing wording not yet approved. "Nothing" if there is none. -->
+
 ## What and why
 
 <!-- One or two sentences. Link the ADR if this changes a decision. -->
@@ -6,6 +10,16 @@
 
 <!-- Unit / integration / e2e added or changed. Paste the command you ran. -->
 
+## Review
+
+<!-- Exact form, one value per line (docs/adr/0016-the-owner-releases-pull-requests.md). The commits are the ones the last review and tester run covered, and must be the head of the branch. Each review is posted as a comment on this pull request. -->
+
+Reviewer: OK TO MERGE | rejected findings only | docs-only | exempt
+Reviewed commit: <sha> | none
+QA tester: OK TO MERGE | rejected findings only | not applicable | exempt
+QA commit: <sha> | none
+Exempt: none | "<the owner's words>"
+
 ## Checklist
 
 - [ ] Branch is `feat/...`, `fix/...`, `chore/...` or `docs/...`
@@ -13,6 +27,6 @@
 - [ ] Layer rules respected (docs/architecture.md); no new cross-package imports
 - [ ] Docs updated (README, architecture, protocol, ADR) where behaviour changed
 - [ ] `docs/roadmap.md` updated (status, next steps, open questions)
-- [ ] If a reviewer was used: the same reviewer looked again at the fixes, and the description names the commit its final review covered
-- [ ] If the app runs (from `feat/worker`): the `qa-tester` ran, its findings were verified, the same tester looked again at the fixes, and the description names the commit its final run covered
+- [ ] The `standards-reviewer` ran (or the change is docs-only, or the owner exempted it), the same reviewer looked again at every fix, and each review is a comment on this pull request
+- [ ] If a non-Markdown file under `packages/` (except `quiz-validator`), `content/` or `e2e/`, or a script that runs the app, changed (ADR 16): the `qa-tester` ran, its findings were verified, the same tester looked again at the fixes, and its result is a comment on this pull request
 - [ ] No real course content, questions, images or notes (this repo is public)
