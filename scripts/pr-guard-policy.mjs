@@ -75,18 +75,19 @@ const isGh = (word) =>
 const containsGh = (word) => word.replace(/\^/g, '').split(NOT_IN_A_NAME).some(isGh);
 
 /**
- * Follows unquoted braces inside a word, and returns true when bash would expand one: a `{` with a
- * `,` or `..` before its `}` (`""{--show-token,-a}`, `x{a,b}`, `{1..3}`). `{owner}` stays text.
- * `brace` is what the scan has seen in the current word; the next state is returned with the answer.
+ * Returns true when bash could expand a brace in the word: an unquoted `,` or `..` anywhere after an
+ * unquoted `{` in the same word (`""{--show-token,-a}`, `x{a,b}`, `{1..3}`, and nested ones such as
+ * `{a{b}c,d}`). A `}` does not reset this, so nesting cannot hide a comma; the cost is refusing a
+ * rare harmless word such as `{a}x,y`. `{owner}` with no comma after it stays text. `brace` is what
+ * the scan has seen in the current word; the next state is returned with the answer.
  */
 function stepBrace(brace, char) {
-  const expands = brace.open && (char === ',' || (char === '.' && brace.previous === '.'));
-  const open = char === EXPANDS || (brace.open && char !== '}');
-  return { expands, next: { open, previous: char } };
+  const expands = brace.seen && (char === ',' || (char === '.' && brace.previous === '.'));
+  return { expands, next: { seen: brace.seen || char === EXPANDS, previous: char } };
 }
 
 /** The brace state at the start of a word. */
-const NO_BRACE = { open: false, previous: '' };
+const NO_BRACE = { seen: false, previous: '' };
 
 /**
  * Splits a command into commands, each a list of words, honouring single and double quotes, and

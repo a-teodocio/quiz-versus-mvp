@@ -174,6 +174,12 @@ const REFUSALS = [
     'gh pr view 35 x{1..3}',
     'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
+  // A brace nested in another must not hide the outer comma (bash: ""{a{b}c,d} gives a{b}c d).
+  ...[
+    'gh api ""{repos/{owner}/{repo}/pulls/35/merge,-XPUT}',
+    'gh api ""{repos/{owner}/{repo}/rulesets/1,-XDELETE}',
+    'gh pr view 35 x{a}b,c',
+  ].map((command) => [command, 'or a brace that expands']),
   ['gh auth token', '"gh auth token" is not on the list'],
   ['gh repo edit --enable-auto-merge', '"gh repo edit" is not on the list'],
   ['gh secret set AUTO_MERGE_TOKEN', '"gh secret" is not on the list'],
