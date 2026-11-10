@@ -205,6 +205,12 @@ function checkPrCreate(rest) {
   return allow('gh pr create --draft');
 }
 
+/**
+ * A pull request named by number or URL. Anything else is refused, because a word the shell
+ * rewrites (a glob such as `[-]-undo=false` matching a file of that name) would reach gh as a flag.
+ */
+const PULL_REQUEST = /^(\d{1,9}|https:\/\/github\.com\/[\w.-]+\/[\w.-]+\/pull\/\d{1,9})$/;
+
 /** `gh pr ready`: only with `--undo` (back to draft), given as a bare switch. */
 function checkPrReady(rest) {
   const read = readArguments(rest, { valueFlags: REPO_FLAGS, switches: ['--undo'] });
@@ -212,6 +218,9 @@ function checkPrReady(rest) {
     return deny(`${read.refusal.reason.replace('pr-guard: ', '')}; ${OWNER_RELEASES}`);
   if (!read.flags.has('--undo')) return deny(OWNER_RELEASES);
   if (read.words.length > 1) return deny('gh pr ready --undo takes one pull request');
+  if (!read.words.every((word) => PULL_REQUEST.test(word))) {
+    return deny('name the pull request by its number or its github.com URL');
+  }
   return allow('gh pr ready --undo');
 }
 

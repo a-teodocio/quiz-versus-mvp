@@ -90,6 +90,9 @@ const REFUSALS = [
   ['gh pr ready 35 --undo=false', 'the flag "--undo=false" is not on the list'],
   ['gh pr ready 35 --undo --undo=false', 'the flag "--undo=false" is not on the list'],
   ['gh pr ready 35 36 --undo', 'takes one pull request'],
+  // A glob that matches a file named like a flag (touch ./--undo=false) reaches gh as that flag.
+  ['gh pr ready --undo [-]-undo=false', 'name the pull request by its number'],
+  ['gh pr ready --undo chore/x', 'name the pull request by its number'],
   ['gh pr merge 35 --auto --merge', 'the author never merges'],
   ['gh pr merge 35 --disable-auto', 'the author never merges'],
   ['gh pr reopen 35', 'turns auto-merge on'],
