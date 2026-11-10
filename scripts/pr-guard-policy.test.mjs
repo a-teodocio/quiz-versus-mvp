@@ -10,51 +10,70 @@ describe('splitCommands', () => {
     ]);
   });
 
+  it('splits on a bracket or brace that starts a word, and keeps one inside a word', () => {
+    expect(splitCommands('(gh pr view 3) && Start-Job {gh pr list}')).toEqual([
+      ['gh', 'pr', 'view', '3)'],
+      ['Start-Job'],
+      ['gh', 'pr', 'list}'],
+    ]);
+    expect(splitCommands('gh api repos/{owner}/{repo}/pulls')).toEqual([
+      ['gh', 'api', 'repos/{owner}/{repo}/pulls'],
+    ]);
+  });
+
   it('returns null when a quote is never closed', () => {
     expect(splitCommands(`gh pr view "3`)).toBeNull();
   });
 });
 
-describe('commands that do not run gh pass untouched', () => {
+describe('commands that never mention gh pass untouched, and are not logged', () => {
   it.each([
     'npm run check',
     'git push -u origin chore/x',
     'git log --oneline -5 | head',
-    'cat docs/gh.md',
     'git checkout gh-pages',
     `node -e "console.log($(echo 1))"`,
+    'git commit -m "$(cat <<\'EOF\'\nfix: a thing\nEOF\n)"',
+    'Get-ChildItem | ForEach-Object { $_.Name }',
   ])('%s', (command) => {
-    expect(decideCommand(command).allow).toBe(true);
+    expect(decideCommand(command)).toMatchObject({ allow: true, judged: false });
   });
 });
 
 describe('gh commands on the list are allowed', () => {
   it.each([
     'gh pr create --draft --title "chore: x" --body-file C:/tmp/body.md',
-    'gh pr create -d --base main --title t --body-file b.md',
-    'gh pr create --draft=true --title t --body-file b.md',
+    'gh pr create -d --base main --head chore/x --title t --body-file b.md',
+    'gh pr create --title t --draft --body "a body that mentions gh pr merge"',
     'gh pr view 35 --json body --jq .body',
     'gh pr -R owner/repo view 35',
     'gh pr --repo=owner/repo list --state all',
     'gh pr ready 35 --undo',
+    'gh pr ready --undo',
+    'gh pr ready https://github.com/o/r/pull/35 --undo -R o/r',
     'gh pr comment 35 --body-file review.md',
+    'gh pr comment 35 --body-file docs/env',
     'gh pr edit 35 --body-file body.md',
     'gh pr checks 35',
-    'gh pr diff 35',
+    'gh pr diff 35 --name-only',
     'gh pr close 35',
     'gh api repos/{owner}/{repo}/rulesets --jq ".[].name"',
     'gh api -X GET repos/o/r/pulls/3 --paginate',
     'gh api --method=get repos/o/r/issues/32/timeline --jq .[].event',
     'gh run view 123 --log',
     'gh auth status',
+    'gh auth status --hostname github.com -a',
     'gh issue create --title t --body-file b.md',
+    'gh search code sh',
     'gh --version',
     'gh',
     `& 'C:\\Program Files\\GitHub CLI\\gh.exe' pr view 3`,
     'GH PR VIEW 3',
     'git fetch && gh pr view 3 | head -5',
+    '(gh pr view 3)',
+    'cat docs/gh.md',
   ])('%s', (command) => {
-    expect(decideCommand(command)).toMatchObject({ allow: true });
+    expect(decideCommand(command)).toMatchObject({ allow: true, judged: true });
   });
 });
 
@@ -62,15 +81,21 @@ describe('gh commands on the list are allowed', () => {
 const REFUSALS = [
   // Releasing and merging belong to the owner.
   ['gh pr create --title t --body-file b.md', 'open the pull request as a draft'],
-  ['gh pr create --draft=false --title t', 'open the pull request as a draft'],
-  ['gh pr create --fill', 'open the pull request as a draft'],
+  ['gh pr create --draft=false --title t', 'the flag "--draft=false" is not on the list'],
+  ['gh pr create --draft=true --title t', 'the flag "--draft=true" is not on the list'],
+  ['gh pr create -d -d=false --title t', 'the flag "-d=false" is not on the list'],
+  ['gh pr create --fill --draft', 'the flag "--fill" is not on the list'],
+  ['gh pr create --draft my-title', 'takes no plain words'],
   ['gh pr ready 35', 'only the owner marks a pull request ready'],
-  ['gh pr ready 35 --undo=false', 'only the owner marks a pull request ready'],
+  ['gh pr ready 35 --undo=false', 'the flag "--undo=false" is not on the list'],
+  ['gh pr ready 35 --undo --undo=false', 'the flag "--undo=false" is not on the list'],
+  ['gh pr ready 35 36 --undo', 'takes one pull request'],
   ['gh pr merge 35 --auto --merge', 'the author never merges'],
   ['gh pr merge 35 --disable-auto', 'the author never merges'],
   ['gh pr reopen 35', 'turns auto-merge on'],
   ['gh pr review 35 --approve', '"gh pr review" is not on the list'],
   ['gh pr update-branch 35', '"gh pr update-branch" is not on the list'],
+  ['gh pr checkout 35', '"gh pr checkout" is not on the list'],
   ['gh pr', '"gh pr " is not on the list'],
   ['gh pr --web view 3', 'put "--web" after the subcommand'],
   // Spelled differently, still gh.
@@ -82,9 +107,14 @@ const REFUSALS = [
   ['"g"h pr merge 35', 'the author never merges'],
   ['git status; gh pr merge 35', 'the author never merges'],
   ['git status && gh pr ready 35', 'only the owner marks'],
+  ['(gh pr merge 35)', 'the author never merges'],
+  ['Start-Job {gh pr merge 35}', 'the author never merges'],
+  ['{ gh pr ready 35; }', 'only the owner marks'],
   // The API may only read.
   ['gh api -X PUT repos/o/r/pulls/35/merge', 'gh api may only use GET'],
   ['gh api --method=POST repos/o/r/merges', 'gh api may only use GET'],
+  ['gh api -X GET --method PUT repos/o/r/pulls/35/merge', 'gh api takes the method once'],
+  ['gh api -X GET repos/{o}/x -X PUT', 'gh api takes the method once'],
   ['gh api repos/o/r/pulls/35/merge -f merge_method=merge', 'gh api may only read'],
   ['gh api repos/o/r/rulesets/1 --input rules.json', 'gh api may only read'],
   ['gh api repos/o/r/pulls -F draft=false', 'gh api may only read'],
@@ -92,34 +122,55 @@ const REFUSALS = [
   ['gh api -XPUT repos/o/r/pulls/35/merge', 'gh api may only read'],
   ['gh api repos/o/r/a repos/o/r/b', 'exactly one endpoint'],
   ['gh api --jq', '--jq needs a value'],
-  // Other gh commands are on a short list.
+  // Other gh commands are on a short list, and never print the token.
+  ['gh auth status --show-token', 'the flag "--show-token" is not on the list'],
+  ['gh auth status -t', 'the flag "-t" is not on the list'],
+  ['gh auth status --json hosts', 'the flag "--json" is not on the list'],
+  ['gh auth token', '"gh auth token" is not on the list'],
   ['gh repo edit --enable-auto-merge', '"gh repo edit" is not on the list'],
   ['gh secret set AUTO_MERGE_TOKEN', '"gh secret" is not on the list'],
-  ['gh auth token', '"gh auth token" is not on the list'],
   ['gh alias set m "pr merge"', '"gh alias" is not on the list'],
   ['gh m 35', '"gh m" is not on the list'],
   ['gh run rerun 123', '"gh run rerun" is not on the list'],
   ['gh --repo o/r pr merge 35', '"gh --repo" is not on the list'],
-  // What it cannot read, it refuses.
-  ['gh pr create --draft --title "$TITLE"', 'no variables or splatting'],
-  ['gh pr create --draft @args', 'no variables or splatting'],
-  ['gh pr create --draft --body "$(cat body.md)"', 'may not use $(...)'],
-  ['gh pr `echo merge` 35', 'may not use $(...), backticks'],
+  ['gh pr create --draft @args', 'no splatting'],
+  // Variables, substitution and here-documents hide what runs.
+  ['gh pr create --draft --title "$TITLE"', 'may not use $, backticks'],
+  ['G=gh; $G pr merge 35', 'may not use $, backticks'],
+  ["$g='gh'; & $g pr merge 35", 'may not use $, backticks'],
+  ["$'gh' pr merge 35", 'may not use $, backticks'],
+  ['35 | % {gh pr ready $_}', 'may not use $, backticks'],
+  ['gh pr create --draft --body "$(cat body.md)"', 'may not use $, backticks'],
+  ['gh pr `echo merge` 35', 'may not use $, backticks'],
+  ['gh pr create --draft --body-file <(echo x)', 'may not use $, backticks, <(...)'],
+  ['gh pr view 3 >(cat)', 'may not use $, backticks, <(...)'],
   ['gh pr create --draft --body-file - <<EOF', 'here-documents'],
-  ['bash -c "gh pr merge 35"', 'another shell or a wrapper'],
-  ['powershell -Command "gh pr merge 35"', 'another shell or a wrapper'],
-  ['Invoke-Expression "gh pr merge 35"', 'another shell or a wrapper'],
-  ['iex "gh pr ready 35"', 'another shell or a wrapper'],
-  ['env GH_REPO=o/r gh pr merge 35', 'another shell or a wrapper'],
-  ['command gh pr merge 35', 'another shell or a wrapper'],
-  ['echo 35 | xargs gh pr merge', 'another shell or a wrapper'],
+  // gh anywhere but the program position cannot be judged, whatever runs it.
+  ['bash -c "gh pr merge 35"', 'gh appears where it is not the program'],
+  ['powershell -Command "gh pr merge 35"', 'gh appears where it is not the program'],
+  ['Invoke-Expression "gh pr merge 35"', 'gh appears where it is not the program'],
+  ['iex "gh pr ready 35"', 'gh appears where it is not the program'],
+  ['env GH_REPO=o/r gh pr merge 35', 'gh appears where it is not the program'],
+  ['command gh pr merge 35', 'gh appears where it is not the program'],
+  ['echo 35 | xargs gh pr merge', 'gh appears where it is not the program'],
+  [
+    `node -e "require('child_process').execSync('gh pr merge 35')"`,
+    'gh appears where it is not the program',
+  ],
+  ["git -c alias.m='!gh pr merge 35' m", 'gh appears where it is not the program'],
+  ['ssh host "gh pr merge 35"', 'gh appears where it is not the program'],
+  ['if(gh pr merge 35){}', 'gh appears where it is not the program'],
+  // Harmless, refused on purpose: the reason says what to do instead.
+  ['git commit -m "chore(guard): refuse gh commands"', 'git commit -F <file>'],
+  ['rg -n gh docs', 'search with the Grep tool'],
+  ['Select-String -Pattern gh -Path CLAUDE.md', 'search with the Grep tool'],
   ['gh pr view "3', 'a quote is not closed'],
 ];
 
-describe('gh commands that are refused, with the reason', () => {
+describe('commands that mention gh and are refused, with the reason', () => {
   it.each(REFUSALS)('%s', (command, reason) => {
     const verdict = decideCommand(command);
-    expect(verdict.allow).toBe(false);
+    expect(verdict).toMatchObject({ allow: false, judged: true });
     expect(verdict.reason).toContain('pr-guard: ');
     expect(verdict.reason).toContain(reason);
   });
@@ -134,7 +185,7 @@ describe('decide', () => {
 
   it('leaves other tools alone', () => {
     const verdict = decide({ tool_name: 'Read', tool_input: { file_path: 'gh pr merge' } });
-    expect(verdict.allow).toBe(true);
+    expect(verdict).toMatchObject({ allow: true, judged: false });
   });
 
   it('refuses a command it cannot read', () => {
