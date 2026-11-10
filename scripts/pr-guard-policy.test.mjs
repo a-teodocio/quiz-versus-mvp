@@ -57,6 +57,7 @@ describe('gh commands on the list are allowed', () => {
     'gh pr diff 35 --name-only',
     'gh pr close 35',
     'gh api repos/{owner}/{repo}/rulesets --jq ".[].name"',
+    'gh api repos/{owner}/{repo}/pulls/{number} --jq .title',
     'gh api -X GET repos/o/r/pulls/3 --paginate',
     'gh api --method=get repos/o/r/issues/32/timeline --jq .[].event',
     'gh run view 123 --log',
@@ -109,7 +110,7 @@ const REFUSALS = [
   ['(gh pr merge 35)', 'the author never merges'],
   [
     'Start-Job {gh pr merge 35}',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   ['g^h pr merge 35', 'the author never merges'],
   ['gh.cmd pr merge 35', 'the author never merges'],
@@ -129,37 +130,50 @@ const REFUSALS = [
   // Brace expansion and PowerShell argument brackets run or expand before gh sees them.
   [
     'gh api repos/o/r/pulls/35/merge {-X,PUT}',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh api repos/o/r/pulls/35/merge (echo -X PUT)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh pr ready 35 --undo {--undo=false,--undo=false}',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh pr view 35 (gh pr merge 35)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh search (gh pr ready 35)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh pr comment 35 --body (gh pr ready 35)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh pr view 35 ([scriptblock]::Create("gh pr merge 35").Invoke())',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   ['gh api --jq', '--jq needs a value'],
   // Other gh commands are on a short list, and never print the token.
   ['gh auth status --show-token', 'the flag "--show-token" is not on the list'],
   ['gh auth status -t', 'the flag "-t" is not on the list'],
   ['gh auth status --json hosts', 'the flag "--json" is not on the list'],
+  ['gh auth status extra', 'gh auth status takes no plain words'],
+  [
+    'gh auth status ""{--show-token,-a}',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
+  ],
+  [
+    'gh pr view 35 x{a,b}',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
+  ],
+  [
+    'gh pr view 35 x{1..3}',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
+  ],
   ['gh auth token', '"gh auth token" is not on the list'],
   ['gh repo edit --enable-auto-merge', '"gh repo edit" is not on the list'],
   ['gh secret set AUTO_MERGE_TOKEN', '"gh secret" is not on the list'],
@@ -196,19 +210,19 @@ const REFUSALS = [
   ['cmd /c g^h pr merge 35', 'gh appears where it is not the program'],
   [
     'if(gh pr merge 35){}',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh pr view 35 x(gh pr merge 35)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh pr view 35 ""(gh pr merge 35)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   [
     'gh search code abc(gh pr ready 35)',
-    'an unquoted ( after the start of a command, or { at the start of an argument',
+    'an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands',
   ],
   // Harmless, refused on purpose: the reason says what to do instead.
   ['git commit -m "chore(guard): refuse gh commands"', 'git commit -F <file>'],

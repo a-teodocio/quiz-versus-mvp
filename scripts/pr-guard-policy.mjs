@@ -26,9 +26,11 @@ const GROUPING = new Set(['(', ')', '{', '}']);
 /**
  * Brackets that run or expand before the command sees them. PowerShell evaluates an unquoted `(`
  * wherever it sits in an argument (`gh pr view 35 (gh pr merge 35)`, `x(gh ...)`, `""(gh ...)`)
- * before the outer command; bash expands a `{` that starts an argument (`{-X,PUT}`) into several.
- * A `{` inside a word is passed on as text by both. In a command that mentions `gh`, any unquoted
- * `(` other than one that opens a command, and any `{` that starts an argument, is refused.
+ * before the outer command; bash expands a brace with a `,` or `..` in it into several arguments,
+ * wherever it sits (`{-X,PUT}`, `""{--show-token,-a}`, `x{a,b}`). A brace without one
+ * (`repos/{owner}`) is passed on as text by both. In a command that mentions `gh`, any unquoted `(`
+ * other than one that opens a command, a `{` that starts an argument, and a brace that expands are
+ * refused.
  */
 const EXPANDS = '{';
 const RUNS = '(';
@@ -73,6 +75,20 @@ const isGh = (word) =>
 const containsGh = (word) => word.replace(/\^/g, '').split(NOT_IN_A_NAME).some(isGh);
 
 /**
+ * Follows unquoted braces inside a word, and returns true when bash would expand one: a `{` with a
+ * `,` or `..` before its `}` (`""{--show-token,-a}`, `x{a,b}`, `{1..3}`). `{owner}` stays text.
+ * `brace` is what the scan has seen in the current word; the next state is returned with the answer.
+ */
+function stepBrace(brace, char) {
+  const expands = brace.open && (char === ',' || (char === '.' && brace.previous === '.'));
+  const open = char === EXPANDS || (brace.open && char !== '}');
+  return { expands, next: { open, previous: char } };
+}
+
+/** The brace state at the start of a word. */
+const NO_BRACE = { open: false, previous: '' };
+
+/**
  * Splits a command into commands, each a list of words, honouring single and double quotes, and
  * notes whether an unquoted bracket would run or expand (see RUNS and EXPANDS). Returns null
  * if a quote is never closed.
@@ -82,9 +98,11 @@ function scanCommands(command) {
   let word = null;
   let quote = null;
   let bracketArgument = false;
+  let brace = NO_BRACE;
   const endWord = () => {
     if (word !== null) commands.at(-1)?.push(word);
     word = null;
+    brace = NO_BRACE;
   };
   for (const char of command) {
     const startsWord = word === null;
@@ -101,7 +119,9 @@ function scanCommands(command) {
     } else if (/\s/.test(char)) {
       endWord();
     } else {
-      if (char === RUNS || (char === EXPANDS && startsWord)) bracketArgument = true;
+      const step = stepBrace(brace, char);
+      brace = step.next;
+      if (char === RUNS || (char === EXPANDS && startsWord) || step.expands) bracketArgument = true;
       word = (word ?? '') + char;
     }
   }
@@ -241,7 +261,10 @@ function checkAuth(name, rest) {
     valueFlags: ['-h', '--hostname'],
     switches: ['-a', '--active'],
   });
-  return read.refusal ?? allow('gh auth status');
+  if (read.refusal) return read.refusal;
+  return read.words.length > 0
+    ? deny('gh auth status takes no plain words')
+    : allow('gh auth status');
 }
 
 /**
@@ -304,7 +327,7 @@ export function decideCommand(command) {
   if (scanned === null) return deny('a quote is not closed');
   if (scanned.bracketArgument) {
     return deny(
-      'in a command that mentions gh, an unquoted ( after the start of a command, or { at the start of an argument is refused (PowerShell runs a bracket first, bash expands a brace); quote it',
+      'in a command that mentions gh, an unquoted ( after the start of a command, a { at the start of an argument, or a brace that expands is refused (PowerShell runs a bracket first, bash expands a brace); quote it',
     );
   }
   for (const words of scanned.commands) {
