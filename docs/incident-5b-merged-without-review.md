@@ -1,6 +1,6 @@
 # Incident: 5b merged without review
 
-Status: **draft for the owner's decision.** Nothing in "Proposed controls" is adopted yet. Written 2026-11-06 on `docs/review-gate-process`, which has no pull request on purpose.
+Status: **decided 2026-11-10** (see "Decisions taken"). Written 2026-11-06 on `docs/review-gate-process`; it lands with the rules in `chore/review-gate-rules`. The controls below are kept as they were proposed; what was adopted is in [ADR 16](adr/0016-the-owner-releases-pull-requests.md).
 
 ## What happened
 
@@ -112,7 +112,11 @@ Change `auto-merge.yml` so that a pull request touching code merges only after t
 
 A job on pushes to `main` that finds the merged pull request, applies the C3 rules to its description, and fails (or opens an issue) if they do not hold. It cannot stop a merge but it means a gap is found within minutes, not three days later.
 
-## Decisions needed from the owner
+## Decisions taken (2026-11-10)
+
+The owner adopted C1 to C4, and in place of C5's label a hook that lets the author open only drafts, so that the owner's "ready" click releases every pull request (one click per pull request is accepted). The change gets its own ADR, amending ADR 5: [ADR 16](adr/0016-the-owner-releases-pull-requests.md). Also adopted, from a later look at the process: the review gate becomes a required check, C1's docs-only class leaves out ADRs and the files that steer the reviewer and tester, and each review is posted as a pull request comment so a fresh reviewer can do the second look. C6 was not taken up. Decisions 2 and 3 below, and reviewer findings 3 to 5, are still open.
+
+## Decisions as they were put to the owner
 
 1. Which controls to adopt. Recommended: **C1, C2, C3 and C4 now**; C5 if you want a hard stop; C6 if you want a safety net.
 2. Does 5b need a `qa-tester` run now, or is the 61-test Playwright pin plus the reviewer enough until 5d starts the browser run?

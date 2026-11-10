@@ -28,7 +28,7 @@ The dependency rule is enforced by ESLint (`eslint.config.js`), not just describ
 - Branches: `feat/<topic>`, `fix/<topic>`, `chore/<topic>`, `docs/<topic>`. Short-lived; delete after merge.
 - Conventional Commits (`feat(core): add scoring`), enforced by commitlint in a `commit-msg` hook. Pre-commit runs lint-staged. Never skip hooks.
 - One concern per pull request, kept small. The PR template lists what to confirm.
-- Merge by pull request only, after CI is green. The owner's pull requests auto-merge once `check` passes ([ADR 5](adr/0005-auto-merge-owner-pull-requests.md)); a draft is held back. CI runs lint, format check, typecheck, tests and build on every PR.
+- Merge by pull request only, after CI is green. Every pull request is opened as a draft; the owner marks it ready, and a ready pull request auto-merges once `check` passes ([ADR 5](adr/0005-auto-merge-owner-pull-requests.md), [ADR 16](adr/0016-the-owner-releases-pull-requests.md)). CI runs lint, format check, typecheck, tests and build on every PR.
 - `main` should be protected (PR required, `check` status required, applies to admins too). Approvals required: 0, because there is one maintainer.
 
 ## Testing
@@ -55,9 +55,9 @@ Rules: a bug fix starts with a failing test. Tests do not depend on wall-clock t
 
 ## Review
 
-Major changes are reviewed against [review-checklist.md](review-checklist.md) by the `standards-reviewer` subagent before the pull request is opened. The author verifies each finding, fixes the real ones and records rejected ones with a reason. Rules a tool can enforce (complexity, size, layer imports, `TODO` comments, impure globals in `core`) are in ESLint and fail the build; the reviewer covers the judgement-based rules.
+Every pull request is reviewed against [review-checklist.md](review-checklist.md) by the `standards-reviewer` subagent before the owner releases it, except a docs-only one or one the owner exempts ([ADR 16](adr/0016-the-owner-releases-pull-requests.md) defines both). The author verifies each finding, fixes the real ones, records rejected ones with a reason, and posts the result as a comment on the pull request. Rules a tool can enforce (complexity, size, layer imports, `TODO` comments, impure globals in `core`) are in ESLint and fail the build; the reviewer covers the judgement-based rules.
 
-**Second look after fixes (mandatory).** Fixes made in response to a review are reviewed again by the same reviewer before the pull request is merged, and again after any further fixes, until it reports nothing open. Fixes are where new rules and contradictions slip in unreviewed. Because pull requests auto-merge, the final review finishes before the pull request is marked ready; a pull request that needs fixes goes back to draft first. The pull request description names the commit the final review covered.
+**Second look after fixes (mandatory).** Fixes made in response to a review are reviewed again by the same reviewer before the pull request is merged, and again after any further fixes, until it reports nothing open. Fixes are where new rules and contradictions slip in unreviewed. The pull request stays a draft until the final review is finished, and one the owner has already released goes back to draft before it is changed. The description's Review block names the commit the final review covered, which is the head of the branch.
 
 **Accessibility and usability.** The player interface meets WCAG 2.2 level AA and the usual usability heuristics (clear status, plain error messages, no dead ends, consistent words and controls). This is a requirement, not polish: [qa-scenarios.md](qa-scenarios.md) lists what is checked, and the accessibility checks run as automated tests on every screen state once the web client exists.
 

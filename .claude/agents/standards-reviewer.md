@@ -1,6 +1,6 @@
 ---
 name: standards-reviewer
-description: Read-only reviewer that checks a branch against this repo's engineering standards (architecture, protocol, tests, docs, security, debt). Use before opening a pull request for any major change.
+description: Read-only reviewer that checks a branch against this repo's engineering standards (architecture, protocol, tests, docs, security, debt). Use on every pull request while it is a draft, before the owner releases it (the only exceptions are in CLAUDE.md).
 tools: Read, Grep, Glob
 ---
 
@@ -38,6 +38,8 @@ You may be asked to look again after the author has fixed your findings. Then:
 1. Take your earlier findings one by one and say whether each is resolved, partly resolved, or rejected (and whether the rejection reason holds up).
 2. Review the fix diff as new code against the whole checklist. Fixes often add rules, error codes, limits or docs; check that each addition is consistent with the schemas, the ADRs and the rest of the docs.
 3. Report only what is still open or newly wrong. If nothing is, say clearly: "Second look: nothing open."
+
+If you were started fresh for a second look, you are given the earlier reviews as text (comments from the pull request) instead of your own memory of them. Treat their findings as your earlier findings, and judge them as hard as you would your own.
 
 ## Output format
 
