@@ -18,13 +18,17 @@ const HIDDEN_COMMAND = /[$`]|<\(|>\(|<</;
 /** Characters that end one command and start the next, outside quotes. */
 const SEPARATORS = new Set([';', '&', '|', '\n', '\r']);
 /**
- * Brackets and braces that open a subshell or block (`(gh ...)`, `{ gh ...; }`) when they come
- * before the first word of a command. Anywhere else they stay part of a word, because bash brace
- * expansion (`{-X,PUT}`) and PowerShell argument brackets (`(echo -X PUT)`) turn them into
- * arguments: the word is then judged as one (and refused), not cut off as a command of its own.
- * `gh` inside such a word (`Start-Job {gh`, `if(gh`) is caught as not the program.
+ * Brackets and braces that open or close a subshell or block (`(gh ...)`, `{ gh ...; }`) when they
+ * come before the first word of a command. Inside a word (`repos/{owner}/x`, `if(gh`) they stay part
+ * of it, and `gh` next to one is caught as not the program.
  */
 const GROUPING = new Set(['(', ')', '{', '}']);
+/**
+ * An unquoted `(` or `{` that starts an argument runs or expands before the command sees it:
+ * PowerShell evaluates `gh pr view 35 (gh pr merge 35)` inner first, and bash expands `{-X,PUT}`
+ * into two arguments. In a command that mentions `gh`, such an argument is refused.
+ */
+const OPENS_AN_EXPRESSION = new Set(['(', '{']);
 /** Inside a word, the characters that can sit next to a program name (`!gh`, `G=gh`, `'gh`). */
 const NOT_IN_A_NAME = /[^A-Za-z0-9_.\\/:-]+/;
 
@@ -66,39 +70,46 @@ const isGh = (word) =>
 const containsGh = (word) => word.replace(/\^/g, '').split(NOT_IN_A_NAME).some(isGh);
 
 /**
- * Splits a command into commands, each a list of words, honouring single and double quotes.
- * Returns null if a quote is never closed.
+ * Splits a command into commands, each a list of words, honouring single and double quotes, and
+ * notes whether an unquoted `(` or `{` starts an argument (see OPENS_AN_EXPRESSION). Returns null
+ * if a quote is never closed.
  */
-export function splitCommands(command) {
+function scanCommands(command) {
   const commands = [[]];
   let word = null;
   let quote = null;
+  let bracketArgument = false;
   const endWord = () => {
     if (word !== null) commands.at(-1)?.push(word);
     word = null;
   };
   for (const char of command) {
+    const startsWord = word === null;
+    const commandStarted = (commands.at(-1)?.length ?? 0) > 0;
     if (quote !== null) {
       if (char === quote) quote = null;
       else word += char;
     } else if (char === '"' || char === "'") {
       quote = char;
       word ??= '';
-    } else if (
-      SEPARATORS.has(char) ||
-      (GROUPING.has(char) && word === null && commands.at(-1)?.length === 0)
-    ) {
+    } else if (SEPARATORS.has(char) || (GROUPING.has(char) && startsWord && !commandStarted)) {
       endWord();
       commands.push([]);
     } else if (/\s/.test(char)) {
       endWord();
     } else {
+      if (OPENS_AN_EXPRESSION.has(char) && startsWord) bracketArgument = true;
       word = (word ?? '') + char;
     }
   }
   if (quote !== null) return null;
   endWord();
-  return commands.filter((words) => words.length > 0);
+  return { commands: commands.filter((words) => words.length > 0), bracketArgument };
+}
+
+/** The commands of a line, each a list of words; null if a quote is never closed. */
+export function splitCommands(command) {
+  return scanCommands(command)?.commands ?? null;
 }
 
 /**
@@ -286,9 +297,14 @@ export function decideCommand(command) {
       `a command that mentions gh may not use $, backticks, <(...) or here-documents; ${HOW_TO_AVOID}`,
     );
   }
-  const commands = splitCommands(command);
-  if (commands === null) return deny('a quote is not closed');
-  for (const words of commands) {
+  const scanned = scanCommands(command);
+  if (scanned === null) return deny('a quote is not closed');
+  if (scanned.bracketArgument) {
+    return deny(
+      'in a command that mentions gh, an argument may not start with ( or { (PowerShell runs it first, bash expands it); quote it',
+    );
+  }
+  for (const words of scanned.commands) {
     const verdict = checkWords(words);
     if (!verdict.allow) return verdict;
   }
